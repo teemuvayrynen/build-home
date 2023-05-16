@@ -1,9 +1,9 @@
 import dynamic from "next/dynamic";
 
-const NoSSRComponent = dynamic(() => import("."), {
+const CanvasSSRDisabled = dynamic(() => import("."), {
   ssr: false,
 });
 
 export default function TestsPage(props) {
-  return <NoSSRComponent />;
+  return <CanvasSSRDisabled />;
 }
