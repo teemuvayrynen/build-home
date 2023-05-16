@@ -1,9 +1,9 @@
 import styled from "styled-components";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowPointer, faArrowsUpDownLeftRight, faPen } from '@fortawesome/free-solid-svg-icons'
-import React, {useState} from "react";
+import { faArrowPointer, faArrowsUpDownLeftRight, faPen, faTrash } from '@fortawesome/free-solid-svg-icons'
+import React from "react";
 
-export default function Tools({activeTool, setActiveTool}) {
+export default function Tools({activeTool, setActiveTool, setElements}) {
 
   return (
     <Container>
@@ -24,6 +24,14 @@ export default function Tools({activeTool, setActiveTool}) {
         <ToolRow>
           <Tool onClick={() => { setActiveTool(3) }} active={activeTool == 3 ? true : false}>
             <FontAwesomeIcon icon={faPen} fixedWidth/>
+          </Tool>
+        </ToolRow>
+      </ToolContainer>
+      <ToolContainer>
+        <Header>Delete</Header>
+        <ToolRow>
+          <Tool onClick={() => { setElements([]) }}>
+            <FontAwesomeIcon icon={faTrash} fixedWidth/>
           </Tool>
         </ToolRow>
       </ToolContainer>
@@ -56,6 +64,11 @@ const Tool = styled.div`
   color: ${props => props.active ? 'black' : '#999'};
   border: ${props => props.active ? '2px solid black' : '2px solid #999'};
   cursor: pointer;
+
+  &:hover {
+    color: black;
+    border: 2px solid black;
+  }
 `
 
 const Header = styled.h4`

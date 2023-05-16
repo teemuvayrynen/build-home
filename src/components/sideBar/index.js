@@ -4,7 +4,7 @@ import Tools from './pages/tools';
 import Items from './pages/items';
 import Info from './pages/info';
 
-export default function SideBar({activeTool, setActiveTool}) {
+export default function SideBar({activeTool, setActiveTool, setElements}) {
   const [active, setActive] = useState(0);
 
   return (
@@ -14,7 +14,7 @@ export default function SideBar({activeTool, setActiveTool}) {
         <Item onClick={() => { setActive(1) }} isActive={active == 1 ? true : false}>Items</Item>
         <Item onClick={() => { setActive(2) }} isActive={active == 2 ? true : false}>Info</Item>
       </SideBarNav>
-      {active == 0 && <Tools activeTool={activeTool} setActiveTool={setActiveTool} />}
+      {active == 0 && <Tools activeTool={activeTool} setActiveTool={setActiveTool} setElements={setElements} />}
       {active == 1 && <Items />}
       {active == 2 && <Info />}
     </Container>
