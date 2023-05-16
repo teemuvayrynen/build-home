@@ -3,7 +3,7 @@ import React, { useState, createContext } from 'react';
 import SideBar from '../components/sideBar'
 import { CanvasProvider } from '../context/canvasContext'
 import CanvasSSRDisabled from '../components/canvas/disableSSR'
-import TopBar from '../components/TopBar'
+import TopBar from '../components/topBar'
 
 
 export default function Home() {
