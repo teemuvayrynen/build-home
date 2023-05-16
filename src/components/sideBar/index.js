@@ -1,20 +1,21 @@
 import styled from 'styled-components';
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import Tools from './pages/tools';
 import Items from './pages/items';
 import Info from './pages/info';
 
-export default function SideBar({activeTool, setActiveTool, setElements}) {
+
+export default function SideBar() {
   const [active, setActive] = useState(0);
 
   return (
     <Container>
       <SideBarNav>
-        <Item onClick={() => { setActive(0) }} isActive={active == 0 ? true : false} >Tools</Item>
-        <Item onClick={() => { setActive(1) }} isActive={active == 1 ? true : false}>Items</Item>
-        <Item onClick={() => { setActive(2) }} isActive={active == 2 ? true : false}>Info</Item>
+        <Item onClick={() => { setActive(0) }} active={active == 0 ? 1 : 0} >Tools</Item>
+        <Item onClick={() => { setActive(1) }} active={active == 1 ? 1 : 0}>Items</Item>
+        <Item onClick={() => { setActive(2) }} active={active == 2 ? 1 : 0}>Info</Item>
       </SideBarNav>
-      {active == 0 && <Tools activeTool={activeTool} setActiveTool={setActiveTool} setElements={setElements} />}
+      {active == 0 && <Tools />}
       {active == 1 && <Items />}
       {active == 2 && <Info />}
     </Container>
@@ -48,5 +49,5 @@ const Item = styled.button`
   border: none;
   background: none;
   font-size: 14px;
-  color: ${props => props.isActive ? '#000' : '#999'};
+  color: ${props => props.active ? '#000' : '#999'};
 `

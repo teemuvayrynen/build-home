@@ -1,9 +1,11 @@
 import styled from "styled-components";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowPointer, faArrowsUpDownLeftRight, faPen, faTrash } from '@fortawesome/free-solid-svg-icons'
-import React from "react";
+import React, { useContext } from "react";
+import { CanvasContext } from "../../../context/canvasContext"
 
-export default function Tools({activeTool, setActiveTool, setElements}) {
+export default function Tools() {
+  const { activeTool, setActiveTool, setElements} = useContext(CanvasContext);
 
   return (
     <Container>
@@ -11,10 +13,10 @@ export default function Tools({activeTool, setActiveTool, setElements}) {
       <ToolContainer>
         <Header>Edit</Header>
         <ToolRow>
-          <Tool onClick={() => { setActiveTool(0) }} active={activeTool == 0 ? true : false}>
+          <Tool onClick={() => { setActiveTool(0) }} active={activeTool == 0 ? 1 : 0}>
             <FontAwesomeIcon icon={faArrowPointer} fixedWidth/>
           </Tool>
-          <Tool onClick={() => { setActiveTool(1) }} active={activeTool == 1 ? true : false}>
+          <Tool onClick={() => { setActiveTool(1) }} active={activeTool == 1 ? 1 : 0}>
             <FontAwesomeIcon icon={faArrowsUpDownLeftRight} fixedWidth/>
           </Tool>
         </ToolRow>
@@ -22,7 +24,7 @@ export default function Tools({activeTool, setActiveTool, setElements}) {
       <ToolContainer>
         <Header>Draw</Header>
         <ToolRow>
-          <Tool onClick={() => { setActiveTool(3) }} active={activeTool == 3 ? true : false}>
+          <Tool onClick={() => { setActiveTool(2) }} active={activeTool == 2 ? 1 : 0}>
             <FontAwesomeIcon icon={faPen} fixedWidth/>
           </Tool>
         </ToolRow>
