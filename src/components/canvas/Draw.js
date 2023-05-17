@@ -1,15 +1,17 @@
-import React, { useState } from "react"
+import React, { useState, useContext } from "react"
 import {Circle, Line, Group} from "react-konva"
+import { CanvasContext } from "../../context/canvasContext"
 
 
-export default function Line_({ setElements, elements, activeTool, drawing }) {
-  const lastElement = elements.length - 1;
-  const [moving, setMoving] = useState(false)
+export default function Line_({ stageMoving }) {
   const [dragSingle, setDragSingle] = useState(false)
+  const [dragAll, setDragAll] = useState(false)
+
+  const {elements, setElements, activeTool } = useContext(CanvasContext)
 
 
   const handleDragSingle = (e, index, num) => {
-    if (!dragSingle) return
+    if (!dragSingle && stageMoving) return
     const pos = e.target.getStage().getRelativePointerPosition();
     const copy = [...elements]
     if (num == 0) {
@@ -20,35 +22,20 @@ export default function Line_({ setElements, elements, activeTool, drawing }) {
     setElements(copy)
   }
 
-
-  const handleDragEndAll = (e, index) => {
+  const handleDragAll = (e, index) => {
+    if (!dragAll) return
     
-    if (!moving) return
-    const pos = e.target
-    const elementCopy = [...elements]
-    console.log(pos.children[0].target.x())
-    console.log(pos.x())
-    console.log(pos.y())
-    // elementCopy[index] = { 
-    //   x: pos.children[0].attrs.x, 
-    //   y: pos.children[0].attrs.y, 
-    //   x1: pos.children[1].attrs.x, 
-    //   y1: pos.children[1].attrs.y}
+    
 
-    // setElements(elementCopy)
-
-    setMoving(false)
   }
 
   return (
     <>
       {elements.map((element, index) => { 
+        console.log(element.x)
         return (
           <Group
             key={index}
-            // draggable={activeTool == 0 ? true : false}
-            // onDragStart={(e) => { setMoving(true); console.log(elements[index].x);  console.log(e.target.x()) }}
-            // onDragEnd={(e) => { handleDragEndAll(e, index) }}
             onMouseEnter={e => {
               if (activeTool == 0) {
                 const container = e.target.getStage().container();
@@ -76,6 +63,7 @@ export default function Line_({ setElements, elements, activeTool, drawing }) {
               shadowBlur={4}
               shadowOffset={{ x: 2, y: 1 }}
               shadowOpacity={0.5}
+              hitStrokeWidth={10}
             />
             <Line
               points={[element.x, element.y, element.x1, element.y1]}
@@ -85,6 +73,11 @@ export default function Line_({ setElements, elements, activeTool, drawing }) {
               shadowBlur={4}
               shadowOffset={{ x: 2, y: 1 }}
               shadowOpacity={0.3}
+              // draggable={activeTool == 0 ? true : false}
+              // onDragStart={() => { setDragAll(true) }}
+              // onDragEnd={() => { setDragAll(false) }}
+              // onDragMove={(e) => { handleDragAll(e, index) }}
+              hitStrokeWidth={10}
             />
             <Circle 
               x={element.x1}
@@ -99,6 +92,7 @@ export default function Line_({ setElements, elements, activeTool, drawing }) {
               shadowBlur={4}
               shadowOffset={{ x: 2, y: 1 }}
               shadowOpacity={0.5}
+              hitStrokeWidth={10}
             />
           </Group>
         )

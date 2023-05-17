@@ -8,7 +8,13 @@ export const CanvasProvider = (props) => {
 
 
   return (
-    <CanvasContext.Provider value={{ elements, setElements, activeTool, setActiveTool }}>
+    <CanvasContext.Provider 
+      value={{ 
+        elements, 
+        setElements, 
+        activeTool, 
+        setActiveTool, 
+      }}>
       {props.children}
     </CanvasContext.Provider>
   )

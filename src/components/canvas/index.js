@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, use } from 'react';
 import { Stage, Layer } from 'react-konva';
 import { CanvasContext } from "../../context/canvasContext"
 import styled from "styled-components"
@@ -9,13 +9,13 @@ import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons'
 
 export default function Canvas() {
   const [drawing, setDrawing] = useState(false)
-  const { activeTool, setActiveTool, elements, setElements } = useContext(CanvasContext);
+  const { activeTool, elements, setElements } = useContext(CanvasContext);
+  const [stageMoving, setStageMoving] = useState(false)
 
   const handleMouseDown = (e) => {
     if (activeTool == 2) {
       setDrawing(true)
       const pos = e.target.getStage().getRelativePointerPosition();
-      
       setElements(prevState => [...prevState, { x: pos.x, y: pos.y, x1: pos.x, y1: pos.y }])
     }
   }
@@ -36,13 +36,17 @@ export default function Canvas() {
     setDrawing(false)
   }
 
+  const handleStageDrag = (e) => {
+    
+  }
+
   return (
     <>
       <Stage 
         width={typeof window !== 'undefined' ? window.innerWidth : 0 } 
         height={typeof window !== 'undefined' ? window.innerHeight : 0 }
         style={{ background: "rgb(250, 250, 250)" }}
-        // draggable={activeTool == 1 ? true : false}
+        draggable={activeTool == 1 ? true : false}
         onMouseEnter={e => {
           if (activeTool == 1) {
             const container = e.target.getStage().container();
@@ -55,10 +59,14 @@ export default function Canvas() {
         }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp} 
+        onMouseUp={handleMouseUp}
+        onDragStart={() => { setStageMoving(true) }}
+        onDragMove={handleStageDrag} 
       >
         <Layer>
-          <Line_ setElements={setElements} elements={elements} activeTool={activeTool} drawing={drawing} />
+          <Line_ 
+            stageMoving={stageMoving}
+          />
         </Layer>
       </Stage>
       {elements.length > 0 && !drawing && 

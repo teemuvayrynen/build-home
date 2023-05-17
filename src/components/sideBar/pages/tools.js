@@ -5,7 +5,7 @@ import React, { useContext } from "react";
 import { CanvasContext } from "../../../context/canvasContext"
 
 export default function Tools() {
-  const { activeTool, setActiveTool, setElements} = useContext(CanvasContext);
+  const { activeTool, setActiveTool, setElements } = useContext(CanvasContext);
 
   return (
     <Container>
@@ -31,7 +31,7 @@ export default function Tools() {
       <ToolContainer>
         <Header>Delete</Header>
         <ToolRow>
-          <Tool onClick={() => { setElements([]) }}>
+          <Tool onClick={() => { setElements([])}}>
             <FontAwesomeIcon icon={faTrash} fixedWidth/>
           </Tool>
         </ToolRow>
@@ -63,12 +63,12 @@ const Tool = styled.div`
   padding: 3px;
   margin-left: 20px;
   color: ${props => props.active ? 'black' : '#999'};
-  border: ${props => props.active ? '2px solid black' : '2px solid #999'};
+  border: ${props => props.active ? '4px solid black' : '4px solid #999'};
   cursor: pointer;
 
   &:hover {
     color: black;
-    border: 2px solid black;
+    border: 4px solid black;
   }
 `
 
