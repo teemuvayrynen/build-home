@@ -1,7 +1,11 @@
 "use client"
-import React, { useState, useContext } from 'react';
-import { Stage, Layer, Line, Circle, Group } from 'react-konva';
+import React, { useState, useContext, useEffect } from 'react';
+import { Stage, Layer } from 'react-konva';
 import { CanvasContext } from "../../context/canvasContext"
+import styled from "styled-components"
+import Line_ from "./Draw"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons'
 
 export default function Canvas() {
   const [drawing, setDrawing] = useState(false)
@@ -38,7 +42,7 @@ export default function Canvas() {
         width={typeof window !== 'undefined' ? window.innerWidth : 0 } 
         height={typeof window !== 'undefined' ? window.innerHeight : 0 }
         style={{ background: "rgb(250, 250, 250)" }}
-        draggable={activeTool == 1 ? true : false}
+        // draggable={activeTool == 1 ? true : false}
         onMouseEnter={e => {
           if (activeTool == 1) {
             const container = e.target.getStage().container();
@@ -54,47 +58,55 @@ export default function Canvas() {
         onMouseUp={handleMouseUp} 
       >
         <Layer>
-          {elements.map((element, index) => {
-            return (
-              <>
-                <Group
-                  key={index}
-                  draggable={activeTool == 0 ? true : false}
-                  onMouseEnter={e => {
-                    if (activeTool == 0) {
-                      const container = e.target.getStage().container();
-                      container.style.cursor = "pointer";
-                    }
-                  }}
-                  onMouseLeave={e => {
-                    if (activeTool == 0) {
-                      const container = e.target.getStage().container();
-                      container.style.cursor = "default";
-                    }
-                  }}
-                >
-                  <Circle 
-                    x={element.x}
-                    y={element.y}
-                    radius={5}
-                    fill="#00FFFF"
-                  />
-                  <Line
-                    points={[element.x, element.y, element.x1, element.y1]}
-                    stroke="#00FFFF"
-                  />
-                  <Circle 
-                    x={element.x1}
-                    y={element.y1}
-                    radius={5}
-                    fill="#00FFFF"
-                  />
-                </Group>
-              </>
-            )
-          })}
+          <Line_ setElements={setElements} elements={elements} activeTool={activeTool} drawing={drawing} />
         </Layer>
       </Stage>
+      {elements.length > 0 && !drawing && 
+        <>
+          <CheckButton element={elements[elements.length - 1]}>
+            <FontAwesomeIcon icon={faCheck} size='lg' />
+          </CheckButton>
+          <XButton 
+            element={elements[elements.length - 1]} 
+            onClick={() => {
+              const elementsCopy = [...elements]
+              elementsCopy.pop()
+              setElements(elementsCopy)
+            }} 
+          >
+            <FontAwesomeIcon icon={faXmark} size='lg' />
+          </XButton>
+        </>
+      }
+      
     </>
   )
 }
+
+const Button = styled.button`
+  position: absolute;
+  border: none;
+  border-radius: 50%;
+  height: 25px;
+  width: 25px;
+  cursor: pointer;
+  transform: translate(-50%, 0);
+  &:hover {
+    height: 27px;
+  width: 27px;
+  }
+`
+
+const CheckButton = styled(Button)`
+  background: #55FF33;
+  top: ${props => props.element.y1 + 20}px;
+  left: ${props => props.element.x1 + 18}px;
+  
+`
+
+const XButton = styled(Button)`
+  background: red;
+  position: absolute;
+  top: ${props => props.element.y1 + 20}px;
+  left: ${props => props.element.x1 - 18}px;
+`
