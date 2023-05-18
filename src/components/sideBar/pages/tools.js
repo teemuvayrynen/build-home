@@ -5,7 +5,7 @@ import React, { useContext } from "react";
 import { CanvasContext } from "../../../context/canvasContext"
 
 export default function Tools() {
-  const { activeTool, setActiveTool, setElements } = useContext(CanvasContext);
+  const { activeTool, setActiveTool, setElements, setLatestElement } = useContext(CanvasContext);
 
   return (
     <Container>
@@ -31,7 +31,7 @@ export default function Tools() {
       <ToolContainer>
         <Header>Delete</Header>
         <ToolRow>
-          <Tool onClick={() => { setElements([])}}>
+          <Tool onClick={() => { setElements([]); setLatestElement([]) }}>
             <FontAwesomeIcon icon={faTrash} fixedWidth/>
           </Tool>
         </ToolRow>
