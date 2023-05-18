@@ -22,17 +22,15 @@ export default function Canvas() {
       if (elements.length > 0) {
         for (let i = 0; i < elements.length; i++) {
           const element = elements[i];
-  
           const j = element.findIndex(e => math.lengthBetweenPoints(e, pos) <= 5)
           if (j > -1) {
+            const elementsCopy = [...elements]
             if (element.length - 1 == j) {
-              const elementsCopy = [...elements]
               elementsCopy[i].push({x: pos.x, y: pos.y})
               setElements(elementsCopy)
               setLatestElement([...latestElement, {index: i, row: j + 1}])
               return
             } else if (j == 0) {
-              const elementsCopy = [...elements]
               elementsCopy[i].unshift({x: pos.x, y: pos.y})
               setElements(elementsCopy)
               setLatestElement([...latestElement, {index: i, row: j}])
@@ -75,31 +73,32 @@ export default function Canvas() {
     setElements(elementsCopy)
   }
 
-  const handleMouseUp = (e) => {
+  const handleMouseUp = () => {
     setDrawing(false)
-    const latest = latestElement[latestElement.length - 1]
-    
-    const element = elements[latest.index]
-    const elementsCopy = [...elements]
-    if (latest.row <= 1) {
-      if (math.lengthBetweenPoints(element[0], element[1]) <= 5) {
-        if (latest.row == 0) {
-          elementsCopy[latest.index].shift()
-        } else {
-          elementsCopy.pop()
+    if (activeTool == 2) {
+      const latest = latestElement[latestElement.length - 1]
+      const element = elements[latest.index]
+      const elementsCopy = [...elements]
+      if (latest.row <= 1) {
+        if (math.lengthBetweenPoints(element[0], element[1]) <= 5) {
+          if (latest.row == 0) {
+            elementsCopy[latest.index].shift()
+          } else {
+            elementsCopy.pop()
+          }
+          setElements(elementsCopy)
+          const latestElementCopy = [...latestElement]
+          latestElementCopy.pop()
+          setLatestElement(latestElementCopy)
         }
-        setElements(elementsCopy)
-        const latestElementCopy = [...latestElement]
-        latestElementCopy.pop()
-        setLatestElement(latestElementCopy)
-      }
-    } else {
-      if (math.lengthBetweenPoints(element[latest.row - 1], element[latest.row]) <= 5) {
-        elementsCopy[latest.index].splice(latest.row, 1)
-        setElements(elementsCopy)
-        const latestElementCopy = [...latestElement]
-        latestElementCopy.pop()
-        setLatestElement(latestElementCopy)
+      } else {
+        if (math.lengthBetweenPoints(element[latest.row - 1], element[latest.row]) <= 5) {
+          elementsCopy[latest.index].splice(latest.row, 1)
+          setElements(elementsCopy)
+          const latestElementCopy = [...latestElement]
+          latestElementCopy.pop()
+          setLatestElement(latestElementCopy)
+        }
       }
     }
   }

@@ -10,16 +10,12 @@ export default function Line_({ stageMoving }) {
   const {elements, setElements, activeTool } = useContext(CanvasContext)
 
 
-  const handleDragSingle = (e, index, num) => {
+  const handleDragSingle = (e, index, indexOfElements) => {
     if (!dragSingle && stageMoving) return
     const pos = e.target.getStage().getRelativePointerPosition();
-    const copy = [...elements]
-    if (num == 0) {
-      copy[index][0] = { x: pos.x, y: pos.y }
-    } else if (num == 1) {
-      copy[index][1] = { x: pos.x, y: pos.y }
-    }
-    setElements(copy)
+    const elementsCopy = [...elements]
+    elementsCopy[indexOfElements][index] = {x: pos.x, y: pos.y}
+    setElements(elementsCopy)
   }
 
   const handleDragAll = (e, index) => {
@@ -68,6 +64,8 @@ export default function Line_({ stageMoving }) {
               return (
                 <>
                   <Circles 
+                    index={i} 
+                    indexOfElements={index}
                     element={e} 
                     handleDrag={handleDragSingle} 
                     setDragSingle={setDragSingle}
@@ -83,7 +81,7 @@ export default function Line_({ stageMoving }) {
   )
 }
 
-const Circles = ({ element, handleDrag, setDragSingle, activeTool }) => {
+const Circles = ({ index, indexOfElements, element, handleDrag, setDragSingle, activeTool }) => {
   const [size, setSize] = useState(5)
   return (
     <>
@@ -95,7 +93,7 @@ const Circles = ({ element, handleDrag, setDragSingle, activeTool }) => {
         draggable={activeTool == 0 ? true : false}
         onDragStart={() => { setDragSingle(true) }}
         onDragEnd={() => { setDragSingle(false) }}
-        onDragMove={(e) => { handleDrag(e, index, 0) }}
+        onDragMove={(e) => { handleDrag(e, index, indexOfElements) }}
         shadowColor="grey"
         shadowBlur={4}
         shadowOffset={{ x: 2, y: 1 }}
