@@ -2,13 +2,12 @@ import React, { useContext, useEffect, useState } from "react";
 import { Rect, Circle } from "react-konva"
 import { CanvasContext } from "../../context/canvasContext"
 
-export default function Rect_ ({index, points, stageMoving }) {
+export default function Rect_ ({index, points, stageMoving, setDragRect, dragRect }) {
   const {elements, setElements, activeTool } = useContext(CanvasContext)
   const [size, setSize] = useState(5)
-  const [drag, setDrag] = useState(false)
 
   const handleDrag = (e) => {
-    if (!drag) return
+    if (!dragRect) return
     const pos = e.target.getStage().getRelativePointerPosition();
     const elementsCopy = [...elements]
     elementsCopy[index].points[1] = {x: pos.x, y: pos.y}
@@ -54,8 +53,8 @@ export default function Rect_ ({index, points, stageMoving }) {
         shadowOffset={{ x: 2, y: 1 }}
         shadowOpacity={0.5}
         draggable={activeTool == 0 ? true : false}
-        onDragStart={() => { setDrag(true) }}
-        onDragEnd={() => { setDrag(false) }}
+        onDragStart={() => { setDragRect(true) }}
+        onDragEnd={() => { setDragRect(false) }}
         onDragMove={e => { handleDrag(e) }}
       />
     </>

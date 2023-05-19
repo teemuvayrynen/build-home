@@ -14,7 +14,8 @@ export default function Canvas() {
   const [drawing, setDrawing] = useState(false)
   const { activeTool, elements, setElements, latestElement, setLatestElement } = useContext(CanvasContext);
   const [stageMoving, setStageMoving] = useState(false)
-  
+  const [dragLine, setDragLine] = useState(false)
+  const [dragRect, setDragRect] = useState(false)
 
   const handleMouseDown = (e) => {
     switch (activeTool) {
@@ -89,10 +90,6 @@ export default function Canvas() {
   const handleStageDrag = (e) => {
   }
 
-  useEffect(() => { 
-    //console.log(elements)
-  }, [elements])
-
   return (
     <>
       <Stage 
@@ -131,6 +128,7 @@ export default function Canvas() {
                   element={element}
                   points={points}
                   stageMoving={stageMoving}
+                  setDragLine={setDragLine}
                 />
               )
             } else if (element.type = "rectangle") {
@@ -140,6 +138,8 @@ export default function Canvas() {
                   index={i}
                   points={element.points}
                   stageMoving={stageMoving}
+                  setDragRect={setDragRect}
+                  dragRect={dragRect}
                 />
               )
             }
@@ -162,7 +162,7 @@ export default function Canvas() {
           </XButton>
         </>
       }
-      {drawing &&
+      {(drawing || dragLine || dragRect) &&
         <InfoBox />
       }
     </>
