@@ -3,7 +3,7 @@ import {Circle, Line, Group} from "react-konva"
 import { CanvasContext } from "../../context/canvasContext"
 import * as math from "../../functions/math"
 
-export default function Line_({index, element, points, stageMoving }) {
+export default function Line_({index, element, points, stageMoving, setDragLine }) {
   const {elements, setElements, activeTool } = useContext(CanvasContext)
   const [dragSingle, setDragSingle] = useState(false)
   const [dragAll, setDragAll] = useState(false)
@@ -60,6 +60,7 @@ export default function Line_({index, element, points, stageMoving }) {
                 handleDrag={handleDragSingle} 
                 setDragSingle={setDragSingle}
                 activeTool={activeTool}
+                setDragLine={setDragLine}
               />
             </>
           )
@@ -69,7 +70,7 @@ export default function Line_({index, element, points, stageMoving }) {
   )
 }
 
-const Circles = ({ index, indexOfElements, element, handleDrag, setDragSingle, activeTool }) => {
+const Circles = ({ index, indexOfElements, element, handleDrag, setDragSingle, activeTool, setDragLine }) => {
   const [size, setSize] = useState(5)
   return (
     <>
@@ -79,8 +80,8 @@ const Circles = ({ index, indexOfElements, element, handleDrag, setDragSingle, a
         radius={size}
         fill="#00FFFF"
         draggable={activeTool == 0 ? true : false}
-        onDragStart={() => { setDragSingle(true) }}
-        onDragEnd={() => { setDragSingle(false) }}
+        onDragStart={() => { setDragSingle(true); setDragLine(true) }}
+        onDragEnd={() => { setDragSingle(false); setDragLine(false) }}
         onDragMove={(e) => { handleDrag(e, index, indexOfElements) }}
         shadowColor="grey"
         shadowBlur={4}
