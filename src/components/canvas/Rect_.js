@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Rect, Circle } from "react-konva"
 import { CanvasContext } from "../../context/canvasContext"
 
@@ -60,4 +60,27 @@ export default function Rect_ ({index, points, stageMoving }) {
       />
     </>
   )
+}
+
+export const mouseDownRect = (e, elements, setElements, setLatestElement) => {
+  const pos = e.target.getStage().getRelativePointerPosition();
+  const lineObject = {
+    type: "rectangle",
+    points: []
+  }
+
+  lineObject.points = [
+    {x: pos.x, y: pos.y},
+    {x: pos.x, y: pos.y}
+  ]
+  setElements(prevState => [...prevState, lineObject])
+  setLatestElement(prevState => [...prevState, {index: elements.length, row: 1}])
+}
+
+export const mouseMoveRect = (e, elements, setElements) => {
+  const pos = e.target.getStage().getRelativePointerPosition();
+  const elementsCopy = [...elements];
+  const index = elements.length - 1;
+  elementsCopy[index].points[1] = { x: pos.x, y: pos.y }
+  setElements(elementsCopy)
 }

@@ -1,23 +1,12 @@
 import React, { useState, useContext, useEffect } from "react"
 import {Circle, Line, Group} from "react-konva"
 import { CanvasContext } from "../../context/canvasContext"
+import * as math from "../../functions/math"
 
-
-export default function Line_({index, element, stageMoving }) {
+export default function Line_({index, element, points, stageMoving }) {
+  const {elements, setElements, activeTool } = useContext(CanvasContext)
   const [dragSingle, setDragSingle] = useState(false)
   const [dragAll, setDragAll] = useState(false)
-  const [points, setPoints] = useState([])
-
-  useEffect(() => {
-    const temp = []
-    element.points.forEach(e => {
-      temp.push(e.x)
-      temp.push(e.y)
-    })
-    setPoints(temp)
-  }, [element.points, points])
-
-  const {elements, setElements, activeTool } = useContext(CanvasContext)
 
   const handleDragSingle = (e, index, indexOfElements) => {
     if (!dragSingle && stageMoving) return
@@ -65,7 +54,7 @@ export default function Line_({index, element, stageMoving }) {
           return (
             <>
               <Circles 
-                index={i} 
+                index={i}
                 indexOfElements={index}
                 element={e} 
                 handleDrag={handleDragSingle} 
@@ -103,4 +92,58 @@ const Circles = ({ index, indexOfElements, element, handleDrag, setDragSingle, a
       />
     </>
   )
+}
+
+export const mouseDownLine = (e, elements, setElements, setLatestElement) => {
+  const pos = e.target.getStage().getRelativePointerPosition();
+  const lineObject = {
+    type: "line",
+    points: []
+  }
+  if (elements.length > 0) {
+    for (let i = 0; i < elements.length; i++) {
+      const element = elements[i];
+      const j = element.points.findIndex(e => math.lengthBetweenPoints(e, pos) <= 5)
+      if (j > -1) {
+        const elementsCopy = [...elements]
+        if (element.points.length - 1 == j) {
+          elementsCopy[i].points.push({x: pos.x, y: pos.y})
+          setElements(elementsCopy)
+          setLatestElement(prevState => [...prevState, {index: i, row: j + 1}])
+          return
+        } else if (j == 0) {
+          elementsCopy[i].points.unshift({x: pos.x, y: pos.y})
+          setElements(elementsCopy)
+          setLatestElement(prevState => [...prevState, {index: i, row: j}])
+          return
+        }
+      }
+    }
+  }
+  lineObject.points = [
+    {x: pos.x, y: pos.y},
+    {x: pos.x, y: pos.y}
+  ]
+  setElements(prevState => [...prevState, lineObject])
+  setLatestElement(prevState => [...prevState, {index: elements.length, row: 1}])
+}
+
+export const mouseMoveLine = (e, elements, setElements, latestElement) => {
+  const pos = e.target.getStage().getRelativePointerPosition();
+  const elementsCopy = [...elements];
+  const lastIndex = latestElement.length - 1
+  if (latestElement.length > 0) {
+    if (latestElement[lastIndex].row == 0) {
+      elementsCopy[latestElement[lastIndex].index].points[0] = { x: pos.x, y: pos.y }
+      setElements(elementsCopy)
+      return
+    } else if (latestElement[lastIndex].row == elementsCopy[latestElement[lastIndex].index].points.length - 1) {
+      elementsCopy[latestElement[lastIndex].index].points[latestElement[lastIndex].row] = { x: pos.x, y: pos.y }
+      setElements(elementsCopy)
+      return
+    }
+  }
+  const index = elements.length - 1;
+  elementsCopy[index].points[1] = { x: pos.x, y: pos.y }
+  setElements(elementsCopy)
 }
