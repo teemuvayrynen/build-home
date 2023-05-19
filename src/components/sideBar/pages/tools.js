@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowPointer, faArrowsUpDownLeftRight, faPen, faTrash } from '@fortawesome/free-solid-svg-icons'
+import { faSquare } from "@fortawesome/free-regular-svg-icons";
 import React, { useContext } from "react";
 import { CanvasContext } from "../../../context/canvasContext"
 
@@ -25,6 +26,9 @@ export default function Tools() {
         <ToolRow>
           <Tool onClick={() => { setActiveTool(2) }} active={activeTool == 2 ? 1 : 0}>
             <FontAwesomeIcon icon={faPen} fixedWidth/>
+          </Tool>
+          <Tool onClick={() => { setActiveTool(3) }} active={activeTool == 3 ? 1 : 0}>
+            <FontAwesomeIcon icon={faSquare} fixedWidth/>
           </Tool>
         </ToolRow>
       </ToolContainer>
@@ -60,15 +64,14 @@ const ToolRow = styled.div`
 
 const Tool = styled.div`
   border-radius: 5px;
-  padding: 3px;
+  padding: 2px;
   margin-left: 20px;
   color: ${props => props.active ? 'black' : '#999'};
-  border: ${props => props.active ? '4px solid black' : '4px solid #999'};
+  border: ${props => props.active ? '3px solid black' : '3px solid #999'};
   cursor: pointer;
-
   &:hover {
     color: black;
-    border: 4px solid black;
+    border: 3px solid black;
   }
 `
 
