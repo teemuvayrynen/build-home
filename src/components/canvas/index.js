@@ -1,36 +1,96 @@
 "use client"
-import React, { useState, useContext } from 'react';
-import { Stage, Layer, Line, Circle, Group } from 'react-konva';
+import React, { useState, useContext, useEffect } from 'react';
+import { Stage, Layer } from 'react-konva';
 import { CanvasContext } from "../../context/canvasContext"
+import styled from "styled-components"
+import Line_, { mouseDownLine, mouseMoveLine } from "./Line_"
+import Rect_, { mouseDownRect, mouseMoveRect } from "./Rect_"
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons'
+import * as math from "../../functions/math"
 
 export default function Canvas() {
   const [drawing, setDrawing] = useState(false)
-  const { activeTool, setActiveTool, elements, setElements } = useContext(CanvasContext);
+  const { activeTool, elements, setElements, latestElement, setLatestElement } = useContext(CanvasContext);
+  const [stageMoving, setStageMoving] = useState(false)
+  
 
   const handleMouseDown = (e) => {
-    if (activeTool == 2) {
-      setDrawing(true)
-      const pos = e.target.getStage().getRelativePointerPosition();
-      
-      setElements(prevState => [...prevState, { x: pos.x, y: pos.y, x1: pos.x, y1: pos.y }])
+    switch (activeTool) {
+      case 2:
+        setDrawing(true)
+        mouseDownLine(e, elements, setElements, setLatestElement)
+        break;
+      case 3:
+        setDrawing(true)
+        mouseDownRect(e, elements, setElements, setLatestElement)
+        break;
     }
   }
 
   const handleMouseMove = (e) => {
     if (!drawing) return
+    switch (activeTool) {
+      case 2:
+        mouseMoveLine(e, elements, setElements, latestElement)
+        break;
+      case 3:
+        mouseMoveRect(e, elements, setElements)
+        break;
+    }
+  }
 
-    const pos = e.target.getStage().getRelativePointerPosition();
-    const index = elements.length - 1;
-    const { x, y } = elements[index];
+  const handleMouseUp = () => {
+    setDrawing(false)
+    if (activeTool == 2 || activeTool == 3) {
+      const latest = latestElement[latestElement.length - 1]
+      const element = elements[latest.index]
+      const elementsCopy = [...elements]
+      if (latest.row <= 1) {
+        if (math.lengthBetweenPoints(element.points[0], element.points[1]) <= 5) {
+          if (latest.row == 0) {
+            elementsCopy[latest.index].points.shift()
+          } else {
+            elementsCopy.pop()
+          }
+          setElements(elementsCopy)
+          const latestElementCopy = [...latestElement]
+          latestElementCopy.pop()
+          setLatestElement(latestElementCopy)
+        }
+      } else {
+        if (math.lengthBetweenPoints(element.points[latest.row - 1], element.points[latest.row]) <= 5) {
+          elementsCopy[latest.index].points.splice(latest.row, 1)
+          setElements(elementsCopy)
+          const latestElementCopy = [...latestElement]
+          latestElementCopy.pop()
+          setLatestElement(latestElementCopy)
+        }
+      }
+    }
+  }
 
-    const elementsCopy = [...elements];
-    elementsCopy[index] = { x: x, y: y, x1: pos.x, y1: pos.y }
+  const handleUndo = (e) => {
+    const latestElementCopy = [...latestElement]
+    const popped = latestElementCopy.pop()
+    setLatestElement(latestElementCopy)
+    const elementsCopy = [...elements]
+    const element = elementsCopy[popped.index]
+    if (element.points.length <= 2) {
+      elementsCopy.pop()
+    } else {
+      element.points.splice(popped.row, 1)
+      elementsCopy[popped.index].points = element.points
+    }
     setElements(elementsCopy)
   }
 
-  const handleMouseUp = (e) => {
-    setDrawing(false)
+  const handleStageDrag = (e) => {
   }
+
+  useEffect(() => { 
+    //console.log(elements)
+  }, [elements])
 
   return (
     <>
@@ -51,50 +111,86 @@ export default function Canvas() {
         }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp} 
+        onMouseUp={handleMouseUp}
+        onDragStart={() => { setStageMoving(true) }}
+        onDragMove={handleStageDrag} 
       >
         <Layer>
-          {elements.map((element, index) => {
-            return (
-              <>
-                <Group
-                  key={index}
-                  draggable={activeTool == 0 ? true : false}
-                  onMouseEnter={e => {
-                    if (activeTool == 0) {
-                      const container = e.target.getStage().container();
-                      container.style.cursor = "pointer";
-                    }
-                  }}
-                  onMouseLeave={e => {
-                    if (activeTool == 0) {
-                      const container = e.target.getStage().container();
-                      container.style.cursor = "default";
-                    }
-                  }}
-                >
-                  <Circle 
-                    x={element.x}
-                    y={element.y}
-                    radius={5}
-                    fill="#00FFFF"
-                  />
-                  <Line
-                    points={[element.x, element.y, element.x1, element.y1]}
-                    stroke="#00FFFF"
-                  />
-                  <Circle 
-                    x={element.x1}
-                    y={element.y1}
-                    radius={5}
-                    fill="#00FFFF"
-                  />
-                </Group>
-              </>
-            )
+          {elements.map((element, i) => {
+            
+            if (element.type === "line") {
+              const points = []
+              element.points.forEach(point => {
+                points.push(point.x)
+                points.push(point.y)
+              })
+              return (
+                <Line_ 
+                  key={i}
+                  index={i}
+                  element={element}
+                  points={points}
+                  stageMoving={stageMoving}
+                />
+              )
+            } else if (element.type = "rectangle") {
+              return (
+                <Rect_ 
+                  key={i}
+                  index={i}
+                  points={element.points}
+                  stageMoving={stageMoving}
+                />
+              )
+            }
           })}
+         
         </Layer>
       </Stage>
+      {elements.length > 0 && !drawing &&
+        <>
+          <CheckButton 
+            element={elements[latestElement[latestElement.length - 1].index].points[latestElement[latestElement.length - 1].row]} 
+          >
+            <FontAwesomeIcon icon={faCheck} size='lg' />
+          </CheckButton>
+          <XButton 
+            element={elements[latestElement[latestElement.length - 1].index].points[latestElement[latestElement.length - 1].row]} 
+            onClick={handleUndo} 
+          >
+            <FontAwesomeIcon icon={faXmark} size='lg' />
+          </XButton>
+        </>
+      }
+      
     </>
   )
 }
+
+const Button = styled.button`
+  position: absolute;
+  border: none;
+  border-radius: 50%;
+  height: 25px;
+  width: 25px;
+  cursor: pointer;
+  transform: translate(-50%, 0);
+  &:hover {
+    height: 27px;
+  width: 27px;
+  }
+`
+
+const CheckButton = styled(Button)`
+  background: #55FF33;
+  top: ${props => props.element.y + 20}px;
+  left: ${props => props.element.x + 18}px;
+  
+`
+
+const XButton = styled(Button)`
+  background: red;
+  position: absolute;
+  top: ${props => props.element.y + 20}px;
+  left: ${props => props.element.x - 18}px;
+`
