@@ -5,6 +5,7 @@ import { CanvasContext } from "../../context/canvasContext"
 import styled from "styled-components"
 import Line_, { mouseDownLine, mouseMoveLine } from "./Line_"
 import Rect_, { mouseDownRect, mouseMoveRect } from "./Rect_"
+import InfoBox from "./InfoBox"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons'
 import * as math from "../../functions/math"
@@ -117,7 +118,6 @@ export default function Canvas() {
       >
         <Layer>
           {elements.map((element, i) => {
-            
             if (element.type === "line") {
               const points = []
               element.points.forEach(point => {
@@ -162,7 +162,9 @@ export default function Canvas() {
           </XButton>
         </>
       }
-      
+      {drawing &&
+        <InfoBox />
+      }
     </>
   )
 }
@@ -190,7 +192,6 @@ const CheckButton = styled(Button)`
 
 const XButton = styled(Button)`
   background: red;
-  position: absolute;
   top: ${props => props.element.y + 20}px;
   left: ${props => props.element.x - 18}px;
 `
