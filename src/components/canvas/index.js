@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useRef } from 'react';
 import { Stage, Layer } from 'react-konva';
 import { CanvasContext } from "../../context/canvasContext"
 import styled from "styled-components"
@@ -16,6 +16,7 @@ export default function Canvas() {
   const [stageMoving, setStageMoving] = useState(false)
   const [dragLine, setDragLine] = useState(false)
   const [dragRect, setDragRect] = useState(false)
+  const stageRef = useRef(null)
 
   const handleMouseDown = (e) => {
     switch (activeTool) {
@@ -93,6 +94,7 @@ export default function Canvas() {
   return (
     <>
       <Stage 
+        ref={stageRef}
         width={typeof window !== 'undefined' ? window.innerWidth : 0 } 
         height={typeof window !== 'undefined' ? window.innerHeight : 0 }
         style={{ background: "rgb(250, 250, 250)" }}
@@ -128,7 +130,9 @@ export default function Canvas() {
                   element={element}
                   points={points}
                   stageMoving={stageMoving}
+                  dragLine={dragLine}
                   setDragLine={setDragLine}
+                  drawing={drawing}
                 />
               )
             } else if (element.type = "rectangle") {
