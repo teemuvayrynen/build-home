@@ -1,7 +1,8 @@
-import React, { useState, useContext, useEffect } from "react"
-import {Circle, Line, Group} from "react-konva"
+import React, { useContext } from "react"
+import { Line, Group} from "react-konva"
 import { CanvasContext } from "../../context/canvasContext"
 import * as math from "../../functions/math"
+import Circle_ from "./Circle_"
 
 export default function Line_({index, element, points, stageMoving, dragLine, setDragLine, drawing }) {
   const {elements, setElements, activeTool } = useContext(CanvasContext)
@@ -39,12 +40,12 @@ export default function Line_({index, element, points, stageMoving, dragLine, se
         {element.points.map((e, i) => {
           return (
             <>
-              <Circles 
+              <Circle_ 
                 index={i}
                 indexOfElements={index}
-                element={e} 
-                dragLine={dragLine}
-                setDragLine={setDragLine}
+                element={e}
+                drag={dragLine}
+                setDrag={setDragLine}
                 drawing={drawing}
               />
             </>
@@ -55,41 +56,6 @@ export default function Line_({index, element, points, stageMoving, dragLine, se
   )
 }
 
-const Circles = ({ index, indexOfElements, element, dragLine, setDragLine, drawing }) => {
-  const { elements, setElements, activeTool } = useContext(CanvasContext)
-  const [visible, setVisible] = useState(false)
-
-  const handleDrag = (e, index, indexOfElements) => {
-    if (!dragLine) return
-    const pos = e.target.getStage().getRelativePointerPosition();
-    const elementsCopy = [...elements]
-    elementsCopy[indexOfElements].points[index] = {x: pos.x, y: pos.y}
-    setElements(elementsCopy)
-  }
-
-  return (
-    <>
-      <Circle 
-        x={element.x}
-        y={element.y}
-        radius={7}
-        fill="black"
-        draggable={activeTool == 0 ? true : false}
-        onDragStart={() => { setDragLine(true) }}
-        onDragEnd={() => {  setDragLine(false) }}
-        onDragMove={(e) => { handleDrag(e, index, indexOfElements) }}
-        shadowColor="grey"
-        shadowBlur={4}
-        shadowOffset={{ x: 2, y: 1 }}
-        shadowOpacity={0.5}
-        hitStrokeWidth={10}
-        onMouseOver={() => { setVisible(true) }}
-        onMouseOut={() => { setVisible(false)}}
-        opacity={visible && !drawing ? 1 : 0}
-      />
-    </>
-  )
-}
 
 export const mouseDownLine = (e, elements, setElements, setLatestElement) => {
   const pos = e.target.getStage().getRelativePointerPosition();
