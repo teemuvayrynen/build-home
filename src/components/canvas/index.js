@@ -1,13 +1,12 @@
 "use client"
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useRef } from 'react';
 import { Stage, Layer } from 'react-konva';
 import { CanvasContext } from "../../context/canvasContext"
 import styled from "styled-components"
 import Line_, { mouseDownLine, mouseMoveLine } from "./Line_"
 import Rect_, { mouseDownRect, mouseMoveRect } from "./Rect_"
 import InfoBox from "./InfoBox"
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons'
+import LevelButton from "../buttons/LevelButton"
 import * as math from "../../functions/math"
 
 export default function Canvas() {
@@ -16,6 +15,7 @@ export default function Canvas() {
   const [stageMoving, setStageMoving] = useState(false)
   const [dragLine, setDragLine] = useState(false)
   const [dragRect, setDragRect] = useState(false)
+  const stageRef = useRef(null)
 
   const handleMouseDown = (e) => {
     switch (activeTool) {
@@ -93,6 +93,7 @@ export default function Canvas() {
   return (
     <>
       <Stage 
+        ref={stageRef}
         width={typeof window !== 'undefined' ? window.innerWidth : 0 } 
         height={typeof window !== 'undefined' ? window.innerHeight : 0 }
         style={{ background: "rgb(250, 250, 250)" }}
@@ -128,7 +129,9 @@ export default function Canvas() {
                   element={element}
                   points={points}
                   stageMoving={stageMoving}
+                  dragLine={dragLine}
                   setDragLine={setDragLine}
+                  drawing={drawing}
                 />
               )
             } else if (element.type = "rectangle") {
@@ -140,6 +143,7 @@ export default function Canvas() {
                   stageMoving={stageMoving}
                   setDragRect={setDragRect}
                   dragRect={dragRect}
+                  drawing={drawing}
                 />
               )
             }
@@ -147,19 +151,10 @@ export default function Canvas() {
          
         </Layer>
       </Stage>
-      {elements.length > 0 && !drawing &&
+      <LevelButton />
+      {elements.length > 0 &&
         <>
-          <CheckButton 
-            element={elements[latestElement[latestElement.length - 1].index].points[latestElement[latestElement.length - 1].row]} 
-          >
-            <FontAwesomeIcon icon={faCheck} size='lg' />
-          </CheckButton>
-          <XButton 
-            element={elements[latestElement[latestElement.length - 1].index].points[latestElement[latestElement.length - 1].row]} 
-            onClick={handleUndo} 
-          >
-            <FontAwesomeIcon icon={faXmark} size='lg' />
-          </XButton>
+          <UndoButton onClick={handleUndo}>Undo</UndoButton>
         </>
       }
       {(drawing || dragLine || dragRect) &&
@@ -169,29 +164,22 @@ export default function Canvas() {
   )
 }
 
-const Button = styled.button`
+const UndoButton = styled.button`
   position: absolute;
+  bottom: 30px;
+  left: 270px;
+  background: rgb(250, 250, 250);
   border: none;
-  border-radius: 50%;
-  height: 25px;
-  width: 25px;
+  border-radius: 5px;
+  padding: 6px 10px;
+  font-size: 12px;
+  box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.5);
   cursor: pointer;
-  transform: translate(-50%, 0);
   &:hover {
-    height: 27px;
-  width: 27px;
-  }
+    background: rgb(230, 230, 230);
+  }  
 `
 
-const CheckButton = styled(Button)`
-  background: #55FF33;
-  top: ${props => props.element.y + 20}px;
-  left: ${props => props.element.x + 18}px;
-  
-`
-
-const XButton = styled(Button)`
-  background: red;
-  top: ${props => props.element.y + 20}px;
-  left: ${props => props.element.x - 18}px;
+const ModeButton = styled.button`
+  position: absolute;
 `

@@ -1,24 +1,11 @@
-import React, { useState, useContext, useEffect } from "react"
-import {Circle, Line, Group} from "react-konva"
+import React, { useContext } from "react"
+import { Line, Group} from "react-konva"
 import { CanvasContext } from "../../context/canvasContext"
 import * as math from "../../functions/math"
+import Circle_ from "./Circle_"
 
-export default function Line_({index, element, points, stageMoving, setDragLine }) {
+export default function Line_({index, element, points, stageMoving, dragLine, setDragLine, drawing }) {
   const {elements, setElements, activeTool } = useContext(CanvasContext)
-  const [dragSingle, setDragSingle] = useState(false)
-  const [dragAll, setDragAll] = useState(false)
-
-  const handleDragSingle = (e, index, indexOfElements) => {
-    if (!dragSingle && stageMoving) return
-    const pos = e.target.getStage().getRelativePointerPosition();
-    const elementsCopy = [...elements]
-    elementsCopy[indexOfElements].points[index] = {x: pos.x, y: pos.y}
-    setElements(elementsCopy)
-  }
-
-  const handleDragAll = (e, index) => {
-    if (!dragAll) return
-  }
 
   return (
     <>
@@ -38,8 +25,8 @@ export default function Line_({index, element, points, stageMoving, setDragLine 
       >
         <Line
           points={points}
-          stroke="#00FFFF"
-          strokeWidth={2}
+          stroke="black"
+          strokeWidth={7}
           shadowColor="grey"
           shadowBlur={4}
           shadowOffset={{ x: 2, y: 1 }}
@@ -53,14 +40,13 @@ export default function Line_({index, element, points, stageMoving, setDragLine 
         {element.points.map((e, i) => {
           return (
             <>
-              <Circles 
+              <Circle_ 
                 index={i}
                 indexOfElements={index}
-                element={e} 
-                handleDrag={handleDragSingle} 
-                setDragSingle={setDragSingle}
-                activeTool={activeTool}
-                setDragLine={setDragLine}
+                element={e}
+                drag={dragLine}
+                setDrag={setDragLine}
+                drawing={drawing}
               />
             </>
           )
@@ -70,30 +56,6 @@ export default function Line_({index, element, points, stageMoving, setDragLine 
   )
 }
 
-const Circles = ({ index, indexOfElements, element, handleDrag, setDragSingle, activeTool, setDragLine }) => {
-  const [size, setSize] = useState(5)
-  return (
-    <>
-      <Circle 
-        x={element.x}
-        y={element.y}
-        radius={size}
-        fill="#00FFFF"
-        draggable={activeTool == 0 ? true : false}
-        onDragStart={() => { setDragSingle(true); setDragLine(true) }}
-        onDragEnd={() => { setDragSingle(false); setDragLine(false) }}
-        onDragMove={(e) => { handleDrag(e, index, indexOfElements) }}
-        shadowColor="grey"
-        shadowBlur={4}
-        shadowOffset={{ x: 2, y: 1 }}
-        shadowOpacity={0.5}
-        hitStrokeWidth={10}
-        onMouseOver={() => { setSize(7) }}
-        onMouseOut={() => { setSize(5) }}
-      />
-    </>
-  )
-}
 
 export const mouseDownLine = (e, elements, setElements, setLatestElement) => {
   const pos = e.target.getStage().getRelativePointerPosition();
