@@ -3,7 +3,7 @@ import React, { useState, useContext, useRef } from 'react';
 import { Stage, Layer } from 'react-konva';
 import { CanvasContext } from "../../context/canvasContext"
 import styled from "styled-components"
-import Line_, { mouseDownLine, mouseMoveLine } from "./Line_"
+import Line_, { mouseDownLine, mouseMoveLine, mouseUpLine } from "./Line_"
 import Rect_, { mouseDownRect, mouseMoveRect } from "./Rect_"
 import InfoBox from "./InfoBox"
 import LevelButton from "../buttons/LevelButton"
@@ -42,43 +42,46 @@ export default function Canvas() {
     }
   }
 
-  const handleMouseUp = () => {
+  const handleMouseUp = (e) => {
     setDrawing(false)
     if (activeTool == 2 || activeTool == 3) {
-      const latest = latestElement[latestElement.length - 1]
-      const element = elements[latest.index]
-      const elementsCopy = [...elements]
-      if (latest.row <= 1) {
-        if (math.lengthBetweenPoints(element.points[0], element.points[1]) <= 5) {
-          if (latest.row == 0) {
-            elementsCopy[latest.index].points.shift()
-          } else {
-            elementsCopy.pop()
-          }
-          setElements(elementsCopy)
-          const latestElementCopy = [...latestElement]
-          latestElementCopy.pop()
-          setLatestElement(latestElementCopy)
-        }
-      } else {
-        if (math.lengthBetweenPoints(element.points[latest.row - 1], element.points[latest.row]) <= 5) {
-          elementsCopy[latest.index].points.splice(latest.row, 1)
-          setElements(elementsCopy)
-          const latestElementCopy = [...latestElement]
-          latestElementCopy.pop()
-          setLatestElement(latestElementCopy)
-        }
-      }
+      mouseUpLine(e, elements, setElements, latestElement, setLatestElement)
+      // const latest = latestElement[latestElement.length - 1]
+      // const element = elements[latest.index]
+      // const elementsCopy = [...elements]
+      // if (latest.row <= 1) {
+      //   if (math.lengthBetweenPoints(element.points[0], element.points[1]) <= 5) {
+      //     if (latest.row == 0) {
+      //       elementsCopy[latest.index].points.shift()
+      //     } else {
+      //       elementsCopy.pop()
+      //     }
+      //     setElements(elementsCopy)
+      //     const latestElementCopy = [...latestElement]
+      //     latestElementCopy.pop()
+      //     setLatestElement(latestElementCopy)
+      //   }
+      // } else {
+      //   if (math.lengthBetweenPoints(element.points[latest.row - 1], element.points[latest.row]) <= 5) {
+      //     elementsCopy[latest.index].points.splice(latest.row, 1)
+      //     setElements(elementsCopy)
+      //     const latestElementCopy = [...latestElement]
+      //     latestElementCopy.pop()
+      //     setLatestElement(latestElementCopy)
+      //   }
+      // }
     }
   }
 
-  const handleUndo = (e) => {
+  const handleUndo = () => {
     const latestElementCopy = [...latestElement]
     const popped = latestElementCopy.pop()
     setLatestElement(latestElementCopy)
     const elementsCopy = [...elements]
     const element = elementsCopy[popped.index]
-    if (element.points.length <= 2) {
+    if (popped.closed) {
+      element.closed = false
+    } else if (element.points.length <= 2) {
       elementsCopy.pop()
     } else {
       element.points.splice(popped.row, 1)
@@ -158,7 +161,9 @@ export default function Canvas() {
         </>
       }
       {(drawing || dragLine || dragRect) &&
-        <InfoBox />
+        <InfoBox 
+          stageRef={stageRef}
+        />
       }
     </>
   )

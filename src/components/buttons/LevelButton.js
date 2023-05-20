@@ -24,9 +24,9 @@ export default function LevelButton () {
             if (i == 0 && i == levelState.length - 1) {
               return (
                 <LevelToggleButton 
-                  bottom={true} 
-                  top={true} 
-                  onlyone={true}
+                  bottom={1} 
+                  top={1} 
+                  center={1}
                   current={currentLevel == i ? 1 : 0} 
                   onClick={() => {setCurrentLevel(i)}} 
                   key={i}
@@ -37,7 +37,7 @@ export default function LevelButton () {
             } else if (i == 0) {
               return (
                 <LevelToggleButton 
-                  bottom={true} 
+                  bottom={1} 
                   current={currentLevel == i ? 1 : 0} 
                   onClick={() => {setCurrentLevel(i)}} 
                   key={i}
@@ -48,7 +48,7 @@ export default function LevelButton () {
             } else if (i == levelState.length - 1) {
               return (
                 <LevelToggleButton 
-                  top={true} 
+                  top={1} 
                   current={currentLevel == i ? 1 : 0} 
                   onClick={() => {setCurrentLevel(i)}} 
                   key={i}
@@ -93,14 +93,14 @@ const ToggleButtonGroup = styled.div`
 `
 
 const LevelToggleButton = styled.button`
-  background: ${props => props.onlyone ? "rgb(250, 250, 250)" : props.current ? "rgb(230, 230, 230)" : "rgb(250, 250, 250)"};
+  background: ${props => props.center ? "rgb(250, 250, 250)" : props.current ? "rgb(230, 230, 230)" : "rgb(250, 250, 250)"};
   border: none;
   width: 30px;
   height: 30px;
   font-size: 14px;
   cursor: pointer;
   border-bottom: ${props => props.bottom ? "none" : "1px solid rgb(230, 230, 230)"};
-  border-radius: ${props => props.onlyone ? "5px" : props.top ? "5px 5px 0px 0px" : props.bottom ? "0px 0px 5px 5px" : "0px"};
+  border-radius: ${props => props.center ? "5px" : props.top ? "5px 5px 0px 0px" : props.bottom ? "0px 0px 5px 5px" : "0px"};
   box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.3);
   &:hover {
     background: rgb(230, 230, 230);

@@ -31,6 +31,7 @@ export default function Line_({index, element, points, stageMoving, dragLine, se
           shadowBlur={4}
           shadowOffset={{ x: 2, y: 1 }}
           shadowOpacity={0.3}
+          closed={element.closed}
           // draggable={activeTool == 0 ? true : false}
           // onDragStart={() => { setDragAll(true) }}
           // onDragEnd={() => { setDragAll(false) }}
@@ -61,6 +62,7 @@ export const mouseDownLine = (e, elements, setElements, setLatestElement) => {
   const pos = e.target.getStage().getRelativePointerPosition();
   const lineObject = {
     type: "line",
+    closed: false,
     points: []
   }
   if (elements.length > 0) {
@@ -92,21 +94,44 @@ export const mouseDownLine = (e, elements, setElements, setLatestElement) => {
 }
 
 export const mouseMoveLine = (e, elements, setElements, latestElement) => {
-  const pos = e.target.getStage().getRelativePointerPosition();
-  const elementsCopy = [...elements];
+  const pos = e.target.getStage().getRelativePointerPosition()
+  const elementsCopy = [...elements]
   const lastIndex = latestElement.length - 1
-  if (latestElement.length > 0) {
-    if (latestElement[lastIndex].row == 0) {
-      elementsCopy[latestElement[lastIndex].index].points[0] = { x: pos.x, y: pos.y }
-      setElements(elementsCopy)
-      return
-    } else if (latestElement[lastIndex].row == elementsCopy[latestElement[lastIndex].index].points.length - 1) {
-      elementsCopy[latestElement[lastIndex].index].points[latestElement[lastIndex].row] = { x: pos.x, y: pos.y }
-      setElements(elementsCopy)
-      return
-    }
+  if (latestElement[lastIndex].row == 0) {
+    elementsCopy[latestElement[lastIndex].index].points[0] = { x: pos.x, y: pos.y }
+    setElements(elementsCopy)
+    return
+  } else if (latestElement[lastIndex].row == elementsCopy[latestElement[lastIndex].index].points.length - 1) {
+    elementsCopy[latestElement[lastIndex].index].points[latestElement[lastIndex].row] = { x: pos.x, y: pos.y }
+    setElements(elementsCopy)
+    return
   }
   const index = elements.length - 1;
   elementsCopy[index].points[1] = { x: pos.x, y: pos.y }
   setElements(elementsCopy)
+}
+
+export const mouseUpLine = (e, elements, setElements, latestElement, setLatestElement) => {
+  const length = latestElement.length - 1
+  const latest = latestElement[length]
+  const points = elements[latest.index].points
+
+  if (points.length > 3) {
+    const pos0 = points[0]
+    const pos1 = points[points.length - 1]
+
+    if (math.lengthBetweenPoints(pos0, pos1) <= 5) {
+      const elementsCopy = [...elements]
+      if (latest.row == 0) {
+        elementsCopy[latest.index].points.shift()
+      } else {
+        elementsCopy[latest.index].points.pop()
+      }
+      elementsCopy[latest.index].closed = true
+      const latestElementCopy = [...latestElement]
+      latestElementCopy[length].closed = true
+      setLatestElement(latestElementCopy)
+      setElements(elementsCopy) 
+    }
+  }
 }

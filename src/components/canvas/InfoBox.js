@@ -3,7 +3,7 @@ import { CanvasContext } from "../../context/canvasContext"
 import styled from "styled-components"
 import * as math from "../../functions/math"
 
-export default function InfoBox () {
+export default function InfoBox ({ stageRef }) {
   const { elements, latestElement } = useContext(CanvasContext);
   const [length, setLength] = useState(0)
   const [angle, setAngle] = useState(0)
@@ -13,6 +13,7 @@ export default function InfoBox () {
 
   useEffect(() => {
     const calculateHeightAndWidth = (element) => {
+      const pos = stageRef.current.getRelativePointerPosition()
       const pos0 = element.points[0]
       const pos1 = element.points[1]
       let w = pos1.x - pos0.x
@@ -23,7 +24,11 @@ export default function InfoBox () {
       if (h < 0) {
         h = h * -1
       }
-      setPosition(pos1)
+      if (math.lengthBetweenPoints(pos0, pos) < math.lengthBetweenPoints(pos1, pos)) {
+        setPosition(pos0)
+      } else {
+        setPosition(pos1)
+      }
       setWidth(Math.round(w / 40 * 100) / 100)
       setHeight(Math.round(h / 40 * 100) / 100)
     }
@@ -40,6 +45,10 @@ export default function InfoBox () {
           setAngle(0)
           return
         }
+        if (a < 0) {
+          setAngle((Math.round(a * 180 / Math.PI * 100) / 100) * -1)
+          return
+        }
         setAngle(Math.round(a * 180 / Math.PI * 100) / 100)
       } else {
         const pos0 = element.points[latestElement[length].row - 1]
@@ -52,19 +61,23 @@ export default function InfoBox () {
           setAngle(0)
           return
         }
+        if (a < 0) {
+          setAngle((Math.round(a * 180 / Math.PI * 100) / 100) * -1)
+          return
+        }
         setAngle(Math.round(a * 180 / Math.PI * 100) / 100)
       }
     }
 
-
     const length = latestElement.length - 1
     const element = elements[latestElement[length].index]
     if (element.type === "line") {
-      calculateLengthAndAngle(element, length)
+      // fix this function
+      //calculateLengthAndAngle(element, length)
     } else if (element.type === "rectangle") {
       calculateHeightAndWidth(element)
     }
-  }, [latestElement, elements])
+  }, [latestElement, elements, stageRef])
 
 
   return (
