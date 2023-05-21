@@ -1,12 +1,30 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Rect, Circle } from "react-konva"
+import { Rect } from "react-konva"
 import { CanvasContext } from "../../context/canvasContext"
 import Circle_ from "./Circle_";
 
-export default function Rect_ ({index, points, stageMoving, setDragRect, dragRect, drawing }) {
+export default function Rect_ ({index, points, setDragRect, dragRect, drawing}) {
   const {elements, setElements, activeTool } = useContext(CanvasContext)
-  const [visible, setVisible] = useState(true)
-  
+  const [modifiedPoints, setModifiedPoints] = useState(elements[index].points)
+
+  const handleDragMove = (e) => {
+    const elementsCopy = [...elements]
+    const element = elementsCopy[index]
+    const pos = e.target.position()
+    const width = element.points[1].x - element.points[0].x
+    const height = element.points[1].y - element.points[0].y
+
+    element.points[0] = {x: pos.x, y: pos.y}
+    element.points[1] = {x: pos.x + width, y: pos.y + height}
+
+    elementsCopy[index] = element
+    setElements(elementsCopy)
+  }
+
+  useEffect(() => {
+    const p = elements[index].points
+    setModifiedPoints([...p, {x: p[0].x, y: p[1].y}, {x: p[1].x, y: p[0].y}])
+  }, [elements, index])
 
   return (
     <>
@@ -21,8 +39,10 @@ export default function Rect_ ({index, points, stageMoving, setDragRect, dragRec
         shadowBlur={4}
         shadowOffset={{ x: 2, y: 1 }}
         shadowOpacity={0.3}
+        draggable={activeTool == 0 ? true : false}
+        onDragMove={handleDragMove}
       />
-      {points.map((point, i) => {
+      {modifiedPoints.map((point, i) => {
         return (
           <>
             <Circle_
@@ -32,6 +52,7 @@ export default function Rect_ ({index, points, stageMoving, setDragRect, dragRec
               drag={dragRect}
               setDrag={setDragRect}
               drawing={drawing}
+              type="rect"
             />
           </>
         )

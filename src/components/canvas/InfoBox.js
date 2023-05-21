@@ -14,6 +14,7 @@ export default function InfoBox ({ stageRef }) {
   useEffect(() => {
     const calculateHeightAndWidth = (element) => {
       const pos = stageRef.current.getRelativePointerPosition()
+      const stagePos  = stageRef.current.position()
       const pos0 = element.points[0]
       const pos1 = element.points[1]
       let w = pos1.x - pos0.x
@@ -24,11 +25,11 @@ export default function InfoBox ({ stageRef }) {
       if (h < 0) {
         h = h * -1
       }
-      if (math.lengthBetweenPoints(pos0, pos) < math.lengthBetweenPoints(pos1, pos)) {
-        setPosition(pos0)
-      } else {
-        setPosition(pos1)
+      const temp = {
+        x: pos.x + stagePos.x,
+        y: pos.y + stagePos.y
       }
+      setPosition(temp)
       setWidth(Math.round(w / 40 * 100) / 100)
       setHeight(Math.round(h / 40 * 100) / 100)
     }

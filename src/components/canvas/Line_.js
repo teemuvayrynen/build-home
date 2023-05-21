@@ -32,7 +32,7 @@ export default function Line_({index, element, points, stageMoving, dragLine, se
           shadowOffset={{ x: 2, y: 1 }}
           shadowOpacity={0.3}
           closed={element.closed}
-          // draggable={activeTool == 0 ? true : false}
+          draggable={activeTool == 0 ? true : false}
           // onDragStart={() => { setDragAll(true) }}
           // onDragEnd={() => { setDragAll(false) }}
           // onDragMove={(e) => { handleDragAll(e, index) }}
@@ -48,6 +48,7 @@ export default function Line_({index, element, points, stageMoving, dragLine, se
                 drag={dragLine}
                 setDrag={setDragLine}
                 drawing={drawing}
+                type="line"
               />
             </>
           )

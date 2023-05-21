@@ -3,7 +3,7 @@ import { Circle } from "react-konva"
 import { CanvasContext } from "../../context/canvasContext"
 
 
-export default function Circle_ ({ index, indexOfElements, element, drag, setDrag, drawing }) {
+export default function Circle_ ({ index, indexOfElements, element, drag, setDrag, drawing, type }) {
   const { elements, setElements, activeTool } = useContext(CanvasContext)
   const [visible, setVisible] = useState(false)
 
@@ -11,7 +11,19 @@ export default function Circle_ ({ index, indexOfElements, element, drag, setDra
     if (!drag) return
     const pos = e.target.getStage().getRelativePointerPosition();
     const elementsCopy = [...elements]
-    elementsCopy[indexOfElements].points[index] = {x: pos.x, y: pos.y}
+    if (type === "line" || (type === "rect" && (index === 0 || index === 1))) {
+      elementsCopy[indexOfElements].points[index] = {x: pos.x, y: pos.y}
+    } else if (type === "rect") {
+      const pos = e.target.getStage().getRelativePointerPosition();
+      const elementsCopy = [...elements]
+      if (index === 2) {
+        elementsCopy[indexOfElements].points[0] = {x: pos.x, y: elementsCopy[indexOfElements].points[0].y}
+        elementsCopy[indexOfElements].points[1] = {x: elementsCopy[indexOfElements].points[1].x, y: pos.y}
+      } else if (index === 3) {
+        elementsCopy[indexOfElements].points[0] = {x: elementsCopy[indexOfElements].points[0].x, y: pos.y}
+        elementsCopy[indexOfElements].points[1] = {x: pos.x, y: elementsCopy[indexOfElements].points[1].y}
+      }
+    }
     setElements(elementsCopy)
   }
 

@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useContext, useRef } from 'react';
+import React, { useState, useContext, useRef, useEffect } from 'react';
 import { Stage, Layer } from 'react-konva';
 import { CanvasContext } from "../../context/canvasContext"
 import styled from "styled-components"
@@ -16,6 +16,7 @@ export default function Canvas() {
   const [dragLine, setDragLine] = useState(false)
   const [dragRect, setDragRect] = useState(false)
   const stageRef = useRef(null)
+  const [stagePos, setStagePos] = useState({x: 0, y: 0})
 
   const handleMouseDown = (e) => {
     switch (activeTool) {
@@ -46,30 +47,6 @@ export default function Canvas() {
     setDrawing(false)
     if (activeTool == 2 || activeTool == 3) {
       mouseUpLine(e, elements, setElements, latestElement, setLatestElement)
-      // const latest = latestElement[latestElement.length - 1]
-      // const element = elements[latest.index]
-      // const elementsCopy = [...elements]
-      // if (latest.row <= 1) {
-      //   if (math.lengthBetweenPoints(element.points[0], element.points[1]) <= 5) {
-      //     if (latest.row == 0) {
-      //       elementsCopy[latest.index].points.shift()
-      //     } else {
-      //       elementsCopy.pop()
-      //     }
-      //     setElements(elementsCopy)
-      //     const latestElementCopy = [...latestElement]
-      //     latestElementCopy.pop()
-      //     setLatestElement(latestElementCopy)
-      //   }
-      // } else {
-      //   if (math.lengthBetweenPoints(element.points[latest.row - 1], element.points[latest.row]) <= 5) {
-      //     elementsCopy[latest.index].points.splice(latest.row, 1)
-      //     setElements(elementsCopy)
-      //     const latestElementCopy = [...latestElement]
-      //     latestElementCopy.pop()
-      //     setLatestElement(latestElementCopy)
-      //   }
-      // }
     }
   }
 
@@ -90,8 +67,9 @@ export default function Canvas() {
     setElements(elementsCopy)
   }
 
-  const handleStageDrag = (e) => {
-  }
+  useEffect(() => {
+    
+  }, [stagePos])
 
   return (
     <>
@@ -114,10 +92,25 @@ export default function Canvas() {
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
-        onDragStart={() => { setStageMoving(true) }}
-        onDragMove={handleStageDrag} 
+        onDragMove={() => { 
+          const pos = stageRef.current.position()
+          setStagePos({x: pos.x, y: pos.y})
+        }} 
       >
-        <Layer>
+        <Layer
+          onMouseEnter={e => {
+            if (activeTool == 0) {
+              const container = e.target.getStage().container();
+              container.style.cursor = "pointer";
+            }
+          }}
+          onMouseLeave={e => {
+            if (activeTool == 0) {
+              const container = e.target.getStage().container();
+              container.style.cursor = "default";
+            }
+          }}
+        >
           {elements.map((element, i) => {
             if (element.type === "line") {
               const points = []
@@ -143,7 +136,6 @@ export default function Canvas() {
                   key={i}
                   index={i}
                   points={element.points}
-                  stageMoving={stageMoving}
                   setDragRect={setDragRect}
                   dragRect={dragRect}
                   drawing={drawing}
