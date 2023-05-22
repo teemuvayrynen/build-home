@@ -4,27 +4,31 @@ import { CanvasContext } from "../../context/canvasContext"
 import Circle_ from "./Circle_";
 
 export default function Rect_ ({index, points, setDragRect, dragRect, drawing}) {
-  const {elements, setElements, activeTool } = useContext(CanvasContext)
-  const [modifiedPoints, setModifiedPoints] = useState(elements[index].points)
+  const {activeTool, levelState, levelDispatch, currentLevel } = useContext(CanvasContext)
+  const [modifiedPoints, setModifiedPoints] = useState([])
 
   const handleDragMove = (e) => {
-    const elementsCopy = [...elements]
-    const element = elementsCopy[index]
     const pos = e.target.position()
-    const width = element.points[1].x - element.points[0].x
-    const height = element.points[1].y - element.points[0].y
+    const tempPoints = levelState[currentLevel].elements[index].points
+    const width = tempPoints[1].x - tempPoints[0].x
+    const height = tempPoints[1].y - tempPoints[0].y
+    const pos1 = {x: pos.x + width, y: pos.y + height}
 
-    element.points[0] = {x: pos.x, y: pos.y}
-    element.points[1] = {x: pos.x + width, y: pos.y + height}
-
-    elementsCopy[index] = element
-    setElements(elementsCopy)
+    levelDispatch({
+      type: "UPDATE_POS_DRAG_RECT",
+      index: index,
+      pos: pos,
+      pos1: pos1,
+      currentLevel: currentLevel
+    })
   }
 
   useEffect(() => {
-    const p = elements[index].points
-    setModifiedPoints([...p, {x: p[0].x, y: p[1].y}, {x: p[1].x, y: p[0].y}])
-  }, [elements, index])
+    if (levelState[currentLevel].elements[index]) {
+      const p = levelState[currentLevel].elements[index].points
+      setModifiedPoints([...p, {x: p[0].x, y: p[1].y}, {x: p[1].x, y: p[0].y}])
+    }
+  }, [currentLevel, levelState, index])
 
   return (
     <>
@@ -52,7 +56,7 @@ export default function Rect_ ({index, points, setDragRect, dragRect, drawing}) 
               drag={dragRect}
               setDrag={setDragRect}
               drawing={drawing}
-              type="rect"
+              type="rectangle"
             />
           </>
         )
@@ -61,7 +65,7 @@ export default function Rect_ ({index, points, setDragRect, dragRect, drawing}) 
   )
 }
 
-export const mouseDownRect = (e, elements, setElements, setLatestElement) => {
+export const mouseDownRect = (e, levelState, levelDispatch, currentLevel) => {
   const pos = e.target.getStage().getRelativePointerPosition();
   const lineObject = {
     type: "rectangle",
@@ -72,14 +76,21 @@ export const mouseDownRect = (e, elements, setElements, setLatestElement) => {
     {x: pos.x, y: pos.y},
     {x: pos.x, y: pos.y}
   ]
-  setElements(prevState => [...prevState, lineObject])
-  setLatestElement(prevState => [...prevState, {index: elements.length, row: 1}])
+
+  levelDispatch({
+    type: "ADD_ELEMENT_BASE",
+    element: lineObject,
+    latestElement: {index: levelState[currentLevel].elements.length, row: 1},
+    currentLevel: currentLevel
+  })
 }
 
-export const mouseMoveRect = (e, elements, setElements) => {
+export const mouseMoveRect = (e, levelDispatch, currentLevel) => {
   const pos = e.target.getStage().getRelativePointerPosition();
-  const elementsCopy = [...elements];
-  const index = elements.length - 1;
-  elementsCopy[index].points[1] = { x: pos.x, y: pos.y }
-  setElements(elementsCopy)
+
+  levelDispatch({
+    type: "MOVE_LATEST_POINT",
+    newPos: { x: pos.x, y: pos.y },
+    currentLevel: currentLevel,
+  })
 }

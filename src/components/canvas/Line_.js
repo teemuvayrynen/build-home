@@ -4,9 +4,7 @@ import { CanvasContext } from "../../context/canvasContext"
 import * as math from "../../functions/math"
 import Circle_ from "./Circle_"
 
-export default function Line_({index, element, points, stageMoving, dragLine, setDragLine, drawing }) {
-  const {elements, setElements, activeTool } = useContext(CanvasContext)
-
+export default function Line_({index, element, points, dragLine, setDragLine, drawing }) {
   return (
     <>
       <Group

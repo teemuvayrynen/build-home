@@ -3,73 +3,61 @@ import styled from "styled-components"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 
-function reducer(state, action) {
-  if (action.type === 'addLevel') {
-    const prev = state[0];
-    return [prev + 1, ...state];
-    
-  }
-  throw Error('Unknown action.');
-}
-
-export default function LevelButton () {
-  const [currentLevel, setCurrentLevel] = useState(0)
-  const [levelState, levelDispatch] = useReducer(reducer, [0])
-
+export default function LevelButton ({ levelState, currentLevel, setCurrentLevel, levelDispatch }) {
   return (
     <>
       <ToggleButtonContainer>
         <ToggleButtonGroup>
           {levelState.map((i) => {
-            if (i == 0 && i == levelState.length - 1) {
+            if (i.id == 0 && i.id == levelState.length - 1) {
               return (
                 <LevelToggleButton 
                   bottom={1} 
                   top={1} 
                   center={1}
-                  current={currentLevel == i ? 1 : 0} 
-                  onClick={() => {setCurrentLevel(i)}} 
-                  key={i}
+                  current={currentLevel == i.id ? 1 : 0} 
+                  onClick={() => {setCurrentLevel(i.id)}} 
+                  key={i.id}
                 >
-                  {i}
+                  {i.id}
                 </LevelToggleButton>
               )
-            } else if (i == 0) {
+            } else if (i.id == 0) {
               return (
                 <LevelToggleButton 
                   bottom={1} 
-                  current={currentLevel == i ? 1 : 0} 
-                  onClick={() => {setCurrentLevel(i)}} 
-                  key={i}
+                  current={currentLevel == i.id ? 1 : 0} 
+                  onClick={() => {setCurrentLevel(i.id)}} 
+                  key={i.id}
                 >
-                  {i}
+                  {i.id}
                 </LevelToggleButton>
               )
-            } else if (i == levelState.length - 1) {
+            } else if (i.id == levelState.length - 1) {
               return (
                 <LevelToggleButton 
                   top={1} 
-                  current={currentLevel == i ? 1 : 0} 
-                  onClick={() => {setCurrentLevel(i)}} 
-                  key={i}
+                  current={currentLevel == i.id ? 1 : 0} 
+                  onClick={() => {setCurrentLevel(i.id)}} 
+                  key={i.id}
                 >
-                  {i}
+                  {i.id}
                 </LevelToggleButton>
               )
             } else {
               return (
                 <LevelToggleButton 
-                  current={currentLevel == i ? 1 : 0} 
-                  onClick={() => {setCurrentLevel(i)}} 
-                  key={i}
+                  current={currentLevel == i.id ? 1 : 0} 
+                  onClick={() => {setCurrentLevel(i.id)}} 
+                  key={i.id}
                 >
-                  {i}
+                  {i.id}
                 </LevelToggleButton>
               )
             }
           })}
         </ToggleButtonGroup>
-        <AddLevelButton onClick={() => { levelDispatch({ type: 'addLevel' }); }}>
+        <AddLevelButton onClick={() => { levelDispatch({ type: 'ADD_LEVEL' }); }}>
           <FontAwesomeIcon icon={faPlus} />
         </AddLevelButton>
       </ToggleButtonContainer>
@@ -87,7 +75,7 @@ const ToggleButtonContainer = styled.div`
 
 const ToggleButtonGroup = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse;
   align-items: center;
   justify-content: center; 
 `

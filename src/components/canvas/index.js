@@ -1,22 +1,19 @@
 "use client"
-import React, { useState, useContext, useRef, useEffect } from 'react';
-import { Stage, Layer } from 'react-konva';
+import React, { useState, useContext, useRef, useEffect, useReducer } from 'react';
+import { Stage, Layer, Group } from 'react-konva';
 import { CanvasContext } from "../../context/canvasContext"
 import styled from "styled-components"
 import Line_, { mouseDownLine, mouseMoveLine, mouseUpLine } from "./Line_"
 import Rect_, { mouseDownRect, mouseMoveRect } from "./Rect_"
 import InfoBox from "./InfoBox"
 import LevelButton from "../buttons/LevelButton"
-import * as math from "../../functions/math"
 
 export default function Canvas() {
   const [drawing, setDrawing] = useState(false)
-  const { activeTool, elements, setElements, latestElement, setLatestElement } = useContext(CanvasContext);
-  const [stageMoving, setStageMoving] = useState(false)
+  const { activeTool, elements, setElements, latestElement, setLatestElement, levelState, levelDispatch, currentLevel, setCurrentLevel } = useContext(CanvasContext);
   const [dragLine, setDragLine] = useState(false)
   const [dragRect, setDragRect] = useState(false)
   const stageRef = useRef(null)
-  const [stagePos, setStagePos] = useState({x: 0, y: 0})
 
   const handleMouseDown = (e) => {
     switch (activeTool) {
@@ -26,7 +23,7 @@ export default function Canvas() {
         break;
       case 3:
         setDrawing(true)
-        mouseDownRect(e, elements, setElements, setLatestElement)
+        mouseDownRect(e, levelState, levelDispatch, currentLevel)
         break;
     }
   }
@@ -38,7 +35,7 @@ export default function Canvas() {
         mouseMoveLine(e, elements, setElements, latestElement)
         break;
       case 3:
-        mouseMoveRect(e, elements, setElements)
+        mouseMoveRect(e, levelDispatch, currentLevel)
         break;
     }
   }
@@ -46,30 +43,20 @@ export default function Canvas() {
   const handleMouseUp = (e) => {
     setDrawing(false)
     if (activeTool == 2 || activeTool == 3) {
-      mouseUpLine(e, elements, setElements, latestElement, setLatestElement)
+      //mouseUpLine(e, elements, setElements, latestElement, setLatestElement)
     }
   }
 
   const handleUndo = () => {
-    const latestElementCopy = [...latestElement]
-    const popped = latestElementCopy.pop()
-    setLatestElement(latestElementCopy)
-    const elementsCopy = [...elements]
-    const element = elementsCopy[popped.index]
-    if (popped.closed) {
-      element.closed = false
-    } else if (element.points.length <= 2) {
-      elementsCopy.pop()
-    } else {
-      element.points.splice(popped.row, 1)
-      elementsCopy[popped.index].points = element.points
-    }
-    setElements(elementsCopy)
+    levelDispatch({
+      type: "UNDO",
+      currentLevel: currentLevel
+    })
   }
 
   useEffect(() => {
-    
-  }, [stagePos])
+    //console.log(levelState) 
+  }, [levelState, currentLevel])
 
   return (
     <>
@@ -92,10 +79,6 @@ export default function Canvas() {
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
-        onDragMove={() => { 
-          const pos = stageRef.current.position()
-          setStagePos({x: pos.x, y: pos.y})
-        }} 
       >
         <Layer
           onMouseEnter={e => {
@@ -111,43 +94,58 @@ export default function Canvas() {
             }
           }}
         >
-          {elements.map((element, i) => {
-            if (element.type === "line") {
-              const points = []
-              element.points.forEach(point => {
-                points.push(point.x)
-                points.push(point.y)
-              })
-              return (
-                <Line_ 
-                  key={i}
-                  index={i}
-                  element={element}
-                  points={points}
-                  stageMoving={stageMoving}
-                  dragLine={dragLine}
-                  setDragLine={setDragLine}
-                  drawing={drawing}
-                />
-              )
-            } else if (element.type = "rectangle") {
-              return (
-                <Rect_ 
-                  key={i}
-                  index={i}
-                  points={element.points}
-                  setDragRect={setDragRect}
-                  dragRect={dragRect}
-                  drawing={drawing}
-                />
-              )
-            }
+          {levelState.map((level, index) => {
+            return (
+              <>
+                <Group
+                  visible={level.id == currentLevel ? true : false}
+                >
+                  {levelState[index].elements.map((element, i) => {
+                    if (element.type === "line") {
+                      const points = []
+                      element.points.forEach(point => {
+                        points.push(point.x)
+                        points.push(point.y)
+                      })
+                      return (
+                        <>
+                          {/* <Line_ 
+                            key={i}
+                            index={i}
+                            element={element}
+                            points={points}
+                            dragLine={dragLine}
+                            setDragLine={setDragLine}
+                            drawing={drawing}
+                          /> */}
+                        </>
+                      )
+                    } else if (element.type = "rectangle") {
+                      return (
+                        <Rect_ 
+                          key={i}
+                          index={i}
+                          points={element.points}
+                          setDragRect={setDragRect}
+                          dragRect={dragRect}
+                          drawing={drawing}
+                        />
+                      )
+                    }
+                  })}
+                </Group>
+              </>
+            )
           })}
-         
         </Layer>
       </Stage>
-      <LevelButton />
-      {elements.length > 0 &&
+      <LevelButton 
+        currentLevel={currentLevel}
+        setCurrentLevel={setCurrentLevel}
+        levelState={levelState}
+        levelDispatch={levelDispatch}
+      />
+      {levelState[currentLevel].elements.length > 0 &&
         <>
           <UndoButton onClick={handleUndo}>Undo</UndoButton>
         </>

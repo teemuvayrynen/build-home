@@ -4,12 +4,13 @@ import styled from "styled-components"
 import * as math from "../../functions/math"
 
 export default function InfoBox ({ stageRef }) {
-  const { elements, latestElement } = useContext(CanvasContext);
+  const { elements, latestElement, levelState, levelDispatch, currentLevel } = useContext(CanvasContext);
   const [length, setLength] = useState(0)
   const [angle, setAngle] = useState(0)
   const [height, setHeight] = useState(0)
   const [width, setWidth] = useState(0)
   const [position, setPosition] = useState({x: 0, y: 0})
+
 
   useEffect(() => {
     const calculateHeightAndWidth = (element) => {
@@ -70,15 +71,15 @@ export default function InfoBox ({ stageRef }) {
       }
     }
 
-    const length = latestElement.length - 1
-    const element = elements[latestElement[length].index]
+    const length = levelState[currentLevel].latestElements.length - 1
+    const element = levelState[currentLevel].elements[levelState[currentLevel].latestElements[length].index]
     if (element.type === "line") {
       // fix this function
       //calculateLengthAndAngle(element, length)
     } else if (element.type === "rectangle") {
       calculateHeightAndWidth(element)
     }
-  }, [latestElement, elements, stageRef])
+  }, [stageRef, currentLevel, levelState, latestElement])
 
 
   return (
@@ -87,14 +88,14 @@ export default function InfoBox ({ stageRef }) {
         x={position.x}
         y={position.y}
       >
-        {elements[latestElement[latestElement.length - 1].index].type === "line" && (
+        {levelState[currentLevel].elements[levelState[currentLevel].latestElements[levelState[currentLevel].latestElements.length - 1].index].type === "line" && (
           <>
             <Text>Length: {length}m</Text>
             <Text>Angle: {angle}</Text>
           </>      
         )}
 
-        {elements[latestElement[latestElement.length - 1].index].type === "rectangle" && (
+        {levelState[currentLevel].elements[levelState[currentLevel].latestElements[levelState[currentLevel].latestElements.length - 1].index].type === "rectangle" && (
           <>
             <Text>Width: {width}m</Text>
             <Text>height: {height}m</Text>
