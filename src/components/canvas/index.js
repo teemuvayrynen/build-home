@@ -7,10 +7,11 @@ import Line_, { mouseDownLine, mouseMoveLine, mouseUpLine } from "./Line_"
 import Rect_, { mouseDownRect, mouseMoveRect } from "./Rect_"
 import InfoBox from "./InfoBox"
 import LevelButton from "../buttons/LevelButton"
+import * as math from "../../functions/math"
 
 export default function Canvas() {
   const [drawing, setDrawing] = useState(false)
-  const { activeTool, elements, setElements, latestElement, setLatestElement, levelState, levelDispatch, currentLevel, setCurrentLevel } = useContext(CanvasContext);
+  const { activeTool, levelState, levelDispatch, currentLevel, setCurrentLevel, currentElement, setCurrentElement } = useContext(CanvasContext);
   const [dragLine, setDragLine] = useState(false)
   const [dragRect, setDragRect] = useState(false)
   const stageRef = useRef(null)
@@ -19,11 +20,11 @@ export default function Canvas() {
     switch (activeTool) {
       case 2:
         setDrawing(true)
-        mouseDownLine(e, elements, setElements, setLatestElement)
+        mouseDownLine(e, levelState, levelDispatch, currentLevel, setCurrentElement)
         break;
       case 3:
         setDrawing(true)
-        mouseDownRect(e, levelState, levelDispatch, currentLevel)
+        mouseDownRect(e, levelState, levelDispatch, currentLevel, setCurrentElement)
         break;
     }
   }
@@ -32,7 +33,7 @@ export default function Canvas() {
     if (!drawing) return
     switch (activeTool) {
       case 2:
-        mouseMoveLine(e, elements, setElements, latestElement)
+        mouseMoveLine(e, levelState, levelDispatch, currentLevel, setCurrentElement)
         break;
       case 3:
         mouseMoveRect(e, levelDispatch, currentLevel)
@@ -42,8 +43,20 @@ export default function Canvas() {
 
   const handleMouseUp = (e) => {
     setDrawing(false)
-    if (activeTool == 2 || activeTool == 3) {
-      //mouseUpLine(e, elements, setElements, latestElement, setLatestElement)
+    if ((activeTool == 2 || activeTool == 3) && currentElement) {
+      const element = levelState[currentLevel].elements[currentElement.indexOfElements]
+      if (element.points.length <= 2) {
+        const pos0 = element.points[0]
+        const pos1 = element.points[1]
+        const distance = math.lengthBetweenPoints(pos0, pos1)
+        if (distance < 5) {
+          handleUndo()
+        }
+      }
+      setCurrentElement(null)
+    }
+    if (levelState[currentLevel].elements.length > 0) {
+      mouseUpLine(levelState, levelDispatch, currentLevel)
     }
   }
 
@@ -53,10 +66,6 @@ export default function Canvas() {
       currentLevel: currentLevel
     })
   }
-
-  useEffect(() => {
-    //console.log(levelState) 
-  }, [levelState, currentLevel])
 
   return (
     <>
@@ -109,7 +118,7 @@ export default function Canvas() {
                       })
                       return (
                         <>
-                          {/* <Line_ 
+                          <Line_ 
                             key={i}
                             index={i}
                             element={element}
@@ -117,7 +126,7 @@ export default function Canvas() {
                             dragLine={dragLine}
                             setDragLine={setDragLine}
                             drawing={drawing}
-                          /> */}
+                          />
                         </>
                       )
                     } else if (element.type = "rectangle") {

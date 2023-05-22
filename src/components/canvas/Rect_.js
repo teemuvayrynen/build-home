@@ -7,7 +7,7 @@ export default function Rect_ ({index, points, setDragRect, dragRect, drawing}) 
   const {activeTool, levelState, levelDispatch, currentLevel } = useContext(CanvasContext)
   const [modifiedPoints, setModifiedPoints] = useState([])
 
-  const handleDragMove = (e) => {
+  const handleDragEnd = (e) => {
     const pos = e.target.position()
     const tempPoints = levelState[currentLevel].elements[index].points
     const width = tempPoints[1].x - tempPoints[0].x
@@ -44,7 +44,7 @@ export default function Rect_ ({index, points, setDragRect, dragRect, drawing}) 
         shadowOffset={{ x: 2, y: 1 }}
         shadowOpacity={0.3}
         draggable={activeTool == 0 ? true : false}
-        onDragMove={handleDragMove}
+        onDragEnd={handleDragEnd}
       />
       {modifiedPoints.map((point, i) => {
         return (
@@ -52,7 +52,7 @@ export default function Rect_ ({index, points, setDragRect, dragRect, drawing}) 
             <Circle_
               index={i}
               indexOfElements={index}
-              element={point} 
+              point={point} 
               drag={dragRect}
               setDrag={setDragRect}
               drawing={drawing}
@@ -65,11 +65,11 @@ export default function Rect_ ({index, points, setDragRect, dragRect, drawing}) 
   )
 }
 
-export const mouseDownRect = (e, levelState, levelDispatch, currentLevel) => {
+export const mouseDownRect = (e, levelState, levelDispatch, currentLevel, setCurrentElement) => {
   const pos = e.target.getStage().getRelativePointerPosition();
   const lineObject = {
     type: "rectangle",
-    points: []
+    points: [],
   }
 
   lineObject.points = [
@@ -83,6 +83,11 @@ export const mouseDownRect = (e, levelState, levelDispatch, currentLevel) => {
     latestElement: {index: levelState[currentLevel].elements.length, row: 1},
     currentLevel: currentLevel
   })
+  setCurrentElement({
+    type: "rectangle",
+    indexOfElements: levelState[currentLevel].elements.length,
+    index: 1
+  })
 }
 
 export const mouseMoveRect = (e, levelDispatch, currentLevel) => {
@@ -92,5 +97,7 @@ export const mouseMoveRect = (e, levelDispatch, currentLevel) => {
     type: "MOVE_LATEST_POINT",
     newPos: { x: pos.x, y: pos.y },
     currentLevel: currentLevel,
+    lineType: "rectangle",
+    index: 1
   })
 }

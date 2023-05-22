@@ -26,8 +26,46 @@ function reducer(state, action) {
     }
     case 'MOVE_LATEST_POINT': {
       const copy = [...state];
-      const latestIndex = copy[action.currentLevel].elements.length - 1;
-      copy[action.currentLevel].elements[latestIndex].points[1] = action.newPos;
+      const latest = copy[action.currentLevel].latestElements.slice(-1)
+      if (action.lineType === "rectangle") {
+        copy[action.currentLevel].elements[latest[0].index].points[action.index] = action.newPos;
+      } else if (action.lineType === "line") {
+        const element = copy[action.currentLevel].elements[latest[0].index];
+        const newPos = {
+          x: action.newPos.x - element.x,
+          y: action.newPos.y - element.y
+        }
+        copy[action.currentLevel].elements[latest[0].index].points[action.index] = newPos;
+      }
+      return copy
+    }
+    case 'CONCAT_POINTS': {
+      const copy = [...state];
+      const element = copy[action.currentLevel].elements[action.indexOfElements];
+      const point = {
+        x: action.pos.x - element.x,
+        y: action.pos.y - element.y
+      }
+      if (action.row === 0) {
+        element.points.unshift(point)
+      } else {
+        element.points.push(point)
+      }
+      copy[action.currentLevel].latestElements.push({index: action.indexOfElements, row: action.row})
+      return copy
+    }
+    case 'CREATE_CLOSED_ELEMENT': {
+      const copy = [...state];
+      const element = copy[action.currentLevel].elements[action.indexOfElements];
+      const latest = copy[action.currentLevel].latestElements.slice(-1)
+      if (latest[0].row === 0) {
+        copy[action.currentLevel].elements[action.indexOfElements].points.shift()
+      } else {
+        copy[action.currentLevel].elements[action.indexOfElements].points.pop()
+      }
+      element.closed = true
+      const length = copy[action.currentLevel].latestElements.length
+      copy[action.currentLevel].latestElements[length - 1].closed = true
       return copy
     }
     case 'UPDATE_POS_DRAG_RECT': {
@@ -36,17 +74,33 @@ function reducer(state, action) {
       element.points[0] = action.pos
       element.points[1] = action.pos1
       return copy
-    } 
+    }
+    case 'UPDATE_POS_DRAG_LINE': {
+      const copy = [...state];
+      const element = copy[action.currentLevel].elements[action.index];
+      element.x = action.pos.x
+      element.y = action.pos.y
+      return copy
+    }
     case 'UPDATE_POS_DRAG_CIRCLE': {
       const copy = [...state];
-      copy[action.currentLevel].elements[action.indexOfElements].points[action.index] = action.pos
+      if (action.lineType === "rectangle") {
+        copy[action.currentLevel].elements[action.indexOfElements].points[action.index] = action.pos
+      } else if (action.lineType === "line") {
+        const element = copy[action.currentLevel].elements[action.indexOfElements];
+        const temp = {
+          x: action.pos.x - element.x,
+          y: action.pos.y - element.y
+        }
+        copy[action.currentLevel].elements[action.indexOfElements].points[action.index] = temp
+      }
       return copy
     }
     case 'UNDO': {
       const copy = [...state];
       const popped = copy[action.currentLevel].latestElements.pop();
       const element = copy[action.currentLevel].elements[popped.index];
-      if (element.closed) {
+      if (popped.closed) {
         element.closed = false;
       } else if (element.points.length <= 2) {
         copy[action.currentLevel].elements.pop();
@@ -67,25 +121,22 @@ function reducer(state, action) {
 }
 
 export const CanvasProvider = (props) => {
-  const [elements, setElements] = useState([]);
   const [activeTool, setActiveTool] = useState(0);
-  const [latestElement, setLatestElement] = useState([])
   const [levelState, levelDispatch] = useReducer(reducer, [{id: 0, elements: [], latestElements: []}])
   const [currentLevel, setCurrentLevel] = useState(0)
+  const [currentElement, setCurrentElement] = useState(null)
 
   return (
     <CanvasContext.Provider 
       value={{ 
-        elements, 
-        setElements, 
         activeTool, 
         setActiveTool, 
-        latestElement,
-        setLatestElement,
         levelState,
         levelDispatch,
         currentLevel,
-        setCurrentLevel
+        setCurrentLevel,
+        currentElement,
+        setCurrentElement
       }}>
       {props.children}
     </CanvasContext.Provider>

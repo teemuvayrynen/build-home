@@ -88,7 +88,7 @@ const ToolContainer = styled.div`
 const ToolRow = styled.div`
   display: flex;
   flex-direction: row;
-  padding: 15px 0px;
+  padding: 15px 0px 0px 5px;
 `
 
 const ToolColumn = styled.div`

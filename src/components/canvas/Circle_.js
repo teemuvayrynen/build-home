@@ -3,8 +3,8 @@ import { Circle } from "react-konva"
 import { CanvasContext } from "../../context/canvasContext"
 
 
-export default function Circle_ ({ index, indexOfElements, element, drag, setDrag, drawing, type }) {
-  const { elements, setElements, activeTool, levelState, levelDispatch, currentLevel } = useContext(CanvasContext)
+export default function Circle_ ({ index, indexOfElements, point, drag, setDrag, drawing, type }) {
+  const { activeTool, levelState, levelDispatch, currentLevel, setCurrentElement } = useContext(CanvasContext)
   const [visible, setVisible] = useState(false)
 
   const handleDrag = (e) => {
@@ -17,7 +17,8 @@ export default function Circle_ ({ index, indexOfElements, element, drag, setDra
           index: index,
           indexOfElements: indexOfElements,
           pos: pos,
-          currentLevel: currentLevel
+          currentLevel: currentLevel,
+          lineType: "rectangle"
         })
       } else if (index === 2) {
         const element = levelState[currentLevel].elements[indexOfElements]
@@ -26,14 +27,16 @@ export default function Circle_ ({ index, indexOfElements, element, drag, setDra
           index: 0,
           indexOfElements: indexOfElements,
           pos: {x: pos.x, y: element.points[0].y},
-          currentLevel: currentLevel
+          currentLevel: currentLevel,
+          lineType: "rectangle"
         })
         levelDispatch({
           type: "UPDATE_POS_DRAG_CIRCLE",
           index: 1,
           indexOfElements: indexOfElements,
           pos: {x: element.points[1].x, y: pos.y},
-          currentLevel: currentLevel
+          currentLevel: currentLevel,
+          lineType: "rectangle"
         })
       } else if (index === 3) {
         const element = levelState[currentLevel].elements[indexOfElements]
@@ -42,47 +45,47 @@ export default function Circle_ ({ index, indexOfElements, element, drag, setDra
           index: 0,
           indexOfElements: indexOfElements,
           pos: {x: element.points[0].x, y: pos.y},
-          currentLevel: currentLevel
+          currentLevel: currentLevel,
+          lineType: "rectangle"
         })
         levelDispatch({
           type: "UPDATE_POS_DRAG_CIRCLE",
           index: 1,
           indexOfElements: indexOfElements,
           pos: {x: pos.x, y: element.points[1].y},
-          currentLevel: currentLevel
+          currentLevel: currentLevel,
+          lineType: "rectangle"
         })
       }
+    } else if (type === "line") {
+      levelDispatch({
+        type: "UPDATE_POS_DRAG_CIRCLE",
+        index: index,
+        indexOfElements: indexOfElements,
+        pos: pos,
+        currentLevel: currentLevel,
+        lineType: "line"
+      })
     }
-
-
-
-    // const elementsCopy = [...elements]
-    // if (type === "line" || (type === "rect" && (index === 0 || index === 1))) {
-    //   elementsCopy[indexOfElements].points[index] = {x: pos.x, y: pos.y}
-    // } else if (type === "rect") {
-    //   const pos = e.target.getStage().getRelativePointerPosition();
-    //   const elementsCopy = [...elements]
-    //   if (index === 2) {
-    //     elementsCopy[indexOfElements].points[0] = {x: pos.x, y: elementsCopy[indexOfElements].points[0].y}
-    //     elementsCopy[indexOfElements].points[1] = {x: elementsCopy[indexOfElements].points[1].x, y: pos.y}
-    //   } else if (index === 3) {
-    //     elementsCopy[indexOfElements].points[0] = {x: elementsCopy[indexOfElements].points[0].x, y: pos.y}
-    //     elementsCopy[indexOfElements].points[1] = {x: pos.x, y: elementsCopy[indexOfElements].points[1].y}
-    //   }
-    // }
-    // setElements(elementsCopy)
   }
 
   return (
     <>
       <Circle 
-        x={element.x}
-        y={element.y}
+        x={point.x}
+        y={point.y}
         radius={7}
         fill="black"
         draggable={activeTool == 0 ? true : false}
-        onDragStart={() => { setDrag(true) }}
-        onDragEnd={() => {  setDrag(false) }}
+        onDragStart={() => {
+          setCurrentElement({
+            type: type,
+            indexOfElements: indexOfElements,
+            index: index,
+          })
+          setDrag(true)
+        }}
+        onMouseUp={() => { setDrag(false); setCurrentElement(null) }}
         onDragMove={handleDrag}
         shadowColor="grey"
         shadowBlur={4}
