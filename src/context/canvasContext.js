@@ -1,9 +1,12 @@
-import React, { useState, useReducer } from 'react';
+import React, { useState, useReducer, useEffect } from 'react';
 
 export const CanvasContext = React.createContext();
 
 function reducer(state, action) {
   switch (action.type) {
+    case 'ADD_ELEMENTS_FROM_LS': {
+      return action.elements
+    }
     case 'ADD_LEVEL': {
       const prev = state[state.length - 1];
       const newLevel = {id: prev.id + 1, elements: [], latestElements: []}
@@ -125,6 +128,17 @@ export const CanvasProvider = (props) => {
   const [levelState, levelDispatch] = useReducer(reducer, [{id: 0, elements: [], latestElements: []}])
   const [currentLevel, setCurrentLevel] = useState(0)
   const [currentElement, setCurrentElement] = useState(null)
+
+  useEffect(() => {
+    if (localStorage.getItem('levelState') !== null) {
+      const elements = localStorage.getItem('levelState')
+      levelDispatch({type: 'ADD_ELEMENTS_FROM_LS', elements: JSON.parse(elements)})
+    }
+  }, [])
+
+  useEffect(() => {
+    localStorage.setItem('levelState', JSON.stringify(levelState))
+  }, [levelState])
 
   return (
     <CanvasContext.Provider 

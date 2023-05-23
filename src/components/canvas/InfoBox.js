@@ -9,6 +9,7 @@ export default function InfoBox ({ stageRef }) {
   const angle = useRef(0)
   const height = useRef(0)
   const width = useRef(0)
+  const position = useRef({x: 0, y: 0})
 
 
   useEffect(() => {
@@ -66,8 +67,8 @@ export default function InfoBox ({ stageRef }) {
   return (
     <>
       <Box 
-        x={stageRef.current.getRelativePointerPosition().x + stageRef.current.position().x}
-        y={stageRef.current.getRelativePointerPosition().y + stageRef.current.position().y}
+        x={(stageRef.current.getRelativePointerPosition().x + stageRef.current.position().x)}
+        y={(stageRef.current.getRelativePointerPosition().y + stageRef.current.position().y)}
       >
         {currentElement && currentElement.type === "line" && (
           <>
