@@ -18,6 +18,71 @@ export default function Line_({index, element, points, dragLine, setDragLine, dr
     })
   }
 
+  const handleClick = (e) => {
+    if (activeTool === "divide") {
+      const stage = e.target.getStage()
+      const pos = stage.getRelativePointerPosition()
+      const p = {
+        x: pos.x - element.x,
+        y: pos.y - element.y
+      }
+
+      if (element.points.length === 2) {
+       levelDispatch({
+          type: "DIVIDE_LINE",
+          indexOfElements: index,
+          currentLevel: currentLevel,
+          pos: p,
+          index: 0
+       })
+      } else {
+        for (let i = 0; i < element.points.length; ++i) {
+          if (i <= element.points.length - 2) {
+            const p1 = {
+              x: element.points[i].x + element.x,
+              y: element.points[i].y + element.y
+            }
+            const p2 = {
+              x: element.points[i + 1].x + element.x,
+              y: element.points[i + 1].y + element.y
+            }
+            const l = math.lengthBetweenPoints(p1, p2)
+            const l1 = math.lengthBetweenPoints(pos, p1)
+            const l2 = math.lengthBetweenPoints(pos, p2)
+            console.log(l1 + l2)
+            console.log(l)
+            if (Math.abs(l1 + l2 - l) < 5) {
+              levelDispatch({
+                type: "DIVIDE_LINE",
+                indexOfElements: index,
+                currentLevel: currentLevel,
+                pos: p,
+                index: i
+             })
+              break
+            }
+          }
+        }
+      }
+      
+      // for (let i = 0; i < element.points.length; ++i) {
+      //   const p1 = {
+      //     x: element.points[i].x + element.x,
+      //     y: element.points[i].y + element.y
+      //   }
+      //   const l = math.lengthBetweenPoints(p, p1)
+        
+      // }
+
+      // levelDispatch({
+      //   type: "DIVIDE_LINE",
+
+      // })
+
+    }
+
+  }
+
   return (
     <>
       <Group>
@@ -32,9 +97,10 @@ export default function Line_({index, element, points, dragLine, setDragLine, dr
           shadowOffset={{ x: 2, y: 1 }}
           shadowOpacity={0.3}
           closed={element.closed}
-          draggable={activeTool == 0 ? true : false}
+          draggable={activeTool == "default" ? true : false}
           onDragEnd={handleDragEnd}
           hitStrokeWidth={10}
+          onClick={handleClick}
         />
         {element.points.map((point, i) => {
           const temp = {
@@ -121,12 +187,12 @@ export const mouseMoveLine = (e, levelState, levelDispatch, currentLevel) => {
   const latest = levelState[currentLevel].latestElements.slice(-1)
 
   levelDispatch({
-    type: "MOVE_LATEST_POINT",
+    type: "MOVE_POINT",
     newPos: { x: pos.x, y: pos.y },
     currentLevel: currentLevel,
     index: latest[0].row,
-    lineType: "line"
-
+    lineType: "line",
+    indexOfElements: latest[0].index
   })
 }
 

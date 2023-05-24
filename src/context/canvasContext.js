@@ -27,21 +27,6 @@ function reducer(state, action) {
       copy[action.currentLevel].latestElements.push(action.latestElement)
       return copy
     }
-    case 'MOVE_LATEST_POINT': {
-      const copy = [...state];
-      const latest = copy[action.currentLevel].latestElements.slice(-1)
-      if (action.lineType === "rectangle") {
-        copy[action.currentLevel].elements[latest[0].index].points[action.index] = action.newPos;
-      } else if (action.lineType === "line") {
-        const element = copy[action.currentLevel].elements[latest[0].index];
-        const newPos = {
-          x: action.newPos.x - element.x,
-          y: action.newPos.y - element.y
-        }
-        copy[action.currentLevel].elements[latest[0].index].points[action.index] = newPos;
-      }
-      return copy
-    }
     case 'CONCAT_POINTS': {
       const copy = [...state];
       const element = copy[action.currentLevel].elements[action.indexOfElements];
@@ -85,18 +70,25 @@ function reducer(state, action) {
       element.y = action.pos.y
       return copy
     }
-    case 'UPDATE_POS_DRAG_CIRCLE': {
+    case 'MOVE_POINT': {
       const copy = [...state];
       if (action.lineType === "rectangle") {
-        copy[action.currentLevel].elements[action.indexOfElements].points[action.index] = action.pos
+        copy[action.currentLevel].elements[action.indexOfElements].points[action.index] = action.newPos;
       } else if (action.lineType === "line") {
         const element = copy[action.currentLevel].elements[action.indexOfElements];
-        const temp = {
-          x: action.pos.x - element.x,
-          y: action.pos.y - element.y
+        const newPos = {
+          x: action.newPos.x - element.x,
+          y: action.newPos.y - element.y
         }
-        copy[action.currentLevel].elements[action.indexOfElements].points[action.index] = temp
+        copy[action.currentLevel].elements[action.indexOfElements].points[action.index] = newPos;
       }
+      return copy
+    }
+    case 'DIVIDE_LINE': {
+      const copy = [...state];
+      const points = copy[action.currentLevel].elements[action.indexOfElements].points;
+      points.splice(action.index + 1, 0, action.pos);
+      copy[action.currentLevel].latestElements.push({index: action.indexOfElements, row: action.index + 1})
       return copy
     }
     case 'UNDO': {
@@ -124,7 +116,7 @@ function reducer(state, action) {
 }
 
 export const CanvasProvider = (props) => {
-  const [activeTool, setActiveTool] = useState(0);
+  const [activeTool, setActiveTool] = useState("default");
   const [levelState, levelDispatch] = useReducer(reducer, [{id: 0, elements: [], latestElements: []}])
   const [currentLevel, setCurrentLevel] = useState(0)
   const [currentElement, setCurrentElement] = useState(null)

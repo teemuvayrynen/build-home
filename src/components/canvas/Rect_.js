@@ -43,7 +43,7 @@ export default function Rect_ ({index, points, setDragRect, dragRect, drawing}) 
         shadowBlur={4}
         shadowOffset={{ x: 2, y: 1 }}
         shadowOpacity={0.3}
-        draggable={activeTool == 0 ? true : false}
+        draggable={activeTool == "default" ? true : false}
         onDragEnd={handleDragEnd}
       />
       {modifiedPoints.map((point, i) => {

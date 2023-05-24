@@ -13,38 +13,38 @@ export default function Circle_ ({ index, indexOfElements, point, drag, setDrag,
     if (type === "rectangle") {
       if (index === 0 || index === 1) {
         levelDispatch({
-          type: "UPDATE_POS_DRAG_CIRCLE",
+          type: "MOVE_POINT",
           index: index,
           indexOfElements: indexOfElements,
-          pos: pos,
+          newPos: pos,
           currentLevel: currentLevel,
           lineType: "rectangle"
         })
       } else if (index === 2) {
         const element = levelState[currentLevel].elements[indexOfElements]
         levelDispatch({
-          type: "UPDATE_POS_DRAG_CIRCLE",
+          type: "MOVE_POINT",
           index: 0,
           indexOfElements: indexOfElements,
-          pos: {x: pos.x, y: element.points[0].y},
+          newPos: {x: pos.x, y: element.points[0].y},
           currentLevel: currentLevel,
           lineType: "rectangle"
         })
         levelDispatch({
-          type: "UPDATE_POS_DRAG_CIRCLE",
+          type: "MOVE_POINT",
           index: 1,
           indexOfElements: indexOfElements,
-          pos: {x: element.points[1].x, y: pos.y},
+          newPos: {x: element.points[1].x, y: pos.y},
           currentLevel: currentLevel,
           lineType: "rectangle"
         })
       } else if (index === 3) {
         const element = levelState[currentLevel].elements[indexOfElements]
         levelDispatch({
-          type: "UPDATE_POS_DRAG_CIRCLE",
+          type: "MOVE_POINT",
           index: 0,
           indexOfElements: indexOfElements,
-          pos: {x: element.points[0].x, y: pos.y},
+          newPos: {x: element.points[0].x, y: pos.y},
           currentLevel: currentLevel,
           lineType: "rectangle"
         })
@@ -52,17 +52,17 @@ export default function Circle_ ({ index, indexOfElements, point, drag, setDrag,
           type: "UPDATE_POS_DRAG_CIRCLE",
           index: 1,
           indexOfElements: indexOfElements,
-          pos: {x: pos.x, y: element.points[1].y},
+          newPos: {x: pos.x, y: element.points[1].y},
           currentLevel: currentLevel,
           lineType: "rectangle"
         })
       }
     } else if (type === "line") {
       levelDispatch({
-        type: "UPDATE_POS_DRAG_CIRCLE",
+        type: "MOVE_POINT",
         index: index,
         indexOfElements: indexOfElements,
-        pos: pos,
+        newPos: pos,
         currentLevel: currentLevel,
         lineType: "line"
       })
@@ -76,7 +76,7 @@ export default function Circle_ ({ index, indexOfElements, point, drag, setDrag,
         y={point.y}
         radius={7}
         fill="black"
-        draggable={activeTool == 0 ? true : false}
+        draggable={activeTool === "default" ? true : false}
         onDragStart={() => {
           setCurrentElement({
             type: type,

@@ -20,11 +20,11 @@ export default function Canvas() {
 
   const handleMouseDown = (e) => {
     switch (activeTool) {
-      case 2:
+      case "line":
         setDrawing(true)
         mouseDownLine(e, levelState, levelDispatch, currentLevel, setCurrentElement)
         break;
-      case 3:
+      case "rectangle":
         setDrawing(true)
         mouseDownRect(e, levelState, levelDispatch, currentLevel, setCurrentElement)
         break;
@@ -34,10 +34,10 @@ export default function Canvas() {
   const handleMouseMove = (e) => {
     if (!drawing) return
     switch (activeTool) {
-      case 2:
+      case "line":
         mouseMoveLine(e, levelState, levelDispatch, currentLevel, setCurrentElement)
         break;
-      case 3:
+      case "rectangle":
         mouseMoveRect(e, levelDispatch, currentLevel)
         break;
     }
@@ -45,7 +45,7 @@ export default function Canvas() {
 
   const handleMouseUp = (e) => {
     setDrawing(false)
-    if ((activeTool == 2 || activeTool == 3) && currentElement) {
+    if ((activeTool == "line" || activeTool == "rectangle") && currentElement) {
       const element = levelState[currentLevel].elements[currentElement.indexOfElements]
       if (element.points.length <= 2) {
         const pos0 = element.points[0]
@@ -99,9 +99,9 @@ export default function Canvas() {
         width={typeof window !== 'undefined' ? window.innerWidth : 0 } 
         height={typeof window !== 'undefined' ? window.innerHeight : 0 }
         style={{ background: "rgb(250, 250, 250)" }}
-        draggable={activeTool == 1 ? true : false}
+        draggable={activeTool === "move" ? true : false}
         onMouseEnter={e => {
-          if (activeTool == 1) {
+          if (activeTool === "move") {
             const container = e.target.getStage().container();
             container.style.cursor = "move";
           }
@@ -116,13 +116,13 @@ export default function Canvas() {
       >
         <Layer
           onMouseEnter={e => {
-            if (activeTool == 0) {
+            if (activeTool === "default" || activeTool === "divide") {
               const container = e.target.getStage().container();
               container.style.cursor = "pointer";
             }
           }}
           onMouseLeave={e => {
-            if (activeTool == 0) {
+            if (activeTool === "default" || activeTool === "divide") {
               const container = e.target.getStage().container();
               container.style.cursor = "default";
             }

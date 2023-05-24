@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowPointer, faArrowsUpDownLeftRight, faPen, faTrash } from '@fortawesome/free-solid-svg-icons'
+import { faArrowPointer, faArrowsUpDownLeftRight, faPen, faTrash, faScissors } from '@fortawesome/free-solid-svg-icons'
 import { faSquare, faTrashCan } from "@fortawesome/free-regular-svg-icons";
 import React, { useContext } from "react";
 import { CanvasContext } from "../../../context/canvasContext"
@@ -14,16 +14,22 @@ export default function Tools() {
         <Header>Edit</Header>
         <ToolRow>
           <ToolColumn>
-            <Tool onClick={() => { setActiveTool(0) }} active={activeTool == 0 ? 1 : 0}>
+            <Tool onClick={() => { setActiveTool("default") }} active={activeTool === "default" ? 1 : 0}>
               <FontAwesomeIcon icon={faArrowPointer} fixedWidth/>
             </Tool>
             <Text>Object</Text>
           </ToolColumn>
           <ToolColumn>
-            <Tool onClick={() => { setActiveTool(1) }} active={activeTool == 1 ? 1 : 0}>
+            <Tool onClick={() => { setActiveTool("move") }} active={activeTool === "move" ? 1 : 0}>
               <FontAwesomeIcon icon={faArrowsUpDownLeftRight} fixedWidth/>
             </Tool>
             <Text>Move</Text>
+          </ToolColumn>
+          <ToolColumn>
+            <Tool onClick={() => { setActiveTool("divide") }} active={activeTool === "divide" ? 1 : 0}>
+              <FontAwesomeIcon icon={faScissors} fixedWidth/>
+            </Tool>
+            <Text>Divide</Text>
           </ToolColumn>
         </ToolRow>
       </ToolContainer>
@@ -31,13 +37,13 @@ export default function Tools() {
         <Header>Draw</Header>
         <ToolRow>
           <ToolColumn>
-            <Tool onClick={() => { setActiveTool(2) }} active={activeTool == 2 ? 1 : 0}>
+            <Tool onClick={() => { setActiveTool("line") }} active={activeTool === "line" ? 1 : 0}>
               <FontAwesomeIcon icon={faPen} fixedWidth/>
             </Tool>
             <Text>Line</Text>
           </ToolColumn>
           <ToolColumn>
-            <Tool onClick={() => { setActiveTool(3) }} active={activeTool == 3 ? 1 : 0}>
+            <Tool onClick={() => { setActiveTool("rectangle") }} active={activeTool === "rectangle" ? 1 : 0}>
               <FontAwesomeIcon icon={faSquare} fixedWidth/>
             </Tool>
             <Text>Rectangle</Text>
