@@ -9,7 +9,6 @@ export default function Line_({index, element, points, dragLine, setDragLine, dr
 
   const handleDragEnd = (e) => {
     const pos = e.target.position()
-    
     levelDispatch({
       type: "UPDATE_POS_DRAG_LINE",
       index: index,
@@ -26,7 +25,6 @@ export default function Line_({index, element, points, dragLine, setDragLine, dr
         x: pos.x - element.x,
         y: pos.y - element.y
       }
-
       if (element.points.length === 2) {
        levelDispatch({
           type: "DIVIDE_LINE",
@@ -49,8 +47,6 @@ export default function Line_({index, element, points, dragLine, setDragLine, dr
             const l = math.lengthBetweenPoints(p1, p2)
             const l1 = math.lengthBetweenPoints(pos, p1)
             const l2 = math.lengthBetweenPoints(pos, p2)
-            console.log(l1 + l2)
-            console.log(l)
             if (Math.abs(l1 + l2 - l) < 5) {
               levelDispatch({
                 type: "DIVIDE_LINE",
@@ -63,22 +59,29 @@ export default function Line_({index, element, points, dragLine, setDragLine, dr
             }
           }
         }
+        if (element.closed) {
+          const p1 = {
+            x: element.points[element.points.length - 1].x + element.x,
+            y: element.points[element.points.length - 1].y + element.y
+          }
+          const p2 = {
+            x: element.points[0].x + element.x,
+            y: element.points[0].y + element.y
+          }
+          const l = math.lengthBetweenPoints(p1, p2)
+          const l1 = math.lengthBetweenPoints(pos, p1)
+          const l2 = math.lengthBetweenPoints(pos, p2)
+          if (Math.abs(l1 + l2 - l) < 5) {
+            levelDispatch({
+              type: "DIVIDE_LINE",
+              indexOfElements: index,
+              currentLevel: currentLevel,
+              pos: p,
+              index: element.points.length - 1
+           })
+          }
+        }
       }
-      
-      // for (let i = 0; i < element.points.length; ++i) {
-      //   const p1 = {
-      //     x: element.points[i].x + element.x,
-      //     y: element.points[i].y + element.y
-      //   }
-      //   const l = math.lengthBetweenPoints(p, p1)
-        
-      // }
-
-      // levelDispatch({
-      //   type: "DIVIDE_LINE",
-
-      // })
-
     }
 
   }
@@ -159,8 +162,6 @@ export const mouseDownLine = (e, levelState, levelDispatch, currentLevel, setCur
       }
     }
   }
-
-
   const lineObject = {
     type: "line",
     closed: false,
@@ -168,7 +169,6 @@ export const mouseDownLine = (e, levelState, levelDispatch, currentLevel, setCur
     x: pos.x,
     y: pos.y,
   }
-  
   levelDispatch({
     type: "ADD_ELEMENT_BASE",
     element: lineObject,
@@ -185,7 +185,6 @@ export const mouseDownLine = (e, levelState, levelDispatch, currentLevel, setCur
 export const mouseMoveLine = (e, levelState, levelDispatch, currentLevel) => {
   const pos = e.target.getStage().getRelativePointerPosition()
   const latest = levelState[currentLevel].latestElements.slice(-1)
-
   levelDispatch({
     type: "MOVE_POINT",
     newPos: { x: pos.x, y: pos.y },
