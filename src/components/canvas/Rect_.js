@@ -90,14 +90,16 @@ export const mouseDownRect = (e, levelState, levelDispatch, currentLevel, setCur
   })
 }
 
-export const mouseMoveRect = (e, levelDispatch, currentLevel) => {
+export const mouseMoveRect = (e, levelState, levelDispatch, currentLevel) => {
   const pos = e.target.getStage().getRelativePointerPosition();
+  const latest = levelState[currentLevel].latestElements.slice(-1)
 
   levelDispatch({
-    type: "MOVE_LATEST_POINT",
+    type: "MOVE_POINT",
     newPos: { x: pos.x, y: pos.y },
     currentLevel: currentLevel,
     lineType: "rectangle",
-    index: 1
+    index: latest[0].row,
+    indexOfElements: latest[0].index
   })
 }

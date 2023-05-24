@@ -38,7 +38,7 @@ export default function Canvas() {
         mouseMoveLine(e, levelState, levelDispatch, currentLevel, setCurrentElement)
         break;
       case "rectangle":
-        mouseMoveRect(e, levelDispatch, currentLevel)
+        mouseMoveRect(e, levelState, levelDispatch, currentLevel)
         break;
     }
   }
@@ -57,9 +57,7 @@ export default function Canvas() {
       }
       setCurrentElement(null)
     }
-    if (levelState[currentLevel].elements.length > 0) {
-      mouseUpLine(levelState, levelDispatch, currentLevel)
-    }
+    mouseUpLine(levelState, levelDispatch, currentLevel) 
   }
 
   const handleUndo = () => {
