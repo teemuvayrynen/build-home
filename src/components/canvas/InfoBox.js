@@ -2,14 +2,15 @@ import React, { useContext, useEffect, useState, useRef } from 'react';
 import { CanvasContext } from "../../context/canvasContext"
 import styled from "styled-components"
 import * as math from "../../functions/math"
+import useMousePosition from "../../hooks/useMousePosition"
 
 export default function InfoBox ({ stageRef }) {
   const { levelState, currentLevel, currentElement } = useContext(CanvasContext);
+  const mousePosition = useMousePosition()
   const length = useRef(0)
   const angle = useRef(0)
   const height = useRef(0)
   const width = useRef(0)
-  const position = useRef({x: 0, y: 0})
 
 
   useEffect(() => {
@@ -67,8 +68,8 @@ export default function InfoBox ({ stageRef }) {
   return (
     <>
       <Box 
-        x={(stageRef.current.getRelativePointerPosition().x + stageRef.current.position().x)}
-        y={(stageRef.current.getRelativePointerPosition().y + stageRef.current.position().y)}
+        x={mousePosition.x}
+        y={mousePosition.y}
       >
         {currentElement && currentElement.type === "line" && (
           <>
@@ -92,7 +93,7 @@ const Box = styled.div`
   background-color: rgba(255, 255, 255, 0.8);
   position: absolute;
   top: ${props => props.y}px;
-  left: ${props => props.x - 120}px;
+  left: ${props => props.x - 150}px;
   display: flex;
   flex-direction: column;
   width: 100px;
