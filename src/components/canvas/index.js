@@ -9,6 +9,8 @@ import InfoBox from "./InfoBox"
 import LevelButton from "../buttons/LevelButton"
 import * as math from "../../functions/math"
 
+const scaleBy = 1.05;
+
 export default function Canvas() {
   const [drawing, setDrawing] = useState(false)
   const { activeTool, levelState, levelDispatch, currentLevel, setCurrentLevel, currentElement, setCurrentElement } = useContext(CanvasContext);
@@ -67,10 +69,33 @@ export default function Canvas() {
     })
   }
 
+  const handleWheel = (e) => {
+    e.evt.preventDefault();
+    if (stageRef.current !== null) {
+      const stage = stageRef.current;
+      const oldScale = stage.scaleX();
+      const { x: pointerX, y: pointerY } = stage.getPointerPosition();
+      const mousePointTo = {
+        x: (pointerX - stage.x()) / oldScale,
+        y: (pointerY - stage.y()) / oldScale,
+      };
+      const newScale = e.evt.deltaY > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+      stage.scale({ x: newScale, y: newScale });
+      const newPos = {
+        x: pointerX - mousePointTo.x * newScale,
+        y: pointerY - mousePointTo.y * newScale,
+      }
+      stage.position(newPos);
+      stage.batchDraw();
+    }
+  }
+
   return (
     <>
       <Stage 
         ref={stageRef}
+        onWheel={handleWheel}
+        perfectDrawEnabled={false}
         width={typeof window !== 'undefined' ? window.innerWidth : 0 } 
         height={typeof window !== 'undefined' ? window.innerHeight : 0 }
         style={{ background: "rgb(250, 250, 250)" }}
