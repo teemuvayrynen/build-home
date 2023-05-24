@@ -5,7 +5,7 @@ import Items from './pages/items';
 import Info from './pages/info';
 
 
-export default function SideBar() {
+export default function LeftBar() {
   const [active, setActive] = useState(0);
 
   return (

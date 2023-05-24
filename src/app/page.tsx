@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, createContext } from 'react';
-import SideBar from '../components/sideBar'
+import LeftBar from '../components/sideBars/LeftBar'
 import { CanvasProvider } from '../context/canvasContext'
 import CanvasSSRDisabled from '../components/canvas/disableSSR'
 import TopBar from '../components/topBar'
@@ -14,7 +14,7 @@ export default function Home() {
       <TopBar />
       <div className='container'>
         <CanvasProvider>
-          <SideBar />
+          <LeftBar />
           <CanvasSSRDisabled />
         </CanvasProvider>
       </div>
