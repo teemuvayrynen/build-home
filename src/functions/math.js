@@ -1,6 +1,13 @@
+import globals from "../app/globals"
 
 export const lengthBetweenPoints = (a, b) => {
-  return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2))
+  const l = Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2)) 
+  return l
+}
+
+export const lengthBetweenPointsMeters = (a, b) => {
+  const l = lengthBetweenPoints(a, b)
+  return Math.round(l / globals.lengthParameter * 100) / 100
 }
 
 export const angleOfVector = (a, b, c, d) => {

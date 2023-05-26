@@ -184,7 +184,7 @@ export default function Canvas() {
                     )
                   }
                 })}
-                <InfoForLine dragging={dragging} />
+                <InfoForLine dragging={dragging[0]} />
               </Group>
             </Layer>
           </>

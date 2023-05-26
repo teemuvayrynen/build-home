@@ -1,5 +1,5 @@
 import React, { useContext } from "react"
-import { Line, Group } from "react-konva"
+import { Line, Group, Shape } from "react-konva"
 import { CanvasContext } from "../../context/canvasContext"
 import * as math from "../../functions/math"
 import Circle_ from "./Circle_"
@@ -195,7 +195,7 @@ export const mouseMoveLine = (e, levelState, levelDispatch, currentLevel) => {
 }
 
 export const mouseUpLine = (levelState, levelDispatch, currentLevel) => {
-  if (levelState[currentLevel].latestElements.length === 0) return
+  if (levelState[currentLevel].elements.length === 0) return
   const latest = levelState[currentLevel].latestElements.slice(-1)
   const element = levelState[currentLevel].elements[latest[0].index]
   if (element.points.length > 3) {

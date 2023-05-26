@@ -33,10 +33,9 @@ export default function InfoBox ({ stageRef, drawing, dragging }) {
         if (h < 0) {
           h = h * -1
         }
-        width.current = Math.round(w / globals.lengthParameter * 100) / 100
-        height.current = Math.round(h / globals.lengthParameter * 100) / 100
+        width.current = w
+        height.current = h
       } else if (currentElement.type === "line" && !element.closed) {
-       
         let pos0 = {}
         let pos1 = {}
         let a = 0
@@ -83,8 +82,8 @@ export default function InfoBox ({ stageRef, drawing, dragging }) {
             a = math.findLineAngle(pos0, pos1)
           }
         }
-        const l = math.lengthBetweenPoints(pos0, pos1)
-        length.current = Math.round(l / globals.lengthParameter * 100) / 100
+        const l = math.lengthBetweenPointsMeters(pos0, pos1)
+        length.current = l
         if (a < 0) {
           angle.current = Math.round(a * (-1) * 100) / 100
           return
