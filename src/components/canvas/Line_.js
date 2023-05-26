@@ -1,10 +1,10 @@
 import React, { useContext } from "react"
-import { Line, Group } from "react-konva"
+import { Line, Group, Shape } from "react-konva"
 import { CanvasContext } from "../../context/canvasContext"
 import * as math from "../../functions/math"
 import Circle_ from "./Circle_"
 
-export default function Line_({index, element, points, dragLine, setDragLine, drawing }) {
+export default function Line_({index, element, points, drawing, dragging}) {
   const { activeTool, levelDispatch, currentLevel } = useContext(CanvasContext)
 
   const handleDragEnd = (e) => {
@@ -116,10 +116,9 @@ export default function Line_({index, element, points, dragLine, setDragLine, dr
                 index={i}
                 indexOfElements={index}
                 point={temp}
-                drag={dragLine}
-                setDrag={setDragLine}
                 drawing={drawing}
                 type="line"
+                dragging={dragging}
               />
             </>
           )
@@ -196,6 +195,7 @@ export const mouseMoveLine = (e, levelState, levelDispatch, currentLevel) => {
 }
 
 export const mouseUpLine = (levelState, levelDispatch, currentLevel) => {
+  if (levelState[currentLevel].elements.length === 0) return
   const latest = levelState[currentLevel].latestElements.slice(-1)
   const element = levelState[currentLevel].elements[latest[0].index]
   if (element.points.length > 3) {

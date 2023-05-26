@@ -23,15 +23,13 @@ export default function LeftBar() {
 }
 
 const Container = styled.div`
-  height: 100%;
   width: 250px;
   min-width: 250px;
   background: white;
   display: flex;
   flex-direction: column;
-  position: fixed;
-  margin-top: 50px;
-  box-shadow: 0px 0px 10px rgba(0,0,0,0.4);
+  height: 100%;
+  box-shadow: 0px 0px 10px rgba(0,0,0,0.5);
   z-index: 1;
 `
 
