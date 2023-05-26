@@ -4,9 +4,21 @@ export const lengthBetweenPoints = (a, b) => {
 }
 
 export const angleOfVector = (a, b, c, d) => {
-  return Math.atan(((b.x - a.x)*(d.x - c.x)+(b.y - a.y)*(d.y - c.y)) 
-  / (Math.sqrt(Math.pow(b.x - a.x , 2) + Math.pow(d.x - c.x , 2)) * 
-  Math.sqrt(Math.pow(b.y - a.y , 2) + Math.pow(d.y - c.y , 2))))
+  const dAx = b.x - a.x
+  const dAy = b.y - a.y
+  const dBx = d.x - c.x
+  const dBy = d.y - c.y
+  let angle = Math.atan2(dAx * dBy - dAy * dBx, dAx * dBx + dAy * dBy)
+  if (angle < 0) {
+    angle = angle * -1;
+  }
+
+  return 180 - (angle * (180 / Math.PI)) 
+}
+
+export const findLineAngle = (a, b) => {
+  const angle = (Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI)
+  return angle
 }
 
 export const midPoint = (a, b) => {

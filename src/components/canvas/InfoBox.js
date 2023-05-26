@@ -4,9 +4,10 @@ import styled from "styled-components"
 import * as math from "../../functions/math"
 import useMousePosition from "../../hooks/useMousePosition"
 
-export default function InfoBox ({ stageRef }) {
+export default function InfoBox ({ stageRef, drawing, dragging }) {
   const { levelState, currentLevel, currentElement } = useContext(CanvasContext);
   const mousePosition = useMousePosition()
+  const [visible, setVisible] = useState(false)
   const length = useRef(0)
   const angle = useRef(0)
   const height = useRef(0)
@@ -14,8 +15,12 @@ export default function InfoBox ({ stageRef }) {
 
 
   useEffect(() => {
-    if (currentElement) {
+    if (currentElement && (dragging || drawing)) {
+      const element = levelState[currentLevel].elements[currentElement.indexOfElements]
       if (currentElement.type === "rectangle") {
+        if (!visible) {
+          setVisible(true)
+        }
         const element = levelState[currentLevel].elements[currentElement.indexOfElements]
         const pos0 = element.points[0]
         const pos1 = element.points[1]
@@ -29,11 +34,15 @@ export default function InfoBox ({ stageRef }) {
         }
         width.current = Math.round(w / 40 * 100) / 100
         height.current = Math.round(h / 40 * 100) / 100
-      } else if (currentElement.type === "line") {
-        const element = levelState[currentLevel].elements[currentElement.indexOfElements]
+      } else if (currentElement.type === "line" && !element.closed) {
+       
         let pos0 = {}
         let pos1 = {}
+        let a = 0
         if (currentElement.index === 0) {
+          if (!visible) {
+            setVisible(true)
+          }
           pos0 = {
             x: element.x + element.points[0].x,
             y: element.y + element.points[0].y
@@ -42,7 +51,19 @@ export default function InfoBox ({ stageRef }) {
             x: element.x + element.points[1].x,
             y: element.y + element.points[1].y
           }
-        } else {
+          if (element.points.length > 2) {
+            const pos2 = {
+              x: element.x + element.points[2].x,
+              y: element.y + element.points[2].y
+            }
+            a = math.angleOfVector(pos0, pos1, pos1, pos2)
+          } else {
+            a = math.findLineAngle(pos0, pos1)
+          }
+        } else if (currentElement.index === element.points.length - 1) { 
+          if (!visible) {
+            setVisible(true)
+          }
           pos0 = {
             x: element.x + element.points[currentElement.index - 1].x,
             y: element.y + element.points[currentElement.index - 1].y
@@ -51,18 +72,33 @@ export default function InfoBox ({ stageRef }) {
             x: element.x + element.points[currentElement.index].x,
             y: element.y + element.points[currentElement.index].y
           }
+          if (element.points.length > 2) {
+            const pos2 = {
+              x: element.x + element.points[currentElement.index - 2].x,
+              y: element.y + element.points[currentElement.index - 2].y
+            }
+            a = math.angleOfVector(pos2, pos0, pos0, pos1)
+          } else {
+            a = math.findLineAngle(pos0, pos1)
+          }
         }
         const l = math.lengthBetweenPoints(pos0, pos1)
         length.current = Math.round(l / 40 * 100) / 100
-        const a = math.angleOfVector(pos0, pos1, {x: pos0.x, y: pos0.y}, {x: 2000, y: pos0.y})
         if (a < 0) {
-          angle.current = (Math.round(a * 180 / Math.PI * 100) / 100) * -1
+          angle.current = Math.round(a * (-1) * 100) / 100
           return
         }
-        angle.current = Math.round(a * 180 / Math.PI * 100) / 100
+        angle.current = Math.round((a) * 100) / 100
       }
     }
-  }, [currentElement, currentLevel, levelState])
+  }, [currentElement, currentLevel, levelState, visible])
+
+  useEffect(() => {
+    console.log(dragging, drawing)
+    if (!dragging && !drawing) {
+      setVisible(false)
+    }
+  }, [dragging, drawing])
 
 
   return (
@@ -70,6 +106,7 @@ export default function InfoBox ({ stageRef }) {
       <Box 
         x={mousePosition.x}
         y={mousePosition.y}
+        visible={visible ? 1 : 0}
       >
         {currentElement && currentElement.type === "line" && (
           <>
@@ -101,6 +138,7 @@ const Box = styled.div`
   border-radius: 5px;
   padding: 5px;
   z-index: 1;
+  visibility: ${props => props.visible ? "visible" : "hidden"};
 `
 
 const Text = styled.p`

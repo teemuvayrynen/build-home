@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowPointer, faArrowsUpDownLeftRight, faPen, faTrash, faScissors } from '@fortawesome/free-solid-svg-icons'
+import { faArrowPointer, faArrowsUpDownLeftRight, faPen, faTrash, faScissors, faBezierCurve } from '@fortawesome/free-solid-svg-icons'
 import { faSquare, faTrashCan } from "@fortawesome/free-regular-svg-icons";
 import React, { useContext } from "react";
 import { CanvasContext } from "../../../context/canvasContext"
@@ -43,10 +43,16 @@ export default function Tools() {
             <Text>Line</Text>
           </ToolColumn>
           <ToolColumn>
+            <Tool onClick={() => { setActiveTool("bezier") }} active={activeTool === "bezier" ? 1 : 0}>
+              <FontAwesomeIcon icon={faBezierCurve} fixedWidth/>
+            </Tool>
+            <Text>Bezier</Text>
+          </ToolColumn>
+          <ToolColumn>
             <Tool onClick={() => { setActiveTool("rectangle") }} active={activeTool === "rectangle" ? 1 : 0}>
               <FontAwesomeIcon icon={faSquare} fixedWidth/>
             </Tool>
-            <Text>Rectangle</Text>
+            <Text>Rect</Text>
           </ToolColumn>
         </ToolRow>
       </ToolContainer>
@@ -94,7 +100,9 @@ const ToolContainer = styled.div`
 const ToolRow = styled.div`
   display: flex;
   flex-direction: row;
-  padding: 15px 0px 0px 5px;
+  padding: 15px 0px 0px 0px;
+  justify-content: space-evenly;
+  width: 70%;
 `
 
 const ToolColumn = styled.div`
@@ -102,7 +110,6 @@ const ToolColumn = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin-left: 15px;
 `
 
 const Tool = styled.div`
@@ -119,7 +126,7 @@ const Tool = styled.div`
 
 const Header = styled.h4`
   font-weight: 600;
-  margin: 0px 0px 0px 40px;
+  margin: 0px 0px 0px 20px;
 `
 
 const Text = styled.p`

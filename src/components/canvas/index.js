@@ -6,6 +6,7 @@ import styled from "styled-components"
 import Line_, { mouseDownLine, mouseMoveLine, mouseUpLine } from "./Line_"
 import Rect_, { mouseDownRect, mouseMoveRect } from "./Rect_"
 import InfoBox from "./InfoBox"
+import RightBar from "../sideBars/RightBar"
 import LevelButton from "../buttons/LevelButton"
 import * as math from "../../functions/math"
 
@@ -13,9 +14,15 @@ const scaleBy = 1.05;
 
 export default function Canvas() {
   const [drawing, setDrawing] = useState(false)
-  const { activeTool, levelState, levelDispatch, currentLevel, setCurrentLevel, currentElement, setCurrentElement } = useContext(CanvasContext);
-  const [dragLine, setDragLine] = useState(false)
-  const [dragRect, setDragRect] = useState(false)
+  const dragging = useState(false)
+  const { 
+    activeTool, 
+    levelState, 
+    levelDispatch, 
+    currentLevel, 
+    setCurrentLevel, 
+    currentElement, 
+    setCurrentElement} = useContext(CanvasContext);
   const stageRef = useRef(null)
 
   const handleMouseDown = (e) => {
@@ -54,10 +61,21 @@ export default function Canvas() {
         if (distance < 5) {
           handleUndo()
         }
+      } else {
+        const p1 = element.points[currentElement.index]
+        let p2 = null
+        if (currentElement.index === 0) {
+          p2 = element.points[currentElement.index + 1]
+        } else {
+          p2 = element.points[currentElement.index - 1]
+        }
+        if (p1.x === p2.x && p1.y === p2.y) {
+          handleUndo()
+        }
       }
-      setCurrentElement(null)
     }
     mouseUpLine(levelState, levelDispatch, currentLevel) 
+    setCurrentElement(null)
   }
 
   const handleUndo = () => {
@@ -91,12 +109,15 @@ export default function Canvas() {
   return (
     <>
       <Stage 
+        onMouseOut={() => {
+          dragging[1](false)
+        }}
         ref={stageRef}
         onWheel={handleWheel}
         perfectDrawEnabled={false}
-        width={typeof window !== 'undefined' ? window.innerWidth : 0 } 
-        height={typeof window !== 'undefined' ? window.innerHeight : 0 }
-        style={{ background: "rgb(250, 250, 250)" }}
+        width={typeof window !== 'undefined' ? window.innerWidth - 250 : 0 } 
+        height={typeof window !== 'undefined' ? window.innerHeight - 50 : 0 }
+        style={{ background: "rgb(240, 240, 240)" }}
         draggable={activeTool === "move" ? true : false}
         onMouseEnter={e => {
           if (activeTool === "move") {
@@ -112,64 +133,61 @@ export default function Canvas() {
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
       >
-        <Layer
-          onMouseEnter={e => {
-            if (activeTool === "default" || activeTool === "divide") {
-              const container = e.target.getStage().container();
-              container.style.cursor = "pointer";
-            }
-          }}
-          onMouseLeave={e => {
-            if (activeTool === "default" || activeTool === "divide") {
-              const container = e.target.getStage().container();
-              container.style.cursor = "default";
-            }
-          }}
-        >
-          {levelState.map((level, index) => {
-            return (
-              <>
-                <Group
-                  visible={level.id == currentLevel ? true : false}
-                >
-                  {levelState[index].elements.map((element, i) => {
-                    if (element.type === "line") {
-                      const points = []
-                      element.points.forEach(point => {
-                        points.push(point.x)
-                        points.push(point.y)
-                      })
-                      return (
-                        <>
-                          <Line_ 
-                            key={i}
-                            index={i}
-                            element={element}
-                            points={points}
-                            dragLine={dragLine}
-                            setDragLine={setDragLine}
-                            drawing={drawing}
-                          />
-                        </>
-                      )
-                    } else if (element.type = "rectangle") {
-                      return (
-                        <Rect_ 
+      {levelState.map((level, index) => {
+        return (
+          <>
+            <Layer
+            visible={level.id == currentLevel ? true : false}
+              onMouseEnter={e => {
+                if (activeTool === "default" || activeTool === "divide") {
+                  const container = e.target.getStage().container();
+                  container.style.cursor = "pointer";
+                }
+              }}
+              onMouseLeave={e => {
+                if (activeTool === "default" || activeTool === "divide") {
+                  const container = e.target.getStage().container();
+                  container.style.cursor = "default";
+                }
+              }}
+            >
+              <Group>
+                {levelState[index].elements.map((element, i) => {
+                  if (element.type === "line") {
+                    const points = []
+                    element.points.forEach(point => {
+                      points.push(point.x)
+                      points.push(point.y)
+                    })
+                    return (
+                      <>
+                        <Line_ 
                           key={i}
                           index={i}
-                          points={element.points}
-                          setDragRect={setDragRect}
-                          dragRect={dragRect}
+                          element={element}
+                          points={points}
                           drawing={drawing}
+                          dragging={dragging}
                         />
-                      )
-                    }
-                  })}
-                </Group>
-              </>
-            )
-          })}
-        </Layer>
+                      </>
+                    )
+                  } else if (element.type = "rectangle") {
+                    return (
+                      <Rect_ 
+                        key={i}
+                        index={i}
+                        points={element.points}
+                        drawing={drawing}
+                        dragging={dragging}
+                      />
+                    )
+                  }
+                })}
+              </Group>
+            </Layer>
+          </>
+        )
+      })}
       </Stage>
       <LevelButton 
         currentLevel={currentLevel}
@@ -182,11 +200,12 @@ export default function Canvas() {
           <UndoButton onClick={handleUndo}>Undo</UndoButton>
         </>
       }
-      {(drawing || dragLine || dragRect) &&
-        <InfoBox 
-          stageRef={stageRef}
-        />
-      }
+      <InfoBox 
+        stageRef={stageRef}
+        drawing={drawing}
+        dragging={dragging[0]}
+      />
+      <RightBar />
     </>
   )
 }

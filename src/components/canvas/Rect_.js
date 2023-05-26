@@ -3,7 +3,7 @@ import { Rect } from "react-konva"
 import { CanvasContext } from "../../context/canvasContext"
 import Circle_ from "./Circle_";
 
-export default function Rect_ ({index, points, setDragRect, dragRect, drawing}) {
+export default function Rect_ ({index, points, drawing, dragging}) {
   const {activeTool, levelState, levelDispatch, currentLevel } = useContext(CanvasContext)
   const [modifiedPoints, setModifiedPoints] = useState([])
 
@@ -53,10 +53,9 @@ export default function Rect_ ({index, points, setDragRect, dragRect, drawing}) 
               index={i}
               indexOfElements={index}
               point={point} 
-              drag={dragRect}
-              setDrag={setDragRect}
               drawing={drawing}
               type="rectangle"
+              dragging={dragging}
             />
           </>
         )
