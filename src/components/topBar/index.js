@@ -6,8 +6,6 @@ export default function TopBar() {
   return (
     <Container>
       <h3 style={{ color: "white", fontWeight: 600, marginLeft: 40 }}>Build your home</h3>
-
-
       <div 
         className="userInfo"
         style={{ cursor: "pointer"}}

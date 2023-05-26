@@ -3,6 +3,7 @@ import { CanvasContext } from "../../context/canvasContext"
 import styled from "styled-components"
 import * as math from "../../functions/math"
 import useMousePosition from "../../hooks/useMousePosition"
+import globals from "../../app/globals"
 
 export default function InfoBox ({ stageRef, drawing, dragging }) {
   const { levelState, currentLevel, currentElement } = useContext(CanvasContext);
@@ -32,8 +33,8 @@ export default function InfoBox ({ stageRef, drawing, dragging }) {
         if (h < 0) {
           h = h * -1
         }
-        width.current = Math.round(w / 40 * 100) / 100
-        height.current = Math.round(h / 40 * 100) / 100
+        width.current = Math.round(w / globals.lengthParameter * 100) / 100
+        height.current = Math.round(h / globals.lengthParameter * 100) / 100
       } else if (currentElement.type === "line" && !element.closed) {
        
         let pos0 = {}
@@ -83,22 +84,17 @@ export default function InfoBox ({ stageRef, drawing, dragging }) {
           }
         }
         const l = math.lengthBetweenPoints(pos0, pos1)
-        length.current = Math.round(l / 40 * 100) / 100
+        length.current = Math.round(l / globals.lengthParameter * 100) / 100
         if (a < 0) {
           angle.current = Math.round(a * (-1) * 100) / 100
           return
         }
         angle.current = Math.round((a) * 100) / 100
       }
-    }
-  }, [currentElement, currentLevel, levelState, visible])
-
-  useEffect(() => {
-    console.log(dragging, drawing)
-    if (!dragging && !drawing) {
+    } else if (!dragging && !drawing) {
       setVisible(false)
     }
-  }, [dragging, drawing])
+  }, [currentElement, currentLevel, levelState, visible, dragging, drawing])
 
 
   return (
@@ -111,7 +107,7 @@ export default function InfoBox ({ stageRef, drawing, dragging }) {
         {currentElement && currentElement.type === "line" && (
           <>
             <Text>Length: {length.current}m</Text>
-            <Text>Angle: {angle.current}</Text>
+            <Text>Angle: {angle.current}º</Text>
           </>      
         )}
         {currentElement && currentElement.type === "rectangle" && (

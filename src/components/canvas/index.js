@@ -6,6 +6,7 @@ import styled from "styled-components"
 import Line_, { mouseDownLine, mouseMoveLine, mouseUpLine } from "./Line_"
 import Rect_, { mouseDownRect, mouseMoveRect } from "./Rect_"
 import InfoBox from "./InfoBox"
+import InfoForLine from "./InfoForLine"
 import RightBar from "../sideBars/RightBar"
 import LevelButton from "../buttons/LevelButton"
 import * as math from "../../functions/math"
@@ -183,6 +184,7 @@ export default function Canvas() {
                     )
                   }
                 })}
+                <InfoForLine dragging={dragging} />
               </Group>
             </Layer>
           </>
