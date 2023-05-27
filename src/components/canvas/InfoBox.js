@@ -33,8 +33,8 @@ export default function InfoBox ({ stageRef, drawing, dragging }) {
         if (h < 0) {
           h = h * -1
         }
-        width.current = w
-        height.current = h
+        width.current = Math.round(w / globals.lengthParameter * 100) / 100
+        height.current = Math.round(h / globals.lengthParameter * 100) / 100
       } else if (currentElement.type === "line" && !element.closed) {
         let pos0 = {}
         let pos1 = {}

@@ -1,9 +1,9 @@
 "use client"
-import React, { useState, useContext, useRef, useEffect, useReducer } from 'react';
-import { Stage, Layer, Group } from 'react-konva';
+import React, { useState, useContext, useRef } from 'react';
+import { Stage, Layer, Group, Rect } from 'react-konva';
 import { CanvasContext } from "../../context/canvasContext"
 import styled from "styled-components"
-import Line_, { mouseDownLine, mouseMoveLine, mouseUpLine } from "./Line_"
+import Line_, { mouseDownLine, mouseMoveLine, checkIsNearAnotherLine } from "./Line_"
 import Rect_, { mouseDownRect, mouseMoveRect } from "./Rect_"
 import InfoBox from "./InfoBox"
 import InfoForLine from "./InfoForLine"
@@ -25,35 +25,29 @@ export default function Canvas() {
     currentElement, 
     setCurrentElement} = useContext(CanvasContext);
   const stageRef = useRef(null)
+  const selection = useRef({
+    visible: false,
+    x: 0,
+    y: 0,
+    x2: 0,
+    y2: 0
+  })
+  const selectionRectRef = useRef()
 
-  const handleMouseDown = (e) => {
-    switch (activeTool) {
-      case "line":
-        setDrawing(true)
-        mouseDownLine(e, levelState, levelDispatch, currentLevel, setCurrentElement)
-        break;
-      case "rectangle":
-        setDrawing(true)
-        mouseDownRect(e, levelState, levelDispatch, currentLevel, setCurrentElement)
-        break;
-    }
+  const updateSelectionRect = () => {
+    const node = selectionRectRef.current
+    node.setAttrs({
+      visible: selection.current.visible,
+      x: Math.min(selection.current.x, selection.current.x2),
+      y: Math.min(selection.current.y, selection.current.y2),
+      width: Math.abs(selection.current.x2 - selection.current.x),
+      height: Math.abs(selection.current.y2 - selection.current.y),
+    })
+    node.getLayer().batchDraw()
   }
 
-  const handleMouseMove = (e) => {
-    if (!drawing) return
-    switch (activeTool) {
-      case "line":
-        mouseMoveLine(e, levelState, levelDispatch, currentLevel, setCurrentElement)
-        break;
-      case "rectangle":
-        mouseMoveRect(e, levelState, levelDispatch, currentLevel)
-        break;
-    }
-  }
-
-  const handleMouseUp = (e) => {
-    setDrawing(false)
-    if ((activeTool == "line" || activeTool == "rectangle") && currentElement) {
+  const checkIsMishap = () => {
+    if (currentElement) {
       const element = levelState[currentLevel].elements[currentElement.indexOfElements]
       if (element.points.length <= 2) {
         const pos0 = element.points[0]
@@ -75,7 +69,63 @@ export default function Canvas() {
         }
       }
     }
-    mouseUpLine(levelState, levelDispatch, currentLevel) 
+  }
+
+  const handleMouseDown = (e) => {
+    switch (activeTool) {
+      case "default":
+        if (!dragging[0] && e.target === e.target.getStage()) {
+          const pos = e.target.getStage().getRelativePointerPosition();
+          selection.current.visible = true
+          selection.current.x = pos.x
+          selection.current.y = pos.y
+          selection.current.x2 = pos.x
+          selection.current.y2 = pos.y
+          updateSelectionRect()
+        }
+        break;
+      case "line":
+        setDrawing(true)
+        mouseDownLine(e, levelState, levelDispatch, currentLevel, setCurrentElement)
+        break;
+      case "rectangle":
+        setDrawing(true)
+        mouseDownRect(e, levelState, levelDispatch, currentLevel, setCurrentElement)
+        break;
+    }
+  }
+
+  const handleMouseMove = (e) => {
+    switch (activeTool) {
+      case "default":
+        if (selection.current.visible) {
+          const pos = e.target.getStage().getRelativePointerPosition();
+          selection.current.x2 = pos.x
+          selection.current.y2 = pos.y
+          updateSelectionRect()
+        }
+        break
+      case "line":
+        if (drawing) {
+          mouseMoveLine(e, levelState, levelDispatch, currentLevel)
+        }
+        break;
+      case "rectangle":
+        if (drawing) {
+          mouseMoveRect(e, levelState, levelDispatch, currentLevel)
+        }
+        break;
+    }
+  }
+
+  const handleMouseUp = (e) => {
+    if ((activeTool == "line" || activeTool == "rectangle")) {
+      checkIsMishap()
+      setDrawing(false)
+    }
+    selection.current.visible = false
+    updateSelectionRect()
+    checkIsNearAnotherLine(levelState, levelDispatch, currentLevel, currentElement) 
     setCurrentElement(null)
   }
 
@@ -134,62 +184,68 @@ export default function Canvas() {
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
       >
-      {levelState.map((level, index) => {
-        return (
-          <>
-            <Layer
-            visible={level.id == currentLevel ? true : false}
-              onMouseEnter={e => {
-                if (activeTool === "default" || activeTool === "divide") {
-                  const container = e.target.getStage().container();
-                  container.style.cursor = "pointer";
-                }
-              }}
-              onMouseLeave={e => {
-                if (activeTool === "default" || activeTool === "divide") {
-                  const container = e.target.getStage().container();
-                  container.style.cursor = "default";
-                }
-              }}
-            >
-              <Group>
-                {levelState[index].elements.map((element, i) => {
-                  if (element.type === "line") {
-                    const points = []
-                    element.points.forEach(point => {
-                      points.push(point.x)
-                      points.push(point.y)
-                    })
-                    return (
-                      <>
-                        <Line_ 
+        {levelState.map((level, index) => {
+          return (
+            <>
+              <Layer
+              visible={level.id == currentLevel ? true : false}
+                onMouseEnter={e => {
+                  if (activeTool === "default" || activeTool === "divide") {
+                    const container = e.target.getStage().container();
+                    container.style.cursor = "pointer";
+                  }
+                }}
+                onMouseLeave={e => {
+                  if (activeTool === "default" || activeTool === "divide") {
+                    const container = e.target.getStage().container();
+                    container.style.cursor = "default";
+                  }
+                }}
+              >
+                <Group>
+                  {levelState[index].elements.map((element, i) => {
+                    if (element.type === "line") {
+                      const points = []
+                      element.points.forEach(point => {
+                        points.push(point.x)
+                        points.push(point.y)
+                      })
+                      return (
+                        <>
+                          <Line_ 
+                            key={i}
+                            index={i}
+                            element={element}
+                            points={points}
+                            drawing={drawing}
+                            dragging={dragging}
+                          />
+                        </>
+                      )
+                    } else if (element.type = "rectangle") {
+                      return (
+                        <Rect_ 
                           key={i}
                           index={i}
-                          element={element}
-                          points={points}
+                          points={element.points}
                           drawing={drawing}
                           dragging={dragging}
                         />
-                      </>
-                    )
-                  } else if (element.type = "rectangle") {
-                    return (
-                      <Rect_ 
-                        key={i}
-                        index={i}
-                        points={element.points}
-                        drawing={drawing}
-                        dragging={dragging}
-                      />
-                    )
-                  }
-                })}
-                <InfoForLine dragging={dragging[0]} />
-              </Group>
-            </Layer>
-          </>
-        )
-      })}
+                      )
+                    }
+                  })}
+                </Group>
+              </Layer>
+            </>
+          )
+        })}
+        <Layer>
+          <InfoForLine dragging={dragging[0]} />
+          <Rect 
+            ref={selectionRectRef}
+            fill="rgba(0, 161, 255, 0.3)"
+          />
+        </Layer>
       </Stage>
       <LevelButton 
         currentLevel={currentLevel}
@@ -226,8 +282,4 @@ const UndoButton = styled.button`
   &:hover {
     background: rgb(230, 230, 230);
   }  
-`
-
-const ModeButton = styled.button`
-  position: absolute;
 `

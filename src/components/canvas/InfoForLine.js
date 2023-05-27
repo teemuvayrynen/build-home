@@ -63,7 +63,6 @@ export default function InfoForLine ({ dragging}) {
     if (!visible) {
       setVisible(true)
     }
-
   }, [dragging, currentElement, currentLevel, levelState, visible])
 
   return (

@@ -67,6 +67,7 @@ export default function Circle_ ({ index, indexOfElements, point, drawing, type,
         lineType: "line"
       })
     }
+    e.target.getLayer().batchDraw()
   }
 
   return (

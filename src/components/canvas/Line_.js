@@ -194,10 +194,9 @@ export const mouseMoveLine = (e, levelState, levelDispatch, currentLevel) => {
   })
 }
 
-export const mouseUpLine = (levelState, levelDispatch, currentLevel) => {
-  if (levelState[currentLevel].elements.length === 0) return
-  const latest = levelState[currentLevel].latestElements.slice(-1)
-  const element = levelState[currentLevel].elements[latest[0].index]
+export const checkIsNearAnotherLine = (levelState, levelDispatch, currentLevel, currentElement) => {
+  if (levelState[currentLevel].elements.length === 0 || !currentElement) return
+  const element = levelState[currentLevel].elements[currentElement.indexOfElements]
   if (element.points.length > 3) {
     const pos0 = {
       x: element.x + element.points[0].x,
@@ -211,8 +210,8 @@ export const mouseUpLine = (levelState, levelDispatch, currentLevel) => {
       levelDispatch({
         type: "CREATE_CLOSED_ELEMENT",
         currentLevel: currentLevel,
-        indexOfElements: latest[0].index,
-        index: latest[0].row
+        indexOfElements: currentElement.indexOfElements,
+        index: currentElement.index
       })
     }
   }
