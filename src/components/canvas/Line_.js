@@ -171,8 +171,9 @@ export const mouseDownLine = (e, levelState, levelDispatch, currentLevel, setCur
   levelDispatch({
     type: "ADD_ELEMENT_BASE",
     element: lineObject,
-    latestElement: {index: levelState[currentLevel].elements.length, row: 1},
-    currentLevel: currentLevel
+    currentLevel: currentLevel,
+    indexOfElements: levelState[currentLevel].elements.length,
+    row: 1
   })
   setCurrentElement({
     type: "line",
@@ -181,16 +182,15 @@ export const mouseDownLine = (e, levelState, levelDispatch, currentLevel, setCur
   })
 }
 
-export const mouseMoveLine = (e, levelState, levelDispatch, currentLevel) => {
+export const mouseMoveLine = (e, levelDispatch, currentLevel, currentElement) => {
   const pos = e.target.getStage().getRelativePointerPosition()
-  const latest = levelState[currentLevel].latestElements.slice(-1)
   levelDispatch({
     type: "MOVE_POINT",
     newPos: { x: pos.x, y: pos.y },
     currentLevel: currentLevel,
-    index: latest[0].row,
+    index: currentElement.index,
     lineType: "line",
-    indexOfElements: latest[0].index
+    indexOfElements: currentElement.indexOfElements
   })
 }
 

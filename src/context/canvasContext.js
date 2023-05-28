@@ -9,7 +9,7 @@ function reducer(state, action) {
     }
     case 'ADD_LEVEL': {
       const prev = state[state.length - 1];
-      const newLevel = {id: prev.id + 1, elements: [], latestElements: []}
+      const newLevel = {id: prev.id + 1, elements: [], history: [], historyStep: 0}
       return [...state, newLevel];
     }
     case 'DELETE_LEVEL': {
@@ -24,7 +24,14 @@ function reducer(state, action) {
     case 'ADD_ELEMENT_BASE': {
       const copy = [...state];
       copy[action.currentLevel].elements.push(action.element)
-      copy[action.currentLevel].latestElements.push(action.latestElement)
+      copy[action.currentLevel].history.push({
+        addElement: true, 
+        closed: false,
+        concat: false,
+        index: action.indexOfElements, 
+        row: action.row, 
+        element: action.element})
+      copy[action.currentLevel].historyStep += 1
       return copy
     }
     case 'CONCAT_POINTS': {
@@ -39,21 +46,34 @@ function reducer(state, action) {
       } else {
         element.points.push(point)
       }
-      copy[action.currentLevel].latestElements.push({index: action.indexOfElements, row: action.row})
+      copy[action.currentLevel].history.push({
+        addElement: false,
+        closed: false,
+        concat: true, 
+        index: action.indexOfElements, 
+        row: action.row, 
+        element: element
+      })
+      copy[action.currentLevel].historyStep += 1
       return copy
     }
     case 'CREATE_CLOSED_ELEMENT': {
       const copy = [...state];
       const element = copy[action.currentLevel].elements[action.indexOfElements];
-      const latest = copy[action.currentLevel].latestElements.slice(-1)
-      if (latest[0].row === 0) {
-        copy[action.currentLevel].elements[action.indexOfElements].points.shift()
+      if (action.index === 0) {
+        element.points.shift()
       } else {
-        copy[action.currentLevel].elements[action.indexOfElements].points.pop()
+        element.points.pop()
       }
       element.closed = true
-      const length = copy[action.currentLevel].latestElements.length
-      copy[action.currentLevel].latestElements[length - 1].closed = true
+      copy[action.currentLevel].history.push({
+        index: action.indexOfElements, 
+        row: action.index, 
+        closed: true,
+        addElement: false,
+        concat: false,
+      })
+      copy[action.currentLevel].historyStep += 1
       return copy
     }
     case 'UPDATE_POS_DRAG_RECT': {
@@ -88,27 +108,73 @@ function reducer(state, action) {
       const copy = [...state];
       const points = copy[action.currentLevel].elements[action.indexOfElements].points;
       points.splice(action.index + 1, 0, action.pos);
-      copy[action.currentLevel].latestElements.push({index: action.indexOfElements, row: action.index + 1})
+      copy[action.currentLevel].historyStep += 1
+      copy[action.currentLevel].history.push({
+        index: action.indexOfElements, 
+        row: action.index + 1,
+        closed: true,
+        addElement: false,
+        concat: false,
+        element: copy[action.currentLevel].elements[action.indexOfElements]
+      })
       return copy
     }
     case 'UNDO': {
+      if (state[action.currentLevel].historyStep === -1) return state
       const copy = [...state];
-      const popped = copy[action.currentLevel].latestElements.pop();
-      const element = copy[action.currentLevel].elements[popped.index];
-      if (popped.closed) {
-        element.closed = false;
-      } else if (element.points.length <= 2) {
-        copy[action.currentLevel].elements.pop();
-      } else {
-        element.points.splice(popped.row, 1)
-        copy[action.currentLevel].elements[popped.index] = element;
+      const historyStep = copy[action.currentLevel].historyStep
+      const historyElement = copy[action.currentLevel].history[historyStep]
+      copy[action.currentLevel].historyStep -= 1
+      // if (historyElement.deleteAll) {
+      //   copy[action.currentLevel].elements = historyElement.elements
+      //   return copy
+      // }
+      if (historyElement.closed) {
+        copy[action.currentLevel].elements[historyElement.index].closed = false
+        return copy
       }
-      return copy
+      const element = copy[action.currentLevel].elements[historyElement.index];  
+      if (historyElement.element.points.length === 2) {
+        copy[action.currentLevel].elements.splice(historyElement.index, 1)
+        return copy
+      }
+      if (historyElement.element.points.length > 2) {
+        element.points.splice(historyElement.row, 1)
+        return copy
+      }
+    }
+    case 'REDO': {
+      if (state[action.currentLevel].historyStep === state[action.currentLevel].history.length - 1) return state
+      const copy = [...state];
+      copy[action.currentLevel].historyStep += 1
+      const next = copy[action.currentLevel].history[copy[action.currentLevel].historyStep]
+      console.log(copy[action.currentLevel].historyStep)
+      console.log(copy[action.currentLevel].history)
+      
+      // if (next.deleteAll) {
+      //   copy[action.currentLevel].elements = []
+      //   return copy
+      // }
+      if (next.closed) {
+        copy[action.currentLevel].elements[next.index].closed = true
+        return copy
+      }
+      if (next.addElement) {
+        copy[action.currentLevel].elements.splice(next.index, 0, next.element)
+        return copy
+      }
+      if (next.concat) {
+        console.log(copy[action.currentLevel].elements[next.index])
+        console.log(next)
+        return copy
+      }
     }
     case 'DELETE_ALL_ELEMENTS': {
       const copy = [...state];
+      //copy[action.currentLevel].history.push({deleteAll: true, elements: copy[action.currentLevel].elements})
+      copy[action.currentLevel].historyStep = -1
+      copy[action.currentLevel].history = []
       copy[action.currentLevel].elements = [];
-      copy[action.currentLevel].latestElements = [];
       return copy
     }
   }
@@ -117,7 +183,12 @@ function reducer(state, action) {
 
 export const CanvasProvider = (props) => {
   const [activeTool, setActiveTool] = useState("default");
-  const [levelState, levelDispatch] = useReducer(reducer, [{id: 0, elements: [], latestElements: []}])
+  const [levelState, levelDispatch] = useReducer(reducer, [{
+    id: 0, 
+    elements: [], 
+    history: [],
+    historyStep: -1
+  }])
   const [currentLevel, setCurrentLevel] = useState(0)
   const [currentElement, setCurrentElement] = useState(null)
 

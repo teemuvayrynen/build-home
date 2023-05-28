@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useContext, useRef } from 'react';
+import React, { useState, useContext, useRef, useEffect } from 'react';
 import { Stage, Layer, Group, Rect } from 'react-konva';
 import { CanvasContext } from "../../context/canvasContext"
 import styled from "styled-components"
@@ -10,6 +10,7 @@ import InfoForLine from "./InfoForLine"
 import RightBar from "../sideBars/RightBar"
 import LevelButton from "../buttons/LevelButton"
 import * as math from "../../functions/math"
+import useWindowSize from "../../hooks/useWindowSize"
 
 const scaleBy = 1.05;
 
@@ -33,6 +34,8 @@ export default function Canvas() {
     y2: 0
   })
   const selectionRectRef = useRef()
+  const windowSize = useWindowSize() 
+
 
   const updateSelectionRect = () => {
     const node = selectionRectRef.current
@@ -107,12 +110,12 @@ export default function Canvas() {
         break
       case "line":
         if (drawing) {
-          mouseMoveLine(e, levelState, levelDispatch, currentLevel)
+          mouseMoveLine(e, levelDispatch, currentLevel, currentElement)
         }
         break;
       case "rectangle":
         if (drawing) {
-          mouseMoveRect(e, levelState, levelDispatch, currentLevel)
+          mouseMoveRect(e, levelDispatch, currentLevel, currentElement)
         }
         break;
     }
@@ -132,6 +135,13 @@ export default function Canvas() {
   const handleUndo = () => {
     levelDispatch({
       type: "UNDO",
+      currentLevel: currentLevel
+    })
+  }
+
+  const handleRedo = () => {
+    levelDispatch({
+      type: "REDO",
       currentLevel: currentLevel
     })
   }
@@ -166,8 +176,8 @@ export default function Canvas() {
         ref={stageRef}
         onWheel={handleWheel}
         perfectDrawEnabled={false}
-        width={typeof window !== 'undefined' ? window.innerWidth - 250 : 0 } 
-        height={typeof window !== 'undefined' ? window.innerHeight - 50 : 0 }
+        width={windowSize.width} 
+        height={windowSize.height}
         style={{ background: "rgb(240, 240, 240)" }}
         draggable={activeTool === "move" ? true : false}
         onMouseEnter={e => {
@@ -253,9 +263,12 @@ export default function Canvas() {
         levelState={levelState}
         levelDispatch={levelDispatch}
       />
-      {levelState[currentLevel].elements.length > 0 &&
+      {levelState[currentLevel].history.length > 0 &&
         <>
-          <UndoButton onClick={handleUndo}>Undo</UndoButton>
+          <ButtonRow>
+            <UndoRedoButton onClick={handleUndo}>Undo</UndoRedoButton>
+            <UndoRedoButton onClick={handleRedo}>Redo</UndoRedoButton>
+          </ButtonRow>
         </>
       }
       <InfoBox 
@@ -268,10 +281,15 @@ export default function Canvas() {
   )
 }
 
-const UndoButton = styled.button`
+const ButtonRow = styled.div`
   position: absolute;
   bottom: 30px;
   left: 270px;
+  display: flex;
+  flex-direction: row;
+`
+
+const UndoRedoButton = styled.button`
   background: rgb(250, 250, 250);
   border: none;
   border-radius: 5px;
@@ -279,6 +297,7 @@ const UndoButton = styled.button`
   font-size: 12px;
   box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.5);
   cursor: pointer;
+  margin: 0px 5px;
   &:hover {
     background: rgb(230, 230, 230);
   }  
