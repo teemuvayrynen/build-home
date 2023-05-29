@@ -11,10 +11,19 @@ import RightBar from "../sideBars/RightBar"
 import LevelButton from "../buttons/LevelButton"
 import * as math from "../../functions/math"
 import useWindowSize from "../../hooks/useWindowSize"
+import { useAppSelector, useAppDispatch } from '@/redux/hooks';
+import { addElement, movePoint, addPoint } from "../../redux/features/canvasSlice"
 
 const scaleBy = 1.05;
 
 export default function Canvas() {
+  const canvasState = useAppSelector(state => state.canvasReducer.items)
+  const canvasDispatch = useAppDispatch()
+
+  useEffect(() => {
+    // console.log(canvasState)
+  }, [canvasState])
+
   const [drawing, setDrawing] = useState(false)
   const dragging = useState(false)
   const { 
@@ -51,7 +60,7 @@ export default function Canvas() {
 
   const checkIsMishap = () => {
     if (currentElement) {
-      const element = levelState[currentLevel].elements[currentElement.indexOfElements]
+      const element = canvasState[currentLevel].elements[currentElement.indexOfElements]
       if (element.points.length <= 2) {
         const pos0 = element.points[0]
         const pos1 = element.points[1]
@@ -89,11 +98,11 @@ export default function Canvas() {
         break;
       case "line":
         setDrawing(true)
-        mouseDownLine(e, levelState, levelDispatch, currentLevel, setCurrentElement)
+        mouseDownLine(e, canvasState, canvasDispatch, currentLevel, setCurrentElement, addElement, addPoint)
         break;
       case "rectangle":
         setDrawing(true)
-        mouseDownRect(e, levelState, levelDispatch, currentLevel, setCurrentElement)
+        mouseDownRect(e, canvasState, canvasDispatch, currentLevel, setCurrentElement, addElement)
         break;
     }
   }
@@ -110,12 +119,12 @@ export default function Canvas() {
         break
       case "line":
         if (drawing) {
-          mouseMoveLine(e, levelDispatch, currentLevel, currentElement)
+          mouseMoveLine(e, canvasDispatch, currentLevel, currentElement, movePoint)
         }
         break;
       case "rectangle":
         if (drawing) {
-          mouseMoveRect(e, levelDispatch, currentLevel, currentElement)
+          mouseMoveRect(e, canvasDispatch, currentLevel, currentElement, movePoint)
         }
         break;
     }
@@ -128,7 +137,7 @@ export default function Canvas() {
     }
     selection.current.visible = false
     updateSelectionRect()
-    checkIsNearAnotherLine(levelState, levelDispatch, currentLevel, currentElement) 
+    checkIsNearAnotherLine(canvasState, levelDispatch, currentLevel, currentElement) 
     setCurrentElement(null)
   }
 
@@ -194,7 +203,7 @@ export default function Canvas() {
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
       >
-        {levelState.map((level, index) => {
+        {canvasState.map((level, index) => {
           return (
             <>
               <Layer
@@ -213,7 +222,7 @@ export default function Canvas() {
                 }}
               >
                 <Group>
-                  {levelState[index].elements.map((element, i) => {
+                  {canvasState[index].elements.map((element, i) => {
                     if (element.type === "line") {
                       const points = []
                       element.points.forEach(point => {
@@ -232,7 +241,7 @@ export default function Canvas() {
                           />
                         </>
                       )
-                    } else if (element.type = "rectangle") {
+                    } else if (element.type === "rectangle") {
                       return (
                         <Rect_ 
                           key={i}
@@ -260,10 +269,8 @@ export default function Canvas() {
       <LevelButton 
         currentLevel={currentLevel}
         setCurrentLevel={setCurrentLevel}
-        levelState={levelState}
-        levelDispatch={levelDispatch}
       />
-      {levelState[currentLevel].history.length > 0 &&
+      {canvasState[currentLevel].history.length > 0 &&
         <>
           <ButtonRow>
             <UndoRedoButton onClick={handleUndo}>Undo</UndoRedoButton>
@@ -271,11 +278,11 @@ export default function Canvas() {
           </ButtonRow>
         </>
       }
-      <InfoBox 
+      {/* <InfoBox 
         stageRef={stageRef}
         drawing={drawing}
         dragging={dragging[0]}
-      />
+      /> */}
       <RightBar />
     </>
   )

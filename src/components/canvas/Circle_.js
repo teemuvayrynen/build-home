@@ -21,7 +21,7 @@ export default function Circle_ ({ index, indexOfElements, point, drawing, type,
           lineType: "rectangle"
         })
       } else if (index === 2) {
-        const element = levelState[currentLevel].elements[indexOfElements]
+        const element = levelState.state[currentLevel].elements[indexOfElements]
         levelDispatch({
           type: "MOVE_POINT",
           index: 0,
@@ -39,7 +39,7 @@ export default function Circle_ ({ index, indexOfElements, point, drawing, type,
           lineType: "rectangle"
         })
       } else if (index === 3) {
-        const element = levelState[currentLevel].elements[indexOfElements]
+        const element = levelState.state[currentLevel].elements[indexOfElements]
         levelDispatch({
           type: "MOVE_POINT",
           index: 0,

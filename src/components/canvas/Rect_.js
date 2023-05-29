@@ -2,33 +2,35 @@ import React, { useContext, useEffect, useState } from "react";
 import { Rect } from "react-konva"
 import { CanvasContext } from "../../context/canvasContext"
 import Circle_ from "./Circle_";
+import { useAppSelector } from "@/redux/hooks";
 
 export default function Rect_ ({index, points, drawing, dragging}) {
-  const {activeTool, levelState, levelDispatch, currentLevel } = useContext(CanvasContext)
+  const canvasState = useAppSelector(state => state.canvasReducer.items)
+  const {activeTool, currentLevel } = useContext(CanvasContext)
   const [modifiedPoints, setModifiedPoints] = useState([])
 
   const handleDragEnd = (e) => {
     const pos = e.target.position()
-    const tempPoints = levelState[currentLevel].elements[index].points
+    const tempPoints = canvasState[currentLevel].elements[index].points
     const width = tempPoints[1].x - tempPoints[0].x
     const height = tempPoints[1].y - tempPoints[0].y
     const pos1 = {x: pos.x + width, y: pos.y + height}
 
-    levelDispatch({
-      type: "UPDATE_POS_DRAG_RECT",
-      index: index,
-      pos: pos,
-      pos1: pos1,
-      currentLevel: currentLevel
-    })
+    // levelDispatch({
+    //   type: "UPDATE_POS_DRAG_RECT",
+    //   index: index,
+    //   pos: pos,
+    //   pos1: pos1,
+    //   currentLevel: currentLevel
+    // })
   }
 
   useEffect(() => {
-    if (levelState[currentLevel].elements[index]) {
-      const p = levelState[currentLevel].elements[index].points
+    if (canvasState[currentLevel].elements[index]) {
+      const p = canvasState[currentLevel].elements[index].points
       setModifiedPoints([...p, {x: p[0].x, y: p[1].y}, {x: p[1].x, y: p[0].y}])
     }
-  }, [currentLevel, levelState, index])
+  }, [currentLevel, canvasState, index])
 
   return (
     <>
@@ -64,39 +66,37 @@ export default function Rect_ ({index, points, drawing, dragging}) {
   )
 }
 
-export const mouseDownRect = (e, levelState, levelDispatch, currentLevel, setCurrentElement) => {
+export const mouseDownRect = (e, canvasState, canvasDispatch, currentLevel, setCurrentElement, addElement) => {
   const pos = e.target.getStage().getRelativePointerPosition();
-  const lineObject = {
+  const rectObject = {
     type: "rectangle",
-    points: [],
+    points: [
+      {x: pos.x, y: pos.y},
+      {x: pos.x, y: pos.y}
+    ],
   }
-
-  lineObject.points = [
-    {x: pos.x, y: pos.y},
-    {x: pos.x, y: pos.y}
-  ]
-
-  levelDispatch({
-    type: "ADD_ELEMENT_BASE",
-    element: lineObject,
-    latestElement: {index: levelState[currentLevel].elements.length, row: 1},
-    currentLevel: currentLevel
-  })
+  const dispatchObj = {
+    element: rectObject,
+    currentLevel: currentLevel,
+    indexOfElements: canvasState[currentLevel].elements.length,
+    index: 1
+  }
+  canvasDispatch(addElement(dispatchObj))
   setCurrentElement({
     type: "rectangle",
-    indexOfElements: levelState[currentLevel].elements.length,
+    indexOfElements: canvasState[currentLevel].elements.length,
     index: 1
   })
 }
 
-export const mouseMoveRect = (e, levelDispatch, currentLevel, currentElement) => {
+export const mouseMoveRect = (e, canvasDispatch, currentLevel, currentElement, movePoint) => {
   const pos = e.target.getStage().getRelativePointerPosition();
-  levelDispatch({
-    type: "MOVE_POINT",
-    newPos: { x: pos.x, y: pos.y },
+  const dispatchObj = {
+    type: "rectangle",
+    point: pos,
     currentLevel: currentLevel,
-    lineType: "rectangle",
     index: currentElement.index,
-    indexOfElements: currentElement.indexOfElements,
-  })
+    indexOfElements: currentElement.indexOfElements
+  }
+  canvasDispatch(movePoint(dispatchObj))
 }

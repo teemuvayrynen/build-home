@@ -13,7 +13,7 @@ export default function InfoForLine ({ dragging}) {
       setVisible(false)    
       return 
     }
-    const element = levelState[currentLevel].elements[currentElement.indexOfElements]
+    const element = levelState.state[currentLevel].elements[currentElement.indexOfElements]
     if (element.points.length <= 2) { return }
     let currentPoint = null
     let previousPoint = null
@@ -63,7 +63,7 @@ export default function InfoForLine ({ dragging}) {
     if (!visible) {
       setVisible(true)
     }
-  }, [dragging, currentElement, currentLevel, levelState, visible])
+  }, [dragging, currentElement, currentLevel, levelState.state, visible])
 
   return (
     <>

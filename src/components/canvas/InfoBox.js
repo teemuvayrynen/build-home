@@ -17,12 +17,12 @@ export default function InfoBox ({ stageRef, drawing, dragging }) {
 
   useEffect(() => {
     if (currentElement && (dragging || drawing)) {
-      const element = levelState[currentLevel].elements[currentElement.indexOfElements]
+      const element = levelState.state[currentLevel].elements[currentElement.indexOfElements]
       if (currentElement.type === "rectangle") {
         if (!visible) {
           setVisible(true)
         }
-        const element = levelState[currentLevel].elements[currentElement.indexOfElements]
+        const element = levelState.state[currentLevel].elements[currentElement.indexOfElements]
         const pos0 = element.points[0]
         const pos1 = element.points[1]
         let w = pos1.x - pos0.x
@@ -93,7 +93,7 @@ export default function InfoBox ({ stageRef, drawing, dragging }) {
     } else if (!dragging && !drawing) {
       setVisible(false)
     }
-  }, [currentElement, currentLevel, levelState, visible, dragging, drawing])
+  }, [currentElement, currentLevel, levelState.state, visible, dragging, drawing])
 
 
   return (

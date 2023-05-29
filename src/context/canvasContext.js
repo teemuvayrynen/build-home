@@ -3,28 +3,33 @@ import React, { useState, useReducer, useEffect } from 'react';
 export const CanvasContext = React.createContext();
 
 function reducer(state, action) {
+  function concatHistory(copy, item) {
+    let history = copy[action.currentLevel].history.slice(0, copy[action.currentLevel].historyStep + 1)
+    history = history.concat([item])
+    return history
+  }
   switch (action.type) {
     case 'ADD_ELEMENTS_FROM_LS': {
       return action.elements
     }
     case 'ADD_LEVEL': {
-      const prev = state[state.length - 1];
+      const prev = state.state[state.state.length - 1];
       const newLevel = {id: prev.id + 1, elements: [], history: [], historyStep: 0}
-      return [...state, newLevel];
+      return {...state, state: [...state.state, newLevel]}
     }
     case 'DELETE_LEVEL': {
-      if (state.length == 1) return state
-      const copy = [...state];
+      if (state.state.length == 1) return state
+      const copy = [...state.state];
       copy.splice(action.currentLevel, 1);
       for (let i = action.currentLevel; i < copy.length; i++) {
         copy[i].id = i;
       }
-      return copy;
+      return {...state, state: copy}
     }
     case 'ADD_ELEMENT_BASE': {
-      const copy = [...state];
+      const copy = [...state.state];
       copy[action.currentLevel].elements.push(action.element)
-      copy[action.currentLevel].history.push({
+      copy[action.currentLevel].history = concatHistory(copy, {
         addElement: true, 
         closed: false,
         concat: false,
@@ -32,10 +37,10 @@ function reducer(state, action) {
         row: action.row, 
         element: action.element})
       copy[action.currentLevel].historyStep += 1
-      return copy
+      return {...state, state: copy}
     }
     case 'CONCAT_POINTS': {
-      const copy = [...state];
+      const copy = [...state.state];
       const element = copy[action.currentLevel].elements[action.indexOfElements];
       const point = {
         x: action.pos.x - element.x,
@@ -46,19 +51,30 @@ function reducer(state, action) {
       } else {
         element.points.push(point)
       }
-      copy[action.currentLevel].history.push({
+
+      const newItem = {
         addElement: false,
         closed: false,
         concat: true, 
         index: action.indexOfElements, 
-        row: action.row, 
+        row: action.row,
         element: element
-      })
+      }
+
+      console.log(newItem)
+    
+      let history = copy[action.currentLevel].history.slice(0, copy[action.currentLevel].historyStep + 1)
+      history.push(newItem)
+
+      console.log(history)
+      
+      copy[action.currentLevel].history = history
       copy[action.currentLevel].historyStep += 1
-      return copy
+
+      return {...state, state: [...copy, ]}
     }
     case 'CREATE_CLOSED_ELEMENT': {
-      const copy = [...state];
+      const copy = [...state.state];
       const element = copy[action.currentLevel].elements[action.indexOfElements];
       if (action.index === 0) {
         element.points.shift()
@@ -74,24 +90,24 @@ function reducer(state, action) {
         concat: false,
       })
       copy[action.currentLevel].historyStep += 1
-      return copy
+      return {...state, state: copy}
     }
     case 'UPDATE_POS_DRAG_RECT': {
-      const copy = [...state];
+      const copy = [...state.state];
       const element = copy[action.currentLevel].elements[action.index];
       element.points[0] = action.pos
       element.points[1] = action.pos1
-      return copy
+      return {...state, state: copy}
     }
     case 'UPDATE_POS_DRAG_LINE': {
-      const copy = [...state];
+      const copy = [...state.state];
       const element = copy[action.currentLevel].elements[action.index];
       element.x = action.pos.x
       element.y = action.pos.y
-      return copy
+      return {...state, state: copy}
     }
     case 'MOVE_POINT': {
-      const copy = [...state];
+      const copy = [...state.state];
       if (action.lineType === "rectangle") {
         copy[action.currentLevel].elements[action.indexOfElements].points[action.index] = action.newPos;
       } else if (action.lineType === "line") {
@@ -102,10 +118,10 @@ function reducer(state, action) {
         }
         copy[action.currentLevel].elements[action.indexOfElements].points[action.index] = newPos;
       }
-      return copy
+      return {...state, state: copy}
     }
     case 'DIVIDE_LINE': {
-      const copy = [...state];
+      const copy = [...state.state];
       const points = copy[action.currentLevel].elements[action.indexOfElements].points;
       points.splice(action.index + 1, 0, action.pos);
       copy[action.currentLevel].historyStep += 1
@@ -117,39 +133,40 @@ function reducer(state, action) {
         concat: false,
         element: copy[action.currentLevel].elements[action.indexOfElements]
       })
-      return copy
+      return {...state, state: copy}
     }
     case 'UNDO': {
-      if (state[action.currentLevel].historyStep === -1) return state
-      const copy = [...state];
+      if (state.state[action.currentLevel].historyStep === -1) return state
+      const copy = [...state.state];
       const historyStep = copy[action.currentLevel].historyStep
       const historyElement = copy[action.currentLevel].history[historyStep]
       copy[action.currentLevel].historyStep -= 1
+      console.log(copy[action.currentLevel].history)
+      console.log(historyElement)
       // if (historyElement.deleteAll) {
       //   copy[action.currentLevel].elements = historyElement.elements
       //   return copy
       // }
       if (historyElement.closed) {
         copy[action.currentLevel].elements[historyElement.index].closed = false
-        return copy
+        return {...state, state: copy}
       }
       const element = copy[action.currentLevel].elements[historyElement.index];  
-      if (historyElement.element.points.length === 2) {
+      if (historyElement.addElement) {
         copy[action.currentLevel].elements.splice(historyElement.index, 1)
-        return copy
+        return {...state, state: copy}
       }
-      if (historyElement.element.points.length > 2) {
+      if (historyElement.concat) {
         element.points.splice(historyElement.row, 1)
-        return copy
+        return {...state, state: copy}
       }
+      break
     }
     case 'REDO': {
-      if (state[action.currentLevel].historyStep === state[action.currentLevel].history.length - 1) return state
-      const copy = [...state];
+      if (state.state[action.currentLevel].historyStep === state.state[action.currentLevel].history.length - 1) return state
+      const copy = [...state.state];
       copy[action.currentLevel].historyStep += 1
       const next = copy[action.currentLevel].history[copy[action.currentLevel].historyStep]
-      console.log(copy[action.currentLevel].historyStep)
-      console.log(copy[action.currentLevel].history)
       
       // if (next.deleteAll) {
       //   copy[action.currentLevel].elements = []
@@ -157,25 +174,28 @@ function reducer(state, action) {
       // }
       if (next.closed) {
         copy[action.currentLevel].elements[next.index].closed = true
-        return copy
+        return {...state, state: copy}
       }
       if (next.addElement) {
         copy[action.currentLevel].elements.splice(next.index, 0, next.element)
-        return copy
+        return {...state, state: copy}
       }
       if (next.concat) {
-        console.log(copy[action.currentLevel].elements[next.index])
         console.log(next)
-        return copy
+        const point = next.elementtttt.points[next.row]
+        console.log(point)
+        copy[action.currentLevel].elements[next.index].points.splice(next.row, 0, point)
+        return {...state, state: copy}
       }
+      break
     }
     case 'DELETE_ALL_ELEMENTS': {
-      const copy = [...state];
+      const copy = [...state.state];
       //copy[action.currentLevel].history.push({deleteAll: true, elements: copy[action.currentLevel].elements})
       copy[action.currentLevel].historyStep = -1
       copy[action.currentLevel].history = []
       copy[action.currentLevel].elements = [];
-      return copy
+      return {...state, state: copy}
     }
   }
   throw Error('Unknown action.');
@@ -183,12 +203,14 @@ function reducer(state, action) {
 
 export const CanvasProvider = (props) => {
   const [activeTool, setActiveTool] = useState("default");
-  const [levelState, levelDispatch] = useReducer(reducer, [{
-    id: 0, 
-    elements: [], 
-    history: [],
-    historyStep: -1
-  }])
+  const [levelState, levelDispatch] = useReducer(reducer, {
+    state: [{
+      id: 0, 
+      elements: [], 
+      history: [],
+      historyStep: -1
+    }]
+  })
   const [currentLevel, setCurrentLevel] = useState(0)
   const [currentElement, setCurrentElement] = useState(null)
 

@@ -2,14 +2,20 @@ import React, { useReducer, useState } from "react"
 import styled from "styled-components"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { useAppDispatch, useAppSelector } from "@/redux/hooks"
+import { addLevel } from "../../redux/features/canvasSlice"
 
-export default function LevelButton ({ levelState, currentLevel, setCurrentLevel, levelDispatch }) {
+
+export default function LevelButton ({ currentLevel, setCurrentLevel }) {
+  const canvasState = useAppSelector(state => state.canvasReducer.items)
+  const canvasDispatch = useAppDispatch()
+
   return (
     <>
       <ToggleButtonContainer>
         <ToggleButtonGroup>
-          {levelState.map((i) => {
-            if (i.id == 0 && i.id == levelState.length - 1) {
+          {canvasState.map((i) => {
+            if (i.id == 0 && i.id == canvasState.length - 1) {
               return (
                 <LevelToggleButton 
                   bottom={1} 
@@ -33,7 +39,7 @@ export default function LevelButton ({ levelState, currentLevel, setCurrentLevel
                   {i.id}
                 </LevelToggleButton>
               )
-            } else if (i.id == levelState.length - 1) {
+            } else if (i.id == canvasState.length - 1) {
               return (
                 <LevelToggleButton 
                   top={1} 
@@ -57,7 +63,7 @@ export default function LevelButton ({ levelState, currentLevel, setCurrentLevel
             }
           })}
         </ToggleButtonGroup>
-        <AddLevelButton onClick={() => { levelDispatch({ type: 'ADD_LEVEL' }); }}>
+        <AddLevelButton onClick={() => { canvasDispatch(addLevel()) }}>
           <FontAwesomeIcon icon={faPlus} />
         </AddLevelButton>
       </ToggleButtonContainer>

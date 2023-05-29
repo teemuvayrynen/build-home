@@ -4,9 +4,12 @@ import { faArrowPointer, faArrowsUpDownLeftRight, faPen, faTrash, faScissors, fa
 import { faSquare, faTrashCan } from "@fortawesome/free-regular-svg-icons";
 import React, { useContext } from "react";
 import { CanvasContext } from "../../../context/canvasContext"
+import { useAppDispatch } from "@/redux/hooks";
+import { deleteLevel, deleteElements } from "../../../redux/features/canvasSlice"
 
 export default function Tools() {
   const { activeTool, setActiveTool, levelDispatch, currentLevel, setCurrentLevel } = useContext(CanvasContext);
+  const canvasDispatch = useAppDispatch()
 
   return (
     <Container>
@@ -61,10 +64,7 @@ export default function Tools() {
         <ToolRow>
           <ToolColumn>
             <Tool onClick={() => { 
-              levelDispatch({ 
-                type: 'DELETE_LEVEL', 
-                currentLevel: currentLevel 
-              }) 
+              canvasDispatch(deleteLevel(currentLevel))
               if (currentLevel != 0) {
                 setCurrentLevel(currentLevel - 1)
               }
@@ -74,7 +74,9 @@ export default function Tools() {
             <Text>Level</Text>
           </ToolColumn>
           <ToolColumn>
-            <Tool onClick={() => { levelDispatch({ type: 'DELETE_ALL_ELEMENTS', currentLevel: currentLevel }) }}>
+            <Tool onClick={() => {
+              canvasDispatch(deleteElements(currentLevel))
+            }}>
               <FontAwesomeIcon icon={faTrash} fixedWidth/>
             </Tool>
             <Text>Elements</Text>
