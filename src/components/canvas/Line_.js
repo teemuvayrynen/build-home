@@ -3,19 +3,20 @@ import { Line, Group, Shape } from "react-konva"
 import { CanvasContext } from "../../context/canvasContext"
 import * as math from "../../functions/math"
 import Circle_ from "./Circle_"
-import { useAppSelector } from "@/redux/hooks";
+import { useAppDispatch } from "@/redux/hooks";
+import { moveElement, divideLine, addHistory, canvas } from "../../redux/features/canvasSlice"
 
 export default function Line_({index, element, points, drawing, dragging}) {
+  const canvasDispatch = useAppDispatch()
   const { activeTool, levelDispatch, currentLevel } = useContext(CanvasContext)
 
   const handleDragEnd = (e) => {
     const pos = e.target.position()
-    // levelDispatch({
-    //   type: "UPDATE_POS_DRAG_LINE",
-    //   index: index,
-    //   pos: pos,
-    //   currentLevel: currentLevel,
-    // })
+    canvasDispatch(moveElement({
+      currentLevel: currentLevel,
+      indexOfElements: index,
+      point: pos
+    }))
   }
 
   const handleClick = (e) => {
@@ -27,13 +28,17 @@ export default function Line_({index, element, points, drawing, dragging}) {
         y: pos.y - element.y
       }
       if (element.points.length === 2) {
-      //  levelDispatch({
-      //     type: "DIVIDE_LINE",
-      //     indexOfElements: index,
-      //     currentLevel: currentLevel,
-      //     pos: p,
-      //     index: 0
-      //  })
+        canvasDispatch(divideLine({
+          currentLevel: currentLevel,
+          indexOfElements: index,
+          point: p,
+          index: 0
+        }))
+        canvasDispatch(addHistory({
+          currentLevel: currentLevel,
+          indexOfElements: index,
+          index: 1
+        }))
       } else {
         for (let i = 0; i < element.points.length; ++i) {
           if (i <= element.points.length - 2) {
@@ -49,13 +54,17 @@ export default function Line_({index, element, points, drawing, dragging}) {
             const l1 = math.lengthBetweenPoints(pos, p1)
             const l2 = math.lengthBetweenPoints(pos, p2)
             if (Math.abs(l1 + l2 - l) < 5) {
-            //   levelDispatch({
-            //     type: "DIVIDE_LINE",
-            //     indexOfElements: index,
-            //     currentLevel: currentLevel,
-            //     pos: p,
-            //     index: i
-            //  })
+              canvasDispatch(divideLine({
+                currentLevel: currentLevel,
+                indexOfElements: index,
+                point: p,
+                index: i
+              }))
+              canvasDispatch(addHistory({
+                currentLevel: currentLevel,
+                indexOfElements: index,
+                index: i
+              }))
               break
             }
           }
@@ -73,13 +82,17 @@ export default function Line_({index, element, points, drawing, dragging}) {
           const l1 = math.lengthBetweenPoints(pos, p1)
           const l2 = math.lengthBetweenPoints(pos, p2)
           if (Math.abs(l1 + l2 - l) < 5) {
-          //   levelDispatch({
-          //     type: "DIVIDE_LINE",
-          //     indexOfElements: index,
-          //     currentLevel: currentLevel,
-          //     pos: p,
-          //     index: element.points.length - 1
-          //  })
+            canvasDispatch(divideLine({
+              currentLevel: currentLevel,
+              indexOfElements: index,
+              point: p,
+              index: element.points.length - 1
+            }))
+            canvasDispatch(addHistory({
+              currentLevel: currentLevel,
+              indexOfElements: index,
+              index: element.points.length - 1
+            }))
           }
         }
       }
@@ -196,9 +209,9 @@ export const mouseMoveLine = (e, canvasDispatch, currentLevel, currentElement, m
   canvasDispatch(movePoint(dispatchObj))
 }
 
-export const checkIsNearAnotherLine = (levelState, levelDispatch, currentLevel, currentElement) => {
-  if (levelState[currentLevel].elements.length === 0 || !currentElement) return
-  const element = levelState[currentLevel].elements[currentElement.indexOfElements]
+export const checkIsNearEndOfLine = (canvasState, canvasDispatch, currentLevel, currentElement, closedElement) => {
+  if (canvasState[currentLevel].elements.length === 0 || !currentElement) return false
+  const element = canvasState[currentLevel].elements[currentElement.indexOfElements]
   if (element.points.length > 3) {
     const pos0 = {
       x: element.x + element.points[0].x,
@@ -209,13 +222,15 @@ export const checkIsNearAnotherLine = (levelState, levelDispatch, currentLevel, 
       y: element.y + element.points[element.points.length - 1].y
     }
     if (math.lengthBetweenPoints(pos0, pos1) <= 10) {
-      levelDispatch({
-        type: "CREATE_CLOSED_ELEMENT",
+      const dispatchObj = {
         currentLevel: currentLevel,
         indexOfElements: currentElement.indexOfElements,
         index: currentElement.index
-      })
+      }
+      canvasDispatch(closedElement(dispatchObj))
+      return true
     }
   }
+  return false
 
 }

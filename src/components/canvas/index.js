@@ -3,7 +3,7 @@ import React, { useState, useContext, useRef, useEffect } from 'react';
 import { Stage, Layer, Group, Rect } from 'react-konva';
 import { CanvasContext } from "../../context/canvasContext"
 import styled from "styled-components"
-import Line_, { mouseDownLine, mouseMoveLine, checkIsNearAnotherLine } from "./Line_"
+import Line_, { mouseDownLine, mouseMoveLine, checkIsNearEndOfLine } from "./Line_"
 import Rect_, { mouseDownRect, mouseMoveRect } from "./Rect_"
 import InfoBox from "./InfoBox"
 import InfoForLine from "./InfoForLine"
@@ -12,7 +12,7 @@ import LevelButton from "../buttons/LevelButton"
 import * as math from "../../functions/math"
 import useWindowSize from "../../hooks/useWindowSize"
 import { useAppSelector, useAppDispatch } from '@/redux/hooks';
-import { addElement, movePoint, addPoint } from "../../redux/features/canvasSlice"
+import { addElement, movePoint, addPoint, closedElement, undo, redo, addHistory, undoMisClick } from "../../redux/features/canvasSlice"
 
 const scaleBy = 1.05;
 
@@ -21,7 +21,7 @@ export default function Canvas() {
   const canvasDispatch = useAppDispatch()
 
   useEffect(() => {
-    // console.log(canvasState)
+    console.log(canvasState)
   }, [canvasState])
 
   const [drawing, setDrawing] = useState(false)
@@ -60,27 +60,50 @@ export default function Canvas() {
 
   const checkIsMishap = () => {
     if (currentElement) {
-      const element = canvasState[currentLevel].elements[currentElement.indexOfElements]
-      if (element.points.length <= 2) {
-        const pos0 = element.points[0]
-        const pos1 = element.points[1]
-        const distance = math.lengthBetweenPoints(pos0, pos1)
-        if (distance < 5) {
-          handleUndo()
-        }
-      } else {
-        const p1 = element.points[currentElement.index]
-        let p2 = null
-        if (currentElement.index === 0) {
-          p2 = element.points[currentElement.index + 1]
+      if (currentElement.type === "line") {
+        const element = canvasState[currentLevel].elements[currentElement.indexOfElements]
+        if (element.points.length <= 2) {
+          const pos0 = element.points[0]
+          const pos1 = element.points[1]
+          const distance = math.lengthBetweenPoints(pos0, pos1)
+          if (distance < 5) {
+            canvasDispatch(undoMisClick({
+              currentLevel: currentLevel,
+              type: "default",
+            }))
+            return true
+          }
         } else {
-          p2 = element.points[currentElement.index - 1]
+          const p1 = element.points[currentElement.index]
+          let p2 = null
+          if (currentElement.index === 0) {
+            p2 = element.points[currentElement.index + 1]
+          } else {
+            p2 = element.points[currentElement.index - 1]
+          }
+          const distance = math.lengthBetweenPoints(p1, p2)
+          if (distance < 5) {
+            canvasDispatch(undoMisClick({
+              currentLevel: currentLevel,
+              indexOfElements: currentElement.indexOfElements,
+              index: currentElement.index,
+              type: "point",
+            }))
+            return true
+          }
         }
-        if (p1.x === p2.x && p1.y === p2.y) {
-          handleUndo()
+      } else if (currentElement.type === "rectangle") {
+        const element = canvasState[currentLevel].elements[currentElement.indexOfElements]
+        if (element.width < 5 && element.height < 5) {
+          canvasDispatch(undoMisClick({
+            currentLevel: currentLevel,
+            type: "default",
+          }))
+          return true
         }
       }
     }
+    return false
   }
 
   const handleMouseDown = (e) => {
@@ -131,28 +154,44 @@ export default function Canvas() {
   }
 
   const handleMouseUp = (e) => {
-    if ((activeTool == "line" || activeTool == "rectangle")) {
-      checkIsMishap()
-      setDrawing(false)
+    setDrawing(false)
+    if (activeTool === "rectangle") {
+      const notMishap = checkIsMishap()
+      if (!notMishap) {
+        canvasDispatch(addHistory({
+          currentLevel: currentLevel,
+          indexOfElements: currentElement.indexOfElements,
+          type: "add"
+        }))
+      }
     }
-    selection.current.visible = false
-    updateSelectionRect()
-    checkIsNearAnotherLine(canvasState, levelDispatch, currentLevel, currentElement) 
+    if (activeTool == "default") {
+      selection.current.visible = false
+      updateSelectionRect() 
+    }
+    if (activeTool == "line") {
+      const isNear = checkIsNearEndOfLine(canvasState, canvasDispatch, currentLevel, currentElement, closedElement)
+      if (!isNear) {
+        const notMisHap = checkIsMishap()
+        if (!notMisHap) {
+          if (canvasState[currentLevel].elements[currentElement.indexOfElements].points.length === 2) {
+            canvasDispatch(addHistory({
+              currentLevel: currentLevel,
+              indexOfElements: currentElement.indexOfElements,
+              type: "add"
+            }))
+          } else {
+            canvasDispatch(addHistory({
+              type: "addPoint",
+              currentLevel: currentLevel,
+              indexOfElements: currentElement.indexOfElements,
+              index: currentElement.index,
+            }))
+          }
+        }
+      }
+    }
     setCurrentElement(null)
-  }
-
-  const handleUndo = () => {
-    levelDispatch({
-      type: "UNDO",
-      currentLevel: currentLevel
-    })
-  }
-
-  const handleRedo = () => {
-    levelDispatch({
-      type: "REDO",
-      currentLevel: currentLevel
-    })
   }
 
   const handleWheel = (e) => {
@@ -246,7 +285,7 @@ export default function Canvas() {
                         <Rect_ 
                           key={i}
                           index={i}
-                          points={element.points}
+                          element={element}
                           drawing={drawing}
                           dragging={dragging}
                         />
@@ -259,7 +298,7 @@ export default function Canvas() {
           )
         })}
         <Layer>
-          <InfoForLine dragging={dragging[0]} />
+          {/* <InfoForLine dragging={dragging[0]} /> */}
           <Rect 
             ref={selectionRectRef}
             fill="rgba(0, 161, 255, 0.3)"
@@ -273,8 +312,8 @@ export default function Canvas() {
       {canvasState[currentLevel].history.length > 0 &&
         <>
           <ButtonRow>
-            <UndoRedoButton onClick={handleUndo}>Undo</UndoRedoButton>
-            <UndoRedoButton onClick={handleRedo}>Redo</UndoRedoButton>
+            <UndoRedoButton onClick={() => { canvasDispatch(undo(currentLevel)) }}>Undo</UndoRedoButton>
+            <UndoRedoButton onClick={() => { canvasDispatch(redo(currentLevel)) }}>Redo</UndoRedoButton>
           </ButtonRow>
         </>
       }

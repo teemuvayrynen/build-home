@@ -1,72 +1,28 @@
-import React, { useContext, useState } from "react"
+import React, { useContext, useState, useRef } from "react"
 import { Circle } from "react-konva"
 import { CanvasContext } from "../../context/canvasContext"
+import { useAppSelector, useAppDispatch } from "@/redux/hooks";
+import { movePoint } from "../../redux/features/canvasSlice"
 
 
-export default function Circle_ ({ index, indexOfElements, point, drawing, type, dragging }) {
+export default function Circle_ ({ element, index, indexOfElements, point, drawing, type, dragging }) {
+  const canvasDispatch = useAppDispatch()
+  const oldDim = useRef({ x: 0, y: 0 })
   const { activeTool, levelState, levelDispatch, currentLevel, setCurrentElement } = useContext(CanvasContext)
   const [visible, setVisible] = useState(false)
 
   const handleDrag = (e) => {
     if (!dragging[0]) return
-    const pos = e.target.getStage().getRelativePointerPosition();
-    if (type === "rectangle") {
-      if (index === 0 || index === 1) {
-        levelDispatch({
-          type: "MOVE_POINT",
-          index: index,
-          indexOfElements: indexOfElements,
-          newPos: pos,
-          currentLevel: currentLevel,
-          lineType: "rectangle"
-        })
-      } else if (index === 2) {
-        const element = levelState.state[currentLevel].elements[indexOfElements]
-        levelDispatch({
-          type: "MOVE_POINT",
-          index: 0,
-          indexOfElements: indexOfElements,
-          newPos: {x: pos.x, y: element.points[0].y},
-          currentLevel: currentLevel,
-          lineType: "rectangle"
-        })
-        levelDispatch({
-          type: "MOVE_POINT",
-          index: 1,
-          indexOfElements: indexOfElements,
-          newPos: {x: element.points[1].x, y: pos.y},
-          currentLevel: currentLevel,
-          lineType: "rectangle"
-        })
-      } else if (index === 3) {
-        const element = levelState.state[currentLevel].elements[indexOfElements]
-        levelDispatch({
-          type: "MOVE_POINT",
-          index: 0,
-          indexOfElements: indexOfElements,
-          newPos: {x: element.points[0].x, y: pos.y},
-          currentLevel: currentLevel,
-          lineType: "rectangle"
-        })
-        levelDispatch({
-          type: "MOVE_POINT",
-          index: 1,
-          indexOfElements: indexOfElements,
-          newPos: {x: pos.x, y: element.points[1].y},
-          currentLevel: currentLevel,
-          lineType: "rectangle"
-        })
-      }
-    } else if (type === "line") {
-      levelDispatch({
-        type: "MOVE_POINT",
-        index: index,
-        indexOfElements: indexOfElements,
-        newPos: pos,
-        currentLevel: currentLevel,
-        lineType: "line"
-      })
+    const pos = e.target.getStage().getRelativePointerPosition()
+    const dispatchObj = {
+      type,
+      currentLevel: currentLevel,
+      indexOfElements: indexOfElements,
+      index: index,
+      point: pos,
+      oldDim: oldDim.current
     }
+    canvasDispatch(movePoint(dispatchObj))
     e.target.getLayer().batchDraw()
   }
 
@@ -79,6 +35,12 @@ export default function Circle_ ({ index, indexOfElements, point, drawing, type,
         fill="black"
         draggable={activeTool === "default" ? true : false}
         onDragStart={() => {
+          if (type === "rectangle") {
+            oldDim.current = {
+              x: element.width + element.x,
+              y: element.height + element.y
+            }
+          }
           setCurrentElement({
             type: type,
             indexOfElements: indexOfElements,
