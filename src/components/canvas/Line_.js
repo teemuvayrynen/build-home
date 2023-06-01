@@ -8,7 +8,7 @@ import { moveElement, divideLine, addHistory } from "../../redux/features/canvas
 
 export default function Line_({index, element, points, drawing, dragging}) {
   const canvasDispatch = useAppDispatch()
-  const { activeTool, levelDispatch, currentLevel } = useContext(CanvasContext)
+  const { activeTool, currentLevel } = useContext(CanvasContext)
 
   const handleDragEnd = (e) => {
     const pos = e.target.position()
