@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { stat } from 'fs';
 
 type CanvasState = {
   items: any[];
@@ -226,5 +225,22 @@ export const {
   undoMisClick,
   copyElements
 } = canvas.actions;
+
+export const actions = {
+  addLevel,
+  deleteLevel,
+  addElement,
+  movePoint,
+  deleteElements,
+  addPoint,
+  closedElement,
+  moveElement,
+  divideLine,
+  undo,
+  redo,
+  addHistory,
+  undoMisClick,
+  copyElements
+}
 
 export default canvas.reducer;

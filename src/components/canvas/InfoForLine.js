@@ -5,7 +5,7 @@ import * as math from "../../functions/math"
 import { useAppSelector } from "@/redux/hooks";
 
 export default function InfoForLine ({ dragging}) {
-  const canvasState = useAppSelector(state => state.canvasReducer.items)
+  const canvasState = useAppSelector(state => state.canvas.items)
   const { currentLevel, currentElement } = useContext(CanvasContext);
   const items = useRef([])
   const [visible, setVisible] = useState(false)

@@ -7,7 +7,7 @@ import globals from "../../app/globals"
 import { useAppSelector } from "@/redux/hooks";
 
 export default function InfoBox ({ stageRef, drawing, dragging }) {
-  const canvasState = useAppSelector(state => state.canvasReducer.items)
+  const canvasState = useAppSelector(state => state.canvas.items)
   const { currentLevel, currentElement } = useContext(CanvasContext);
   const mousePosition = useMousePosition()
   const [visible, setVisible] = useState(false)
@@ -25,18 +25,9 @@ export default function InfoBox ({ stageRef, drawing, dragging }) {
           setVisible(true)
         }
         const element = canvasState[currentLevel].elements[currentElement.indexOfElements]
-        const pos0 = element.points[0]
-        const pos1 = element.points[1]
-        let w = pos1.x - pos0.x
-        let h = pos1.y - pos0.y
-        if (w < 0) {
-          w = w * -1
-        }
-        if (h < 0) {
-          h = h * -1
-        }
-        width.current = Math.round(w / globals.lengthParameter * 100) / 100
-        height.current = Math.round(h / globals.lengthParameter * 100) / 100
+        
+        width.current = Math.round(element.width / globals.lengthParameter * 100) / 100
+        height.current = Math.round(element.height / globals.lengthParameter * 100) / 100
       } else if (currentElement.type === "line" && !element.closed) {
         let pos0 = {}
         let pos1 = {}
