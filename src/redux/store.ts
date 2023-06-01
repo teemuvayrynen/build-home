@@ -39,9 +39,9 @@ listenerMiddleware.startListening({
 const canvasState = typeof window !== "undefined" ? JSON.parse(window.localStorage.getItem('canvasState') || "null" ) : null
 
 export const store = configureStore({
-  // preloadedState: {
-  //   canvasReducer: canvasState === null ? initialState : canvasState
-  // },
+  preloadedState: {
+    canvas: canvasState === null ? initialState : canvasState.canvas
+  },
   reducer: {
     canvas: canvasReducer
   },
