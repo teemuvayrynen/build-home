@@ -2,9 +2,11 @@ import React, { useEffect, useContext, useRef, useState } from 'react';
 import { Group, Text, Rect, Label, Tag } from 'react-konva';
 import { CanvasContext } from "../../context/canvasContext"
 import * as math from "../../functions/math"
+import { useAppSelector } from "@/redux/hooks";
 
 export default function InfoForLine ({ dragging}) {
-  const { levelState, currentLevel, currentElement } = useContext(CanvasContext);
+  const canvasState = useAppSelector(state => state.canvasReducer.items)
+  const { currentLevel, currentElement } = useContext(CanvasContext);
   const items = useRef([])
   const [visible, setVisible] = useState(false)
 
@@ -13,7 +15,7 @@ export default function InfoForLine ({ dragging}) {
       setVisible(false)    
       return 
     }
-    const element = levelState.state[currentLevel].elements[currentElement.indexOfElements]
+    const element = canvasState[currentLevel].elements[currentElement.indexOfElements]
     if (element.points.length <= 2) { return }
     let currentPoint = null
     let previousPoint = null
@@ -63,7 +65,7 @@ export default function InfoForLine ({ dragging}) {
     if (!visible) {
       setVisible(true)
     }
-  }, [dragging, currentElement, currentLevel, levelState.state, visible])
+  }, [dragging, currentElement, currentLevel, canvasState, visible])
 
   return (
     <>

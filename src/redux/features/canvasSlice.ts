@@ -68,9 +68,7 @@ export const canvas = createSlice({
       }
     },
     deleteElements: (state, action: PayloadAction<number>) => {
-      state.items[action.payload].elements = []
-      state.items[action.payload].history = []
-      state.items[action.payload].historyStep = -1      
+      state.items[action.payload].elements = []  
     },
     addPoint: (state, action: PayloadAction<any>) => {
       const element = state.items[action.payload.currentLevel].elements[action.payload.indexOfElements]
@@ -131,6 +129,10 @@ export const canvas = createSlice({
         element.points.splice(historyItem.index, 1)
         return
       }
+      if (historyItem.type === "deleteElements") {
+        currentLevel.elements = historyItem.elements
+        return
+      }
     },
     redo: (state, action: PayloadAction<number>) => {
       const currentLevel = state.items[action.payload]
@@ -151,6 +153,10 @@ export const canvas = createSlice({
         element.points.splice(nextHistoryItem.index, 0, nextHistoryItem.element.points[nextHistoryItem.index])
         return
       }
+      if (nextHistoryItem.type === "deleteElements") {
+        currentLevel.elements = []
+        return
+      }
     },
     addHistory: (state, action: PayloadAction<any>) => {
       const currentLevel = state.items[action.payload.currentLevel]
@@ -167,6 +173,11 @@ export const canvas = createSlice({
           indexOfElements: action.payload.indexOfElements,
           index: action.payload.index,
           element: currentLevel.elements[action.payload.indexOfElements]
+        }
+      } else if (action.payload.type === "deleteElements") {
+        historyItem = {
+          type: "deleteElements",
+          elements: currentLevel.elements
         }
       }
       
@@ -185,6 +196,16 @@ export const canvas = createSlice({
         currentLevel.elements[action.payload.indexOfElements].points.splice(action.payload.index, 1)
         return
       }
+    },
+    copyElements: (state, action: PayloadAction<number>) => {
+      const latestLevelIndex = state.items.length - 1
+      const copy = {...state.items[action.payload]}
+      state.items[latestLevelIndex] = {
+        ...state.items[latestLevelIndex],
+        elements: copy.elements,
+        history: copy.history,
+        historyStep: copy.historyStep
+      }
     }
   }
 })
@@ -202,7 +223,8 @@ export const {
   undo,
   redo,
   addHistory,
-  undoMisClick
+  undoMisClick,
+  copyElements
 } = canvas.actions;
 
 export default canvas.reducer;

@@ -27,9 +27,7 @@ export default function Canvas() {
   const [drawing, setDrawing] = useState(false)
   const dragging = useState(false)
   const { 
-    activeTool, 
-    levelState, 
-    levelDispatch, 
+    activeTool,
     currentLevel, 
     setCurrentLevel, 
     currentElement, 
@@ -166,6 +164,9 @@ export default function Canvas() {
       }
     }
     if (activeTool == "default") {
+      if (currentElement) {
+        console.log("toimii")
+      }
       selection.current.visible = false
       updateSelectionRect() 
     }
@@ -298,7 +299,7 @@ export default function Canvas() {
           )
         })}
         <Layer>
-          {/* <InfoForLine dragging={dragging[0]} /> */}
+          <InfoForLine dragging={dragging[0]} />
           <Rect 
             ref={selectionRectRef}
             fill="rgba(0, 161, 255, 0.3)"
@@ -317,11 +318,11 @@ export default function Canvas() {
           </ButtonRow>
         </>
       }
-      {/* <InfoBox 
+      <InfoBox 
         stageRef={stageRef}
         drawing={drawing}
         dragging={dragging[0]}
-      /> */}
+      />
       <RightBar />
     </>
   )

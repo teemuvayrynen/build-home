@@ -8,7 +8,7 @@ import { movePoint } from "../../redux/features/canvasSlice"
 export default function Circle_ ({ element, index, indexOfElements, point, drawing, type, dragging }) {
   const canvasDispatch = useAppDispatch()
   const oldDim = useRef({ x: 0, y: 0 })
-  const { activeTool, levelState, levelDispatch, currentLevel, setCurrentElement } = useContext(CanvasContext)
+  const { activeTool, currentLevel, setCurrentElement } = useContext(CanvasContext)
   const [visible, setVisible] = useState(false)
 
   const handleDrag = (e) => {

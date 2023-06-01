@@ -4,7 +4,7 @@ import { CanvasContext } from "../../context/canvasContext"
 import * as math from "../../functions/math"
 import Circle_ from "./Circle_"
 import { useAppDispatch } from "@/redux/hooks";
-import { moveElement, divideLine, addHistory, canvas } from "../../redux/features/canvasSlice"
+import { moveElement, divideLine, addHistory } from "../../redux/features/canvasSlice"
 
 export default function Line_({index, element, points, drawing, dragging}) {
   const canvasDispatch = useAppDispatch()
@@ -35,6 +35,7 @@ export default function Line_({index, element, points, drawing, dragging}) {
           index: 0
         }))
         canvasDispatch(addHistory({
+          type: "addPoint",
           currentLevel: currentLevel,
           indexOfElements: index,
           index: 1
@@ -61,6 +62,7 @@ export default function Line_({index, element, points, drawing, dragging}) {
                 index: i
               }))
               canvasDispatch(addHistory({
+                type: "addPoint",
                 currentLevel: currentLevel,
                 indexOfElements: index,
                 index: i
@@ -89,6 +91,7 @@ export default function Line_({index, element, points, drawing, dragging}) {
               index: element.points.length - 1
             }))
             canvasDispatch(addHistory({
+              type: "addPoint",
               currentLevel: currentLevel,
               indexOfElements: index,
               index: element.points.length - 1

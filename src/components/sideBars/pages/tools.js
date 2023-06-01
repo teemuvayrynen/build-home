@@ -2,88 +2,116 @@ import styled from "styled-components";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowPointer, faArrowsUpDownLeftRight, faPen, faTrash, faScissors, faBezierCurve } from '@fortawesome/free-solid-svg-icons'
 import { faSquare, faTrashCan } from "@fortawesome/free-regular-svg-icons";
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { CanvasContext } from "../../../context/canvasContext"
-import { useAppDispatch } from "@/redux/hooks";
-import { deleteLevel, deleteElements } from "../../../redux/features/canvasSlice"
+import { useAppSelector, useAppDispatch } from "@/redux/hooks";
+import { deleteElements, addHistory, deleteLevel } from "../../../redux/features/canvasSlice"
+import PopUpDialog from "../../PopUpDialog";
 
 export default function Tools() {
-  const { activeTool, setActiveTool, levelDispatch, currentLevel, setCurrentLevel } = useContext(CanvasContext);
+  const { activeTool, setActiveTool, currentLevel, setCurrentLevel } = useContext(CanvasContext);
+  const [popUpVisible, setPopUpVisible] = useState(false)
   const canvasDispatch = useAppDispatch()
+  const canvasState = useAppSelector(state => state.canvasReducer.items)
+
+  const handleRemoveLevel = () => {
+    canvasDispatch(deleteLevel(currentLevel))
+    if (currentLevel != 0) {
+      setCurrentLevel(currentLevel - 1)
+    }
+    setPopUpVisible(false)
+  }
+
+  const handleCancelClick = () => {
+    setPopUpVisible(false)
+  }
 
   return (
-    <Container>
-      <ToolContainer>
-        <Header>Edit</Header>
-        <ToolRow>
-          <ToolColumn>
-            <Tool onClick={() => { setActiveTool("default") }} active={activeTool === "default" ? 1 : 0}>
-              <FontAwesomeIcon icon={faArrowPointer} fixedWidth/>
-            </Tool>
-            <Text>Object</Text>
-          </ToolColumn>
-          <ToolColumn>
-            <Tool onClick={() => { setActiveTool("move") }} active={activeTool === "move" ? 1 : 0}>
-              <FontAwesomeIcon icon={faArrowsUpDownLeftRight} fixedWidth/>
-            </Tool>
-            <Text>Move</Text>
-          </ToolColumn>
-          <ToolColumn>
-            <Tool onClick={() => { setActiveTool("divide") }} active={activeTool === "divide" ? 1 : 0}>
-              <FontAwesomeIcon icon={faScissors} fixedWidth/>
-            </Tool>
-            <Text>Divide</Text>
-          </ToolColumn>
-        </ToolRow>
-      </ToolContainer>
-      <ToolContainer>
-        <Header>Draw</Header>
-        <ToolRow>
-          <ToolColumn>
-            <Tool onClick={() => { setActiveTool("line") }} active={activeTool === "line" ? 1 : 0}>
-              <FontAwesomeIcon icon={faPen} fixedWidth/>
-            </Tool>
-            <Text>Line</Text>
-          </ToolColumn>
-          <ToolColumn>
-            <Tool onClick={() => { setActiveTool("bezier") }} active={activeTool === "bezier" ? 1 : 0}>
-              <FontAwesomeIcon icon={faBezierCurve} fixedWidth/>
-            </Tool>
-            <Text>Bezier</Text>
-          </ToolColumn>
-          <ToolColumn>
-            <Tool onClick={() => { setActiveTool("rectangle") }} active={activeTool === "rectangle" ? 1 : 0}>
-              <FontAwesomeIcon icon={faSquare} fixedWidth/>
-            </Tool>
-            <Text>Rect</Text>
-          </ToolColumn>
-        </ToolRow>
-      </ToolContainer>
-      <ToolContainer>
-        <Header>Delete</Header>
-        <ToolRow>
-          <ToolColumn>
-            <Tool onClick={() => { 
-              canvasDispatch(deleteLevel(currentLevel))
-              if (currentLevel != 0) {
-                setCurrentLevel(currentLevel - 1)
-              }
-            }}>
-              <FontAwesomeIcon icon={faTrashCan} fixedWidth/>
-            </Tool>
-            <Text>Level</Text>
-          </ToolColumn>
-          <ToolColumn>
-            <Tool onClick={() => {
-              canvasDispatch(deleteElements(currentLevel))
-            }}>
-              <FontAwesomeIcon icon={faTrash} fixedWidth/>
-            </Tool>
-            <Text>Elements</Text>
-          </ToolColumn>
-        </ToolRow>
-      </ToolContainer>
-    </Container>
+    <>
+      <Container>
+        <ToolContainer>
+          <Header>Edit</Header>
+          <ToolRow>
+            <ToolColumn>
+              <Tool onClick={() => { setActiveTool("default") }} active={activeTool === "default" ? 1 : 0}>
+                <FontAwesomeIcon icon={faArrowPointer} fixedWidth/>
+              </Tool>
+              <Text>Object</Text>
+            </ToolColumn>
+            <ToolColumn>
+              <Tool onClick={() => { setActiveTool("move") }} active={activeTool === "move" ? 1 : 0}>
+                <FontAwesomeIcon icon={faArrowsUpDownLeftRight} fixedWidth/>
+              </Tool>
+              <Text>Move</Text>
+            </ToolColumn>
+            <ToolColumn>
+              <Tool onClick={() => { setActiveTool("divide") }} active={activeTool === "divide" ? 1 : 0}>
+                <FontAwesomeIcon icon={faScissors} fixedWidth/>
+              </Tool>
+              <Text>Divide</Text>
+            </ToolColumn>
+          </ToolRow>
+        </ToolContainer>
+        <ToolContainer>
+          <Header>Draw</Header>
+          <ToolRow>
+            <ToolColumn>
+              <Tool onClick={() => { setActiveTool("line") }} active={activeTool === "line" ? 1 : 0}>
+                <FontAwesomeIcon icon={faPen} fixedWidth/>
+              </Tool>
+              <Text>Line</Text>
+            </ToolColumn>
+            <ToolColumn>
+              <Tool onClick={() => { setActiveTool("bezier") }} active={activeTool === "bezier" ? 1 : 0}>
+                <FontAwesomeIcon icon={faBezierCurve} fixedWidth/>
+              </Tool>
+              <Text>Bezier</Text>
+            </ToolColumn>
+            <ToolColumn>
+              <Tool onClick={() => { setActiveTool("rectangle") }} active={activeTool === "rectangle" ? 1 : 0}>
+                <FontAwesomeIcon icon={faSquare} fixedWidth/>
+              </Tool>
+              <Text>Rect</Text>
+            </ToolColumn>
+          </ToolRow>
+        </ToolContainer>
+        <ToolContainer>
+          <Header>Delete</Header>
+          <ToolRow>
+            <ToolColumn>
+              <Tool onClick={() => { 
+                if (canvasState.length === 1) return
+                setPopUpVisible(true)
+              }}>
+                <FontAwesomeIcon icon={faTrashCan} fixedWidth/>
+              </Tool>
+              <Text>Level</Text>
+            </ToolColumn>
+            <ToolColumn>
+              <Tool onClick={() => {
+                canvasDispatch(addHistory({
+                  type: "deleteElements",
+                  currentLevel: currentLevel,
+                }))
+                canvasDispatch(deleteElements(currentLevel))
+              }}>
+                <FontAwesomeIcon icon={faTrash} fixedWidth/>
+              </Tool>
+              <Text>Elements</Text>
+            </ToolColumn>
+          </ToolRow>
+        </ToolContainer>
+      </Container>
+      {popUpVisible && 
+        <PopUpDialog 
+          colors={["#e8e8e8", "#ff4d4d"]}
+          header="Are you sure you want to delete this level?"
+          buttons={["Cancel", "Delete"]}
+          handleClick={handleRemoveLevel}
+          handleCancelClick={handleCancelClick}
+        />
+      }
+    </>
   )
 }
 

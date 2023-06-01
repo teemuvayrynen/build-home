@@ -3,12 +3,27 @@ import styled from "styled-components"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { useAppDispatch, useAppSelector } from "@/redux/hooks"
-import { addLevel } from "../../redux/features/canvasSlice"
+import { addLevel, copyElements } from "../../redux/features/canvasSlice"
+import PopUpDialog from "../PopUpDialog"
 
 
 export default function LevelButton ({ currentLevel, setCurrentLevel }) {
   const canvasState = useAppSelector(state => state.canvasReducer.items)
   const canvasDispatch = useAppDispatch()
+  const [popUpVisible, setPopUpVisible] = useState(false)
+
+  const handleCancelClick = () => {
+    setPopUpVisible(false)
+    canvasDispatch(addLevel())
+    setCurrentLevel(canvasState.length)
+  }
+
+  const handleLevelAdd = () => {
+    canvasDispatch(addLevel())
+    setPopUpVisible(false)
+    canvasDispatch(copyElements(currentLevel))
+    setCurrentLevel(canvasState.length)
+  }
 
   return (
     <>
@@ -63,11 +78,21 @@ export default function LevelButton ({ currentLevel, setCurrentLevel }) {
             }
           })}
         </ToggleButtonGroup>
-        <AddLevelButton onClick={() => { canvasDispatch(addLevel()) }}>
+        <AddLevelButton onClick={() => { setPopUpVisible(true) }}>
           <FontAwesomeIcon icon={faPlus} />
         </AddLevelButton>
       </ToggleButtonContainer>
-
+      {popUpVisible && 
+        <PopUpDialog 
+          setPopUpVisible={setPopUpVisible}
+          colors={["#e8e8e8", "#00B3FF"]}
+          header="Do you wan to copy existing floor plan?"
+          buttons={["Cancel", "Copy"]}
+          handleClick={handleLevelAdd}
+          handleCancelClick={handleCancelClick}
+        />
+      
+      }
     </>
   )
 
