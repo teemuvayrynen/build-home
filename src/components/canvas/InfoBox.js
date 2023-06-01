@@ -4,9 +4,11 @@ import styled from "styled-components"
 import * as math from "../../functions/math"
 import useMousePosition from "../../hooks/useMousePosition"
 import globals from "../../app/globals"
+import { useAppSelector } from "@/redux/hooks";
 
 export default function InfoBox ({ stageRef, drawing, dragging }) {
-  const { levelState, currentLevel, currentElement } = useContext(CanvasContext);
+  const canvasState = useAppSelector(state => state.canvasReducer.items)
+  const { currentLevel, currentElement } = useContext(CanvasContext);
   const mousePosition = useMousePosition()
   const [visible, setVisible] = useState(false)
   const length = useRef(0)
@@ -17,12 +19,12 @@ export default function InfoBox ({ stageRef, drawing, dragging }) {
 
   useEffect(() => {
     if (currentElement && (dragging || drawing)) {
-      const element = levelState[currentLevel].elements[currentElement.indexOfElements]
+      const element = canvasState[currentLevel].elements[currentElement.indexOfElements]
       if (currentElement.type === "rectangle") {
         if (!visible) {
           setVisible(true)
         }
-        const element = levelState[currentLevel].elements[currentElement.indexOfElements]
+        const element = canvasState[currentLevel].elements[currentElement.indexOfElements]
         const pos0 = element.points[0]
         const pos1 = element.points[1]
         let w = pos1.x - pos0.x
@@ -33,8 +35,8 @@ export default function InfoBox ({ stageRef, drawing, dragging }) {
         if (h < 0) {
           h = h * -1
         }
-        width.current = w
-        height.current = h
+        width.current = Math.round(w / globals.lengthParameter * 100) / 100
+        height.current = Math.round(h / globals.lengthParameter * 100) / 100
       } else if (currentElement.type === "line" && !element.closed) {
         let pos0 = {}
         let pos1 = {}
@@ -93,7 +95,7 @@ export default function InfoBox ({ stageRef, drawing, dragging }) {
     } else if (!dragging && !drawing) {
       setVisible(false)
     }
-  }, [currentElement, currentLevel, levelState, visible, dragging, drawing])
+  }, [currentElement, currentLevel, canvasState, visible, dragging, drawing])
 
 
   return (

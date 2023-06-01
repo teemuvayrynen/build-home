@@ -2,14 +2,35 @@ import React, { useReducer, useState } from "react"
 import styled from "styled-components"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { useAppDispatch, useAppSelector } from "@/redux/hooks"
+import { addLevel, copyElements } from "../../redux/features/canvasSlice"
+import PopUpDialog from "../PopUpDialog"
 
-export default function LevelButton ({ levelState, currentLevel, setCurrentLevel, levelDispatch }) {
+
+export default function LevelButton ({ currentLevel, setCurrentLevel }) {
+  const canvasState = useAppSelector(state => state.canvasReducer.items)
+  const canvasDispatch = useAppDispatch()
+  const [popUpVisible, setPopUpVisible] = useState(false)
+
+  const handleCancelClick = () => {
+    setPopUpVisible(false)
+    canvasDispatch(addLevel())
+    setCurrentLevel(canvasState.length)
+  }
+
+  const handleLevelAdd = () => {
+    canvasDispatch(addLevel())
+    setPopUpVisible(false)
+    canvasDispatch(copyElements(currentLevel))
+    setCurrentLevel(canvasState.length)
+  }
+
   return (
     <>
       <ToggleButtonContainer>
         <ToggleButtonGroup>
-          {levelState.map((i) => {
-            if (i.id == 0 && i.id == levelState.length - 1) {
+          {canvasState.map((i) => {
+            if (i.id == 0 && i.id == canvasState.length - 1) {
               return (
                 <LevelToggleButton 
                   bottom={1} 
@@ -33,7 +54,7 @@ export default function LevelButton ({ levelState, currentLevel, setCurrentLevel
                   {i.id}
                 </LevelToggleButton>
               )
-            } else if (i.id == levelState.length - 1) {
+            } else if (i.id == canvasState.length - 1) {
               return (
                 <LevelToggleButton 
                   top={1} 
@@ -57,11 +78,21 @@ export default function LevelButton ({ levelState, currentLevel, setCurrentLevel
             }
           })}
         </ToggleButtonGroup>
-        <AddLevelButton onClick={() => { levelDispatch({ type: 'ADD_LEVEL' }); }}>
+        <AddLevelButton onClick={() => { setPopUpVisible(true) }}>
           <FontAwesomeIcon icon={faPlus} />
         </AddLevelButton>
       </ToggleButtonContainer>
-
+      {popUpVisible && 
+        <PopUpDialog 
+          setPopUpVisible={setPopUpVisible}
+          colors={["#e8e8e8", "#00B3FF"]}
+          header="Do you wan to copy existing floor plan?"
+          buttons={["Cancel", "Copy"]}
+          handleClick={handleLevelAdd}
+          handleCancelClick={handleCancelClick}
+        />
+      
+      }
     </>
   )
 
