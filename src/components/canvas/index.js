@@ -17,11 +17,11 @@ import { addElement, movePoint, addPoint, closedElement, undo, redo, addHistory,
 const scaleBy = 1.05;
 
 export default function Canvas() {
-  const canvasState = useAppSelector(state => state.canvasReducer.items)
+  const canvasState = useAppSelector(state => state.canvas.items)
   const canvasDispatch = useAppDispatch()
 
   useEffect(() => {
-    console.log(canvasState)
+    //console.log(canvasState)
   }, [canvasState])
 
   const [drawing, setDrawing] = useState(false)

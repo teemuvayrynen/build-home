@@ -6,7 +6,7 @@ import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { moveElement } from "../../redux/features/canvasSlice"
 
 export default function Rect_ ({index, element, drawing, dragging}) {
-  const canvasState = useAppSelector(state => state.canvasReducer.items)
+  const canvasState = useAppSelector(state => state.canvas.items)
   const canvasDispatch = useAppDispatch()
   const {activeTool, currentLevel } = useContext(CanvasContext)
   const [modifiedPoints, setModifiedPoints] = useState([])

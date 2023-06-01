@@ -12,7 +12,7 @@ export default function Tools() {
   const { activeTool, setActiveTool, currentLevel, setCurrentLevel } = useContext(CanvasContext);
   const [popUpVisible, setPopUpVisible] = useState(false)
   const canvasDispatch = useAppDispatch()
-  const canvasState = useAppSelector(state => state.canvasReducer.items)
+  const canvasState = useAppSelector(state => state.canvas.items)
 
   const handleRemoveLevel = () => {
     canvasDispatch(deleteLevel(currentLevel))

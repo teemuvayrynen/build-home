@@ -8,7 +8,7 @@ import PopUpDialog from "../PopUpDialog"
 
 
 export default function LevelButton ({ currentLevel, setCurrentLevel }) {
-  const canvasState = useAppSelector(state => state.canvasReducer.items)
+  const canvasState = useAppSelector(state => state.canvas.items)
   const canvasDispatch = useAppDispatch()
   const [popUpVisible, setPopUpVisible] = useState(false)
 
