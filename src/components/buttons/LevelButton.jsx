@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { useAppDispatch, useAppSelector } from "@/redux/hooks"
 import { addLevel, copyElements } from "../../redux/features/canvasSlice"
-import PopUpDialog from "../PopUpDialog"
+import PopUpDialog from "../PopUpDialog.jsx"
 
 
 export default function LevelButton ({ currentLevel, setCurrentLevel }) {

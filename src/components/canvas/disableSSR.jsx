@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic";
 
-const CanvasSSRDisabled = dynamic(() => import("."), {
+const CanvasSSRDisabled = dynamic(() => import("./index.jsx"), {
   ssr: false,
 });
 

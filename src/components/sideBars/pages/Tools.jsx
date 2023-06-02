@@ -3,10 +3,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowPointer, faArrowsUpDownLeftRight, faPen, faTrash, faScissors, faBezierCurve } from '@fortawesome/free-solid-svg-icons'
 import { faSquare, faTrashCan } from "@fortawesome/free-regular-svg-icons";
 import React, { useContext, useState } from "react";
-import { CanvasContext } from "../../../context/canvasContext"
+import { CanvasContext } from "../../../context/canvasContext.jsx"
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { deleteElements, addHistory, deleteLevel } from "../../../redux/features/canvasSlice"
-import PopUpDialog from "../../PopUpDialog";
+import PopUpDialog from "../../PopUpDialog.jsx";
 
 export default function Tools() {
   const { activeTool, setActiveTool, currentLevel, setCurrentLevel } = useContext(CanvasContext);
@@ -16,8 +16,8 @@ export default function Tools() {
 
   const handleRemoveLevel = () => {
     canvasDispatch(deleteLevel(currentLevel))
-    if (currentLevel != 0) {
-      setCurrentLevel(currentLevel - 1)
+    if (currentLevel !== 0) {
+      setCurrentLevel(prevState => prevState - 1)
     }
     setPopUpVisible(false)
   }

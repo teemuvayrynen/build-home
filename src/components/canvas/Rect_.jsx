@@ -1,9 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Rect } from "react-konva"
-import { CanvasContext } from "../../context/canvasContext"
-import Circle_ from "./Circle_";
+import { CanvasContext } from "../../context/canvasContext.jsx"
+import Circle_ from "./Circle_.jsx";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { moveElement } from "../../redux/features/canvasSlice"
+import * as math from "../../functions/math"
 
 export default function Rect_ ({index, element, drawing, dragging}) {
   const canvasState = useAppSelector(state => state.canvas.items)
@@ -21,7 +22,7 @@ export default function Rect_ ({index, element, drawing, dragging}) {
   }
 
   useEffect(() => {
-    if (canvasState[currentLevel].elements[index]) {
+    if (canvasState[currentLevel] && canvasState[currentLevel].elements[index]) {
       const e = canvasState[currentLevel].elements[index]
       setModifiedPoints([
         {x: e.x, y: e.y},
@@ -40,7 +41,7 @@ export default function Rect_ ({index, element, drawing, dragging}) {
         width={element.width}
         height={element.height}
         stroke="black"
-        strokeWidth={7}
+        strokeWidth={4}
         shadowColor="grey"
         shadowBlur={4}
         shadowOffset={{ x: 2, y: 1 }}

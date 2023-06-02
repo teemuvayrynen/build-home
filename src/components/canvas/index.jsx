@@ -1,16 +1,16 @@
 "use client"
 import React, { useState, useContext, useRef, useEffect } from 'react';
 import { Stage, Layer, Group, Rect } from 'react-konva';
-import { CanvasContext } from "../../context/canvasContext"
+import { CanvasContext } from "../../context/canvasContext.jsx"
 import styled from "styled-components"
-import Line_, { mouseDownLine, mouseMoveLine, checkIsNearEndOfLine } from "./Line_"
-import Rect_, { mouseDownRect, mouseMoveRect } from "./Rect_"
-import InfoBox from "./InfoBox"
-import InfoForLine from "./InfoForLine"
-import RightBar from "../sideBars/RightBar"
-import LevelButton from "../buttons/LevelButton"
+import Line_, { mouseDownLine, mouseMoveLine, checkIsNearEndOfLine } from "./Line_.jsx"
+import Rect_, { mouseDownRect, mouseMoveRect } from "./Rect_.jsx"
+import InfoBox from "./InfoBox.jsx"
+import InfoForLine from "./InfoForLine.jsx"
+import RightBar from "../sideBars/RightBar.jsx"
+import LevelButton from "../buttons/LevelButton.jsx"
 import * as math from "../../functions/math"
-import useWindowSize from "../../hooks/useWindowSize"
+import useWindowSize from "../../hooks/useWindowSize.jsx"
 import { useAppSelector, useAppDispatch } from '@/redux/hooks';
 import { addElement, movePoint, addPoint, closedElement, undo, redo, addHistory, undoMisClick } from "../../redux/features/canvasSlice"
 
@@ -218,7 +218,7 @@ export default function Canvas() {
 
   return (
     <>
-      <Stage 
+      <Stage
         onMouseOut={() => {
           dragging[1](false)
         }}
@@ -247,7 +247,8 @@ export default function Canvas() {
           return (
             <>
               <Layer
-              visible={level.id == currentLevel ? true : false}
+                key={level.id}
+                visible={level.id == currentLevel ? true : false}
                 onMouseEnter={e => {
                   if (activeTool === "default" || activeTool === "divide") {
                     const container = e.target.getStage().container();
