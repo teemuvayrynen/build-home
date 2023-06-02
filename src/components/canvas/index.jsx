@@ -1,12 +1,13 @@
 "use client"
 import React, { useState, useContext, useRef, useEffect } from 'react';
-import { Stage, Layer, Group, Rect } from 'react-konva';
+import { Stage, Layer, Group, Rect, Image } from 'react-konva';
 import { CanvasContext } from "../../context/canvasContext.jsx"
 import styled from "styled-components"
 import Line_, { mouseDownLine, mouseMoveLine, checkIsNearEndOfLine } from "./Line_.jsx"
 import Rect_, { mouseDownRect, mouseMoveRect } from "./Rect_.jsx"
 import InfoBox from "./InfoBox.jsx"
 import InfoForLine from "./InfoForLine.jsx"
+import Image_ from "./Image_.jsx"
 import RightBar from "../sideBars/RightBar.jsx"
 import LevelButton from "../buttons/LevelButton.jsx"
 import * as math from "../../functions/math"
@@ -21,7 +22,7 @@ export default function Canvas() {
   const canvasDispatch = useAppDispatch()
 
   useEffect(() => {
-    //console.log(canvasState)
+    console.log("canvasState", canvasState)
   }, [canvasState])
 
   const [drawing, setDrawing] = useState(false)
@@ -164,9 +165,7 @@ export default function Canvas() {
       }
     }
     if (activeTool == "default") {
-      if (currentElement) {
-        console.log("toimii")
-      }
+      
       selection.current.visible = false
       updateSelectionRect() 
     }
@@ -217,7 +216,31 @@ export default function Canvas() {
   }
 
   return (
-    <>
+    <div
+      onDrop={(e) => {
+        if (currentElement && currentElement.type === "element") {
+          e.preventDefault();
+          stageRef.current.setPointersPositions(e)
+          const elementObj = {
+            type: "element",
+            src: currentElement.src,
+            point: stageRef.current.getPointerPosition(),
+          }
+          const dispatchObj = {
+            element: elementObj,
+            currentLevel: currentLevel,
+            indexOfElements: canvasState[currentLevel].elements.length,
+          }
+          canvasDispatch(addElement(dispatchObj))
+          canvasDispatch(addHistory({
+            currentLevel: currentLevel,
+            indexOfElements: canvasState[currentLevel].elements.length,
+            type: "add"
+          }))
+        }
+      }}
+      onDragOver={(e) => e.preventDefault()}
+    >
       <Stage
         onMouseOut={() => {
           dragging[1](false)
@@ -263,8 +286,8 @@ export default function Canvas() {
                 }}
               >
                 <Group>
-                  {canvasState[index].elements.map((element, i) => {
-                    if (element.type === "line") {
+                  {canvasState[index].elements.length > 0 && canvasState[index].elements.map((element, i) => {
+                    if (element && element.type === "line") {
                       const points = []
                       element.points.forEach(point => {
                         points.push(point.x)
@@ -282,7 +305,7 @@ export default function Canvas() {
                           />
                         </>
                       )
-                    } else if (element.type === "rectangle") {
+                    } else if (element && element.type === "rectangle") {
                       return (
                         <Rect_ 
                           key={i}
@@ -290,6 +313,13 @@ export default function Canvas() {
                           element={element}
                           drawing={drawing}
                           dragging={dragging}
+                        />
+                      )
+                    } else if (element && element.type === "element") {
+                      return (
+                        <Image_ 
+                          key={i}
+                          element={element}
                         />
                       )
                     }
@@ -325,7 +355,7 @@ export default function Canvas() {
         dragging={dragging[0]}
       />
       <RightBar />
-    </>
+    </div>
   )
 }
 

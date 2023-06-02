@@ -111,7 +111,7 @@ export default function Line_({index, element, points, drawing, dragging}) {
           y={element.y}
           points={points}
           stroke="black"
-          strokeWidth={7}
+          strokeWidth={10}
           shadowColor="grey"
           shadowBlur={4}
           shadowOffset={{ x: 2, y: 1 }}
@@ -152,6 +152,7 @@ export const mouseDownLine = (e, canvasState, canvasDispatch, currentLevel, setC
   const elements = canvasState[currentLevel].elements
   for (let i = 0; i < elements.length; i++) {
     const element = elements[i];
+    if (element.type !== "line") continue
     const j = element.points.findIndex(e => {
       const p = {
         x: e.x + element.x,
