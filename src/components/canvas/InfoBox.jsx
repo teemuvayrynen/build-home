@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
-import { CanvasContext } from "../../context/canvasContext"
+import { CanvasContext } from "../../context/canvasContext.jsx"
 import styled from "styled-components"
 import * as math from "../../functions/math"
-import useMousePosition from "../../hooks/useMousePosition"
+import useMousePosition from "../../hooks/useMousePosition.jsx"
 import globals from "../../app/globals"
 import { useAppSelector } from "@/redux/hooks";
 
@@ -113,12 +113,15 @@ export default function InfoBox ({ stageRef, drawing, dragging }) {
   )
 }
 
-
-const Box = styled.div`
+const Box = styled.div.attrs(props => ({
+  style: {
+    top: `${props.y}px`,
+    left: `${props.x - 150}px`,
+    visibility: props.visible ? "visible" : "hidden"
+  }
+}))`
   background-color: rgba(255, 255, 255, 0.8);
   position: absolute;
-  top: ${props => props.y}px;
-  left: ${props => props.x - 150}px;
   display: flex;
   flex-direction: column;
   width: 100px;
@@ -126,8 +129,9 @@ const Box = styled.div`
   border-radius: 5px;
   padding: 5px;
   z-index: 1;
-  visibility: ${props => props.visible ? "visible" : "hidden"};
 `
+
+
 
 const Text = styled.p`
   font-size: 12px;

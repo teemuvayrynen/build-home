@@ -1,8 +1,8 @@
 import React, { useContext } from "react"
 import { Line, Group, Shape } from "react-konva"
-import { CanvasContext } from "../../context/canvasContext"
+import { CanvasContext } from "../../context/canvasContext.jsx"
 import * as math from "../../functions/math"
-import Circle_ from "./Circle_"
+import Circle_ from "./Circle_.jsx"
 import { useAppDispatch } from "@/redux/hooks";
 import { moveElement, divideLine, addHistory } from "../../redux/features/canvasSlice"
 

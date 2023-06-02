@@ -31,3 +31,7 @@ export const findLineAngle = (a, b) => {
 export const midPoint = (a, b) => {
   return {x: (a.x + b.x) / 2, y: (a.y + b.y) / 2}
 }
+
+export const randomId = () => {
+  return Math.random().toString(36).substring(2, 8)
+}

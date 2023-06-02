@@ -11,7 +11,7 @@ export default function TopBar() {
         style={{ cursor: "pointer"}}
       >
         <div style={{ background: "white", width: "30px", height: "30px", borderRadius: "50%", marginRight: 10 }}/>
-        <h4 style={{ color: "white", fontWeight: 400 }}>Teemu Väyrynen</h4>
+        <h4 style={{ color: "white", fontWeight: 400 }}>Matti Meikäläinen</h4>
       </div>
     </Container>
   )

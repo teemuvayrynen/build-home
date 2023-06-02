@@ -1,6 +1,6 @@
 import React, { useEffect, useContext, useRef, useState } from 'react';
 import { Group, Text, Rect, Label, Tag } from 'react-konva';
-import { CanvasContext } from "../../context/canvasContext"
+import { CanvasContext } from "../../context/canvasContext.jsx"
 import * as math from "../../functions/math"
 import { useAppSelector } from "@/redux/hooks";
 

@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 import React, { useState } from 'react';
-import Tools from './pages/tools';
-import Items from './pages/items';
-import Info from './pages/info';
+import Tools from './pages/Tools.jsx';
+import Items from './pages/Items.jsx';
+import Info from './pages/Info.jsx';
 
 
 export default function LeftBar() {

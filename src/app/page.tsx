@@ -1,9 +1,9 @@
 'use client';
 import React, { useState, createContext } from 'react';
-import LeftBar from '../components/sideBars/LeftBar'
-import { CanvasProvider } from '../context/canvasContext'
-import CanvasSSRDisabled from '../components/canvas/disableSSR'
-import TopBar from '../components/topBar'
+import LeftBar from '../components/sideBars/LeftBar.jsx'
+import { CanvasProvider } from '../context/canvasContext.jsx'
+import CanvasSSRDisabled from '../components/canvas/disableSSR.jsx'
+import TopBar from '../components/topBar/index.jsx'
 import styled from 'styled-components'
 
 

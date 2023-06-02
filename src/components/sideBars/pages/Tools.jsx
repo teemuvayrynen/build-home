@@ -3,10 +3,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowPointer, faArrowsUpDownLeftRight, faPen, faTrash, faScissors, faBezierCurve } from '@fortawesome/free-solid-svg-icons'
 import { faSquare, faTrashCan } from "@fortawesome/free-regular-svg-icons";
 import React, { useContext, useState } from "react";
-import { CanvasContext } from "../../../context/canvasContext"
+import { CanvasContext } from "../../../context/canvasContext.jsx"
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { deleteElements, addHistory, deleteLevel } from "../../../redux/features/canvasSlice"
-import PopUpDialog from "../../PopUpDialog";
+import PopUpDialog from "../../PopUpDialog.jsx";
+import { Container, ItemContainer, Header } from "./StyledFunctions.jsx"
 
 export default function Tools() {
   const { activeTool, setActiveTool, currentLevel, setCurrentLevel } = useContext(CanvasContext);
@@ -16,8 +17,8 @@ export default function Tools() {
 
   const handleRemoveLevel = () => {
     canvasDispatch(deleteLevel(currentLevel))
-    if (currentLevel != 0) {
-      setCurrentLevel(currentLevel - 1)
+    if (currentLevel !== 0) {
+      setCurrentLevel(prevState => prevState - 1)
     }
     setPopUpVisible(false)
   }
@@ -29,7 +30,7 @@ export default function Tools() {
   return (
     <>
       <Container>
-        <ToolContainer>
+        <ItemContainer>
           <Header>Edit</Header>
           <ToolRow>
             <ToolColumn>
@@ -51,8 +52,8 @@ export default function Tools() {
               <Text>Divide</Text>
             </ToolColumn>
           </ToolRow>
-        </ToolContainer>
-        <ToolContainer>
+        </ItemContainer>
+        <ItemContainer>
           <Header>Draw</Header>
           <ToolRow>
             <ToolColumn>
@@ -74,8 +75,8 @@ export default function Tools() {
               <Text>Rect</Text>
             </ToolColumn>
           </ToolRow>
-        </ToolContainer>
-        <ToolContainer>
+        </ItemContainer>
+        <ItemContainer>
           <Header>Delete</Header>
           <ToolRow>
             <ToolColumn>
@@ -100,7 +101,7 @@ export default function Tools() {
               <Text>Elements</Text>
             </ToolColumn>
           </ToolRow>
-        </ToolContainer>
+        </ItemContainer>
       </Container>
       {popUpVisible && 
         <PopUpDialog 
@@ -114,18 +115,6 @@ export default function Tools() {
     </>
   )
 }
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-`
-
-const ToolContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 10px 0px;
-  border-bottom: 1px solid #e8e8e8;
-`
 
 const ToolRow = styled.div`
   display: flex;
@@ -152,11 +141,6 @@ const Tool = styled.div`
     color: black;
     border: 3px solid black;
   }
-`
-
-const Header = styled.h4`
-  font-weight: 600;
-  margin: 0px 0px 0px 20px;
 `
 
 const Text = styled.p`
