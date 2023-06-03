@@ -38,7 +38,6 @@ export default function Image_({ index, element }) {
         y={element.y}
         rotation={element.rotation}
         image={img}
-        zIndex={1}
         draggable={activeTool === "default" ? true : false}
         onDragEnd={e => { handleDragEnd(e) }}
         onClick={() => {
