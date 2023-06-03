@@ -8,7 +8,7 @@ import { CanvasContext } from '@/context/canvasContext'
 export default function Image_({ index, element }) {
   const [img] = useImage(element.src)
   const canvasDispatch = useAppDispatch()
-  const { selectedFloor, selectedElement, setSelectedElement } = useContext(CanvasContext)
+  const { selectedFloor, selectedElement, setSelectedElement, activeTool } = useContext(CanvasContext)
   const imageRef = useRef(null)
   const trRef = useRef()
 
@@ -38,7 +38,8 @@ export default function Image_({ index, element }) {
         y={element.y}
         rotation={element.rotation}
         image={img}
-        draggable={true}
+        zIndex={1}
+        draggable={activeTool === "default" ? true : false}
         onDragEnd={e => { handleDragEnd(e) }}
         onClick={() => {
           setSelectedElement({
