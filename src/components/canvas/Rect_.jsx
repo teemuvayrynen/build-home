@@ -4,26 +4,25 @@ import { CanvasContext } from "../../context/canvasContext.jsx"
 import Circle_ from "./Circle_.jsx";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { moveElement } from "../../redux/features/canvasSlice"
-import * as math from "../../functions/math"
 
 export default function Rect_ ({index, element, drawing, dragging}) {
   const canvasState = useAppSelector(state => state.canvas.items)
   const canvasDispatch = useAppDispatch()
-  const {activeTool, currentLevel } = useContext(CanvasContext)
+  const {activeTool, selectedFloor } = useContext(CanvasContext)
   const [modifiedPoints, setModifiedPoints] = useState([])
 
   const handleDragEnd = (e) => {
     const pos = e.target.position()
     canvasDispatch(moveElement({
-      currentLevel: currentLevel,
+      floor: selectedFloor,
       indexOfElements: index,
       point: pos
     }))
   }
 
   useEffect(() => {
-    if (canvasState[currentLevel] && canvasState[currentLevel].elements[index]) {
-      const e = canvasState[currentLevel].elements[index]
+    if (canvasState[selectedFloor] && canvasState[selectedFloor].elements[index]) {
+      const e = canvasState[selectedFloor].elements[index]
       setModifiedPoints([
         {x: e.x, y: e.y},
         {x: e.x + e.width, y: e.y + e.height},
@@ -31,7 +30,7 @@ export default function Rect_ ({index, element, drawing, dragging}) {
         {x: e.x, y: e.y + e.height}
       ])
     }
-  }, [currentLevel, canvasState, index])
+  }, [selectedFloor, canvasState, index])
 
   return (
     <>
@@ -68,7 +67,7 @@ export default function Rect_ ({index, element, drawing, dragging}) {
   )
 }
 
-export const mouseDownRect = (e, canvasState, canvasDispatch, currentLevel, setCurrentElement, addElement) => {
+export const mouseDownRect = (e, canvasState, canvasDispatch, selectedFloor, setSelectedElement, addElement) => {
   const pos = e.target.getStage().getRelativePointerPosition();
   const rectObject = {
     type: "rectangle",
@@ -79,22 +78,22 @@ export const mouseDownRect = (e, canvasState, canvasDispatch, currentLevel, setC
   }
   const dispatchObj = {
     element: rectObject,
-    currentLevel: currentLevel,
-    indexOfElements: canvasState[currentLevel].elements.length,
+    floor: selectedFloor,
+    indexOfElements: canvasState[selectedFloor].elements.length,
   }
   canvasDispatch(addElement(dispatchObj))
-  setCurrentElement({
+  setSelectedElement({
     type: "rectangle",
-    indexOfElements: canvasState[currentLevel].elements.length,
+    indexOfElements: canvasState[selectedFloor].elements.length,
   })
 }
 
-export const mouseMoveRect = (e, canvasDispatch, currentLevel, currentElement, movePoint) => {
+export const mouseMoveRect = (e, canvasDispatch, selectedFloor, selectedElement, movePoint) => {
   const pos = e.target.getStage().getRelativePointerPosition();
   const dispatchObj = {
     type: "rectangle",
-    currentLevel: currentLevel,
-    indexOfElements: currentElement.indexOfElements,
+    floor: selectedFloor,
+    indexOfElements: selectedElement.indexOfElements,
     point: pos,
     index: 1
   }

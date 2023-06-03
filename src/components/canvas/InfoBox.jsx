@@ -8,7 +8,7 @@ import { useAppSelector } from "@/redux/hooks";
 
 export default function InfoBox ({ stageRef, drawing, dragging }) {
   const canvasState = useAppSelector(state => state.canvas.items)
-  const { currentLevel, currentElement } = useContext(CanvasContext);
+  const { selectedFloor, selectedElement } = useContext(CanvasContext);
   const mousePosition = useMousePosition()
   const [visible, setVisible] = useState(false)
   const length = useRef(0)
@@ -18,21 +18,21 @@ export default function InfoBox ({ stageRef, drawing, dragging }) {
 
 
   useEffect(() => {
-    if (currentElement && (dragging || drawing)) {
-      const element = canvasState[currentLevel].elements[currentElement.indexOfElements]
-      if (currentElement.type === "rectangle") {
+    if (selectedElement && (dragging || drawing)) {
+      const element = canvasState[selectedFloor].elements[selectedElement.indexOfElements]
+      if (selectedElement.type === "rectangle") {
         if (!visible) {
           setVisible(true)
         }
-        const element = canvasState[currentLevel].elements[currentElement.indexOfElements]
+        const element = canvasState[selectedFloor].elements[selectedElement.indexOfElements]
         
         width.current = Math.round(element.width / globals.lengthParameter * 100) / 100
         height.current = Math.round(element.height / globals.lengthParameter * 100) / 100
-      } else if (currentElement.type === "line" && !element.closed) {
+      } else if (selectedElement.type === "line" && !element.closed) {
         let pos0 = {}
         let pos1 = {}
         let a = 0
-        if (currentElement.index === 0) {
+        if (selectedElement.index === 0) {
           if (!visible) {
             setVisible(true)
           }
@@ -53,22 +53,22 @@ export default function InfoBox ({ stageRef, drawing, dragging }) {
           } else {
             a = math.findLineAngle(pos0, pos1)
           }
-        } else if (currentElement.index === element.points.length - 1) { 
+        } else if (selectedElement.index === element.points.length - 1) { 
           if (!visible) {
             setVisible(true)
           }
           pos0 = {
-            x: element.x + element.points[currentElement.index - 1].x,
-            y: element.y + element.points[currentElement.index - 1].y
+            x: element.x + element.points[selectedElement.index - 1].x,
+            y: element.y + element.points[selectedElement.index - 1].y
           }
           pos1 = {
-            x: element.x + element.points[currentElement.index].x,
-            y: element.y + element.points[currentElement.index].y
+            x: element.x + element.points[selectedElement.index].x,
+            y: element.y + element.points[selectedElement.index].y
           }
           if (element.points.length > 2) {
             const pos2 = {
-              x: element.x + element.points[currentElement.index - 2].x,
-              y: element.y + element.points[currentElement.index - 2].y
+              x: element.x + element.points[selectedElement.index - 2].x,
+              y: element.y + element.points[selectedElement.index - 2].y
             }
             a = math.angleOfVector(pos2, pos0, pos0, pos1)
           } else {
@@ -86,7 +86,7 @@ export default function InfoBox ({ stageRef, drawing, dragging }) {
     } else if (!dragging && !drawing) {
       setVisible(false)
     }
-  }, [currentElement, currentLevel, canvasState, visible, dragging, drawing])
+  }, [selectedElement, selectedFloor, canvasState, visible, dragging, drawing])
 
 
   return (
@@ -96,13 +96,13 @@ export default function InfoBox ({ stageRef, drawing, dragging }) {
         y={mousePosition.y}
         visible={visible ? 1 : 0}
       >
-        {currentElement && currentElement.type === "line" && (
+        {selectedElement && selectedElement.type === "line" && (
           <>
             <Text>Length: {length.current}m</Text>
             <Text>Angle: {angle.current}º</Text>
           </>      
         )}
-        {currentElement && currentElement.type === "rectangle" && (
+        {selectedElement && selectedElement.type === "rectangle" && (
           <>
             <Text>Width: {width.current}m</Text>
             <Text>height: {height.current}m</Text>

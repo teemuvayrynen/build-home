@@ -8,7 +8,7 @@ import { movePoint } from "../../redux/features/canvasSlice"
 export default function Circle_ ({ element, index, indexOfElements, point, drawing, type, dragging }) {
   const canvasDispatch = useAppDispatch()
   const oldDim = useRef({ x: 0, y: 0 })
-  const { activeTool, currentLevel, setCurrentElement } = useContext(CanvasContext)
+  const { activeTool, selectedFloor, setSelectedElement } = useContext(CanvasContext)
   const [visible, setVisible] = useState(false)
 
   const handleDrag = (e) => {
@@ -16,7 +16,7 @@ export default function Circle_ ({ element, index, indexOfElements, point, drawi
     const pos = e.target.getStage().getRelativePointerPosition()
     const dispatchObj = {
       type,
-      currentLevel: currentLevel,
+      floor: selectedFloor,
       indexOfElements: indexOfElements,
       index: index,
       point: pos,
@@ -41,14 +41,14 @@ export default function Circle_ ({ element, index, indexOfElements, point, drawi
               y: element.height + element.y
             }
           }
-          setCurrentElement({
+          setSelectedElement({
             type: type,
             indexOfElements: indexOfElements,
             index: index,
           })
           dragging[1](true)
         }}
-        onMouseUp={() => { dragging[1](false); setCurrentElement(null) }}
+        onMouseUp={() => { dragging[1](false); setSelectedElement(null) }}
         onDragMove={handleDrag}
         shadowColor="grey"
         shadowBlur={4}

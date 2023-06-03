@@ -1,19 +1,19 @@
 import { configureStore, createListenerMiddleware, isAnyOf, isAllOf } from '@reduxjs/toolkit';
 import canvasReducer from './features/canvasSlice';
 import {addLevel,
-  deleteLevel,
-  addElement,
-  movePoint,
-  deleteElements,
-  addPoint,
-  closedElement,
-  moveElement,
-  divideLine,
-  undo,
-  redo,
-  addHistory,
-  undoMisClick,
-  copyElements} from './features/canvasSlice';
+        deleteLevel,
+        addElement,
+        movePoint,
+        deleteElements,
+        addPoint,
+        closedElement,
+        moveElement,
+        divideLine,
+        undo,
+        redo,
+        addHistory,
+        undoMisClick,
+        copyElements} from './features/canvasSlice';
 
 type CanvasState = {
   items: any[];
@@ -30,7 +30,21 @@ const initialState = {
 
 const listenerMiddleware = createListenerMiddleware()
 listenerMiddleware.startListening({
-  matcher: isAnyOf(deleteLevel, addElement, movePoint, deleteElements, addPoint, closedElement, moveElement, divideLine, undo, redo, addHistory, undoMisClick, copyElements),
+  matcher: isAnyOf(
+    addLevel,
+    deleteLevel,
+    addElement,
+    movePoint,
+    deleteElements,
+    addPoint,
+    closedElement,
+    moveElement,
+    divideLine,
+    undo,
+    redo,
+    addHistory,
+    undoMisClick,
+    copyElements),
   effect: (action, listeneAPI) => {
     localStorage.setItem('canvasState', JSON.stringify(listeneAPI.getState() as RootState))
   }

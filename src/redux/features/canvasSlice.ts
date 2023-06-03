@@ -35,11 +35,11 @@ export const canvas = createSlice({
       }
     },
     addElement: (state, action: PayloadAction<any>) => {
-      state.items[action.payload.currentLevel].elements.push(action.payload.element)
+      state.items[action.payload.floor].elements.push(action.payload.element)
     },
     movePoint: (state, action: PayloadAction<any>) => {
       if (action.payload.type === "rectangle") {
-        const element = state.items[action.payload.currentLevel].elements[action.payload.indexOfElements]
+        const element = state.items[action.payload.floor].elements[action.payload.indexOfElements]
         if (action.payload.index === 0) {
           element.x = action.payload.point.x
           element.y = action.payload.point.y
@@ -58,7 +58,7 @@ export const canvas = createSlice({
           element.height = action.payload.point.y - element.y
         }
       } else if (action.payload.type === "line") {
-        const element = state.items[action.payload.currentLevel].elements[action.payload.indexOfElements]
+        const element = state.items[action.payload.floor].elements[action.payload.indexOfElements]
         const newPos = {
           x: action.payload.point.x - element.x,
           y: action.payload.point.y - element.y
@@ -70,7 +70,7 @@ export const canvas = createSlice({
       state.items[action.payload].elements = []  
     },
     addPoint: (state, action: PayloadAction<any>) => {
-      const element = state.items[action.payload.currentLevel].elements[action.payload.indexOfElements]
+      const element = state.items[action.payload.floor].elements[action.payload.indexOfElements]
       const newPos = {
         x: action.payload.point.x - element.x,
         y: action.payload.point.y - element.y
@@ -82,7 +82,7 @@ export const canvas = createSlice({
       }
     },
     closedElement: (state, action: PayloadAction<any>) => {
-      const element = state.items[action.payload.currentLevel].elements[action.payload.indexOfElements]
+      const element = state.items[action.payload.floor].elements[action.payload.indexOfElements]
       if (action.payload.index === 0) {
         element.points.shift()
       } else {
@@ -94,34 +94,34 @@ export const canvas = createSlice({
         indexOfElements: action.payload.indexOfElements,
         index: action.payload.index,
       }
-      let history = state.items[action.payload.currentLevel].history.slice(0, state.items[action.payload.currentLevel].historyStep + 1)
+      let history = state.items[action.payload.floor].history.slice(0, state.items[action.payload.floor].historyStep + 1)
       history.push(historyItem)
-      state.items[action.payload.currentLevel].history = history
-      state.items[action.payload.currentLevel].historyStep++
+      state.items[action.payload.floor].history = history
+      state.items[action.payload.floor].historyStep++
     },
     moveElement: (state, action: PayloadAction<any>) => {
-      const element = state.items[action.payload.currentLevel].elements[action.payload.indexOfElements]
+      const element = state.items[action.payload.floor].elements[action.payload.indexOfElements]
       element.x = action.payload.point.x
       element.y = action.payload.point.y
     },
     divideLine: (state, action: PayloadAction<any>) => {
-      const element = state.items[action.payload.currentLevel].elements[action.payload.indexOfElements]
-      element.points.splice(action.payload.index + 1, 0, action.payload.point)
+      const element = state.items[action.payload.floor].elements[action.payload.indexOfElements]
+      element.points.splice(action.payload.index, 0, action.payload.point)
     },
     undo: (state, action: PayloadAction<number>) => {
-      const currentLevel = state.items[action.payload]
-      if (currentLevel.historyStep === -1) return
-      const historyStep = currentLevel.historyStep
-      const historyItem = currentLevel.history[historyStep]
+      const floor = state.items[action.payload]
+      if (floor.historyStep === -1) return
+      const historyStep = floor.historyStep
+      const historyItem = floor.history[historyStep]
       state.items[action.payload].historyStep--
-      const element = currentLevel.elements[historyItem.indexOfElements]
+      const element = floor.elements[historyItem.indexOfElements]
 
       if (historyItem.type === "closed") {
         element.closed = false
         return
       }
       if (historyItem.type === "add") {
-        currentLevel.elements.splice(historyItem.indexOfElements, 1)
+        floor.elements.splice(historyItem.indexOfElements, 1)
         return
       }
       if (historyItem.type === "addPoint") {
@@ -129,78 +129,78 @@ export const canvas = createSlice({
         return
       }
       if (historyItem.type === "deleteElements") {
-        currentLevel.elements = historyItem.elements
+        floor.elements = historyItem.elements
         return
       }
     },
     redo: (state, action: PayloadAction<number>) => {
-      const currentLevel = state.items[action.payload]
-      if (currentLevel.historyStep === currentLevel.history.length - 1) return
-      currentLevel.historyStep++
-      const nextHistoryItem = currentLevel.history[currentLevel.historyStep]
+      const floor = state.items[action.payload]
+      if (floor.historyStep === floor.history.length - 1) return
+      floor.historyStep++
+      const nextHistoryItem = floor.history[floor.historyStep]
       if (nextHistoryItem.type === "closed") {
-        const element = currentLevel.elements[nextHistoryItem.indexOfElements]
+        const element = floor.elements[nextHistoryItem.indexOfElements]
         element.closed = true
         return
       }
       if (nextHistoryItem.type === "add") {
-        currentLevel.elements.splice(nextHistoryItem.indexOfElements, 0, nextHistoryItem.element)
+        floor.elements.splice(nextHistoryItem.indexOfElements, 0, nextHistoryItem.element)
         return
       }
       if (nextHistoryItem.type === "addPoint") {
-        const element = currentLevel.elements[nextHistoryItem.indexOfElements]
+        const element = floor.elements[nextHistoryItem.indexOfElements]
         element.points.splice(nextHistoryItem.index, 0, nextHistoryItem.element.points[nextHistoryItem.index])
         return
       }
       if (nextHistoryItem.type === "deleteElements") {
-        currentLevel.elements = []
+        floor.elements = []
         return
       }
     },
     addHistory: (state, action: PayloadAction<any>) => {
-      const currentLevel = state.items[action.payload.currentLevel]
+      const floor = state.items[action.payload.floor]
       let historyItem = {}
       if (action.payload.type === "add") {
         historyItem = {
           type: "add",
           indexOfElements: action.payload.indexOfElements,
-          element: currentLevel.elements[action.payload.indexOfElements]
+          element: floor.elements[action.payload.indexOfElements]
         }
       } else if (action.payload.type === "addPoint") {
         historyItem = {
           type: "addPoint",
           indexOfElements: action.payload.indexOfElements,
           index: action.payload.index,
-          element: currentLevel.elements[action.payload.indexOfElements]
+          element: floor.elements[action.payload.indexOfElements]
         }
       } else if (action.payload.type === "deleteElements") {
         historyItem = {
           type: "deleteElements",
-          elements: currentLevel.elements
+          elements: floor.elements
         }
       }
       
-      let history = currentLevel.history.slice(0, currentLevel.historyStep + 1)
+      let history = floor.history.slice(0, floor.historyStep + 1)
       history.push(historyItem)
-      state.items[action.payload.currentLevel].history = history
-      state.items[action.payload.currentLevel].historyStep++
+      state.items[action.payload.floor].history = history
+      state.items[action.payload.floor].historyStep++
     },
     undoMisClick: (state, action: PayloadAction<any>) => {
-      const currentLevel = state.items[action.payload.currentLevel]
+      const floor = state.items[action.payload.floor]
       if (action.payload.type === "default") {
-        currentLevel.elements.pop()
+        floor.elements.pop()
         return
       } 
       if (action.payload.type === "point") {
-        currentLevel.elements[action.payload.indexOfElements].points.splice(action.payload.index, 1)
+        floor.elements[action.payload.indexOfElements].points.splice(action.payload.index, 1)
         return
       }
     },
     copyElements: (state, action: PayloadAction<number>) => {
-      const latestLevelIndex = state.items.length - 1
+      const floorIndex = state.items.length - 1
       const copy = {...state.items[action.payload]}
-      state.items[latestLevelIndex] = {
-        ...state.items[latestLevelIndex],
+      state.items[floorIndex] = {
+        ...state.items[floorIndex],
         elements: copy.elements,
         history: copy.history,
         historyStep: copy.historyStep
@@ -225,22 +225,5 @@ export const {
   undoMisClick,
   copyElements
 } = canvas.actions;
-
-export const actions = {
-  addLevel,
-  deleteLevel,
-  addElement,
-  movePoint,
-  deleteElements,
-  addPoint,
-  closedElement,
-  moveElement,
-  divideLine,
-  undo,
-  redo,
-  addHistory,
-  undoMisClick,
-  copyElements
-}
 
 export default canvas.reducer;

@@ -1,5 +1,5 @@
 import React, { useContext } from "react"
-import { Line, Group, Shape } from "react-konva"
+import { Line, Group } from "react-konva"
 import { CanvasContext } from "../../context/canvasContext.jsx"
 import * as math from "../../functions/math"
 import Circle_ from "./Circle_.jsx"
@@ -8,12 +8,12 @@ import { moveElement, divideLine, addHistory } from "../../redux/features/canvas
 
 export default function Line_({index, element, points, drawing, dragging}) {
   const canvasDispatch = useAppDispatch()
-  const { activeTool, currentLevel } = useContext(CanvasContext)
+  const { activeTool, selectedFloor } = useContext(CanvasContext)
 
   const handleDragEnd = (e) => {
     const pos = e.target.position()
     canvasDispatch(moveElement({
-      currentLevel: currentLevel,
+      floor: selectedFloor,
       indexOfElements: index,
       point: pos
     }))
@@ -29,14 +29,14 @@ export default function Line_({index, element, points, drawing, dragging}) {
       }
       if (element.points.length === 2) {
         canvasDispatch(divideLine({
-          currentLevel: currentLevel,
+          floor: selectedFloor,
           indexOfElements: index,
           point: p,
-          index: 0
+          index: 1
         }))
         canvasDispatch(addHistory({
           type: "addPoint",
-          currentLevel: currentLevel,
+          floor: selectedFloor,
           indexOfElements: index,
           index: 1
         }))
@@ -56,16 +56,16 @@ export default function Line_({index, element, points, drawing, dragging}) {
             const l2 = math.lengthBetweenPoints(pos, p2)
             if (Math.abs(l1 + l2 - l) < 5) {
               canvasDispatch(divideLine({
-                currentLevel: currentLevel,
+                floor: selectedFloor,
                 indexOfElements: index,
                 point: p,
-                index: i
+                index: i + 1
               }))
               canvasDispatch(addHistory({
                 type: "addPoint",
-                currentLevel: currentLevel,
+                floor: selectedFloor,
                 indexOfElements: index,
-                index: i
+                index: i + 1
               }))
               break
             }
@@ -85,16 +85,16 @@ export default function Line_({index, element, points, drawing, dragging}) {
           const l2 = math.lengthBetweenPoints(pos, p2)
           if (Math.abs(l1 + l2 - l) < 5) {
             canvasDispatch(divideLine({
-              currentLevel: currentLevel,
+              floor: selectedFloor,
               indexOfElements: index,
               point: p,
-              index: element.points.length - 1
+              index: element.points.length
             }))
             canvasDispatch(addHistory({
               type: "addPoint",
-              currentLevel: currentLevel,
+              floor: selectedFloor,
               indexOfElements: index,
-              index: element.points.length - 1
+              index: element.points.length
             }))
           }
         }
@@ -146,10 +146,10 @@ export default function Line_({index, element, points, drawing, dragging}) {
 }
 
 
-export const mouseDownLine = (e, canvasState, canvasDispatch, currentLevel, setCurrentElement, addElement, addPoint) => {
+export const mouseDownLine = (e, canvasState, canvasDispatch, selectedFloor, setSelectedElement, addElement, addPoint) => {
   const pos = e.target.getStage().getRelativePointerPosition();
 
-  const elements = canvasState[currentLevel].elements
+  const elements = canvasState[selectedFloor].elements
   for (let i = 0; i < elements.length; i++) {
     const element = elements[i];
     if (element.type !== "line") continue
@@ -164,13 +164,13 @@ export const mouseDownLine = (e, canvasState, canvasDispatch, currentLevel, setC
       const row = j === 0 ? 0 : j + 1
       if (row === 0 || row === element.points.length) {
         const dispatchObj = {
-          currentLevel: currentLevel,
+          floor: selectedFloor,
           indexOfElements: i,
           index: row,
           point: pos
         }
         canvasDispatch(addPoint(dispatchObj))
-        setCurrentElement({
+        setSelectedElement({
           type: "line",
           indexOfElements: i,
           index: row
@@ -188,34 +188,34 @@ export const mouseDownLine = (e, canvasState, canvasDispatch, currentLevel, setC
   }
   const dispatchObj = {
     element: lineObject,
-    currentLevel: currentLevel,
-    indexOfElements: canvasState[currentLevel].elements.length,
+    floor: selectedFloor,
+    indexOfElements: canvasState[selectedFloor].elements.length,
     index: 1
   }
 
   canvasDispatch(addElement(dispatchObj))
-  setCurrentElement({
+  setSelectedElement({
     type: "line",
-    indexOfElements: canvasState[currentLevel].elements.length,
+    indexOfElements: canvasState[selectedFloor].elements.length,
     index: 1
   })
 }
 
-export const mouseMoveLine = (e, canvasDispatch, currentLevel, currentElement, movePoint) => {
+export const mouseMoveLine = (e, canvasDispatch, selectedFloor, selectedElement, movePoint) => {
   const pos = e.target.getStage().getRelativePointerPosition()
   const dispatchObj = {
     type: "line",
     point: pos,
-    currentLevel: currentLevel,
-    index: currentElement.index,
-    indexOfElements: currentElement.indexOfElements
+    floor: selectedFloor,
+    index: selectedElement.index,
+    indexOfElements: selectedElement.indexOfElements
   }
   canvasDispatch(movePoint(dispatchObj))
 }
 
-export const checkIsNearEndOfLine = (canvasState, canvasDispatch, currentLevel, currentElement, closedElement) => {
-  if (canvasState[currentLevel].elements.length === 0 || !currentElement) return false
-  const element = canvasState[currentLevel].elements[currentElement.indexOfElements]
+export const checkIsNearEndOfLine = (canvasState, canvasDispatch, selectedFloor, selectedElement, closedElement) => {
+  if (canvasState[selectedFloor].elements.length === 0 || !selectedElement) return false
+  const element = canvasState[selectedFloor].elements[selectedElement.indexOfElements]
   if (element.points.length > 3) {
     const pos0 = {
       x: element.x + element.points[0].x,
@@ -227,9 +227,9 @@ export const checkIsNearEndOfLine = (canvasState, canvasDispatch, currentLevel, 
     }
     if (math.lengthBetweenPoints(pos0, pos1) <= 10) {
       const dispatchObj = {
-        currentLevel: currentLevel,
-        indexOfElements: currentElement.indexOfElements,
-        index: currentElement.index
+        floor: selectedFloor,
+        indexOfElements: selectedElement.indexOfElements,
+        index: selectedElement.index
       }
       canvasDispatch(closedElement(dispatchObj))
       return true
