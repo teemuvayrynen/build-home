@@ -205,6 +205,9 @@ export const canvas = createSlice({
         history: copy.history,
         historyStep: copy.historyStep
       }
+    },
+    rotateElement: (state, action: PayloadAction<any>) => {
+      state.items[action.payload.floor].elements[action.payload.indexOfElements].rotation = action.payload.rotation
     }
   }
 })
@@ -223,7 +226,8 @@ export const {
   redo,
   addHistory,
   undoMisClick,
-  copyElements
+  copyElements,
+  rotateElement
 } = canvas.actions;
 
 export default canvas.reducer;

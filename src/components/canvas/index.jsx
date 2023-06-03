@@ -22,7 +22,7 @@ export default function Canvas() {
   const canvasDispatch = useAppDispatch()
 
   useEffect(() => {
-    console.log("canvasState", canvasState)
+    //console.log("canvasState", canvasState)
   }, [canvasState])
 
   const [drawing, setDrawing] = useState(false)
@@ -109,6 +109,7 @@ export default function Canvas() {
     switch (activeTool) {
       case "default":
         if (!dragging[0] && e.target === e.target.getStage()) {
+          setSelectedElement(null)
           const pos = e.target.getStage().getRelativePointerPosition();
           selection.current.visible = true
           selection.current.x = pos.x
@@ -165,7 +166,6 @@ export default function Canvas() {
       }
     }
     if (activeTool == "default") {
-      
       selection.current.visible = false
       updateSelectionRect() 
     }
@@ -191,7 +191,6 @@ export default function Canvas() {
         }
       }
     }
-    setSelectedElement(null)
   }
 
   const handleWheel = (e) => {
@@ -226,7 +225,8 @@ export default function Canvas() {
             type: "element",
             src: selectedElement.src,
             x: pos.x,
-            y: pos.y
+            y: pos.y,
+            rotation: 0
           }
           const dispatchObj = {
             element: elementObj,
