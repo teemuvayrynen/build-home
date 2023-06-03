@@ -1,5 +1,5 @@
 import { configureStore, createListenerMiddleware, isAnyOf, isAllOf } from '@reduxjs/toolkit';
-import canvasReducer from './features/canvasSlice';
+import canvasReducer, { rotateElement } from './features/canvasSlice';
 import {addLevel,
         deleteLevel,
         addElement,
@@ -44,7 +44,8 @@ listenerMiddleware.startListening({
     redo,
     addHistory,
     undoMisClick,
-    copyElements),
+    copyElements,
+    rotateElement),
   effect: (action, listeneAPI) => {
     localStorage.setItem('canvasState', JSON.stringify(listeneAPI.getState() as RootState))
   }
