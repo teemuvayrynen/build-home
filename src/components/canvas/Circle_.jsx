@@ -31,7 +31,7 @@ export default function Circle_ ({ element, index, indexOfElements, point, drawi
       <Circle 
         x={point.x}
         y={point.y}
-        radius={7}
+        radius={8}
         fill="black"
         draggable={activeTool === "default" ? true : false}
         onDragStart={() => {

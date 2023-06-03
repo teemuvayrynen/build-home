@@ -1,19 +1,21 @@
 import styled from 'styled-components';
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import Tools from './pages/Tools.jsx';
 import Items from './pages/Items.jsx';
 import Info from './pages/Info.jsx';
+import { CanvasContext } from '../../context/canvasContext.jsx';
 
 
 export default function LeftBar() {
   const [active, setActive] = useState(0);
+  const { setActiveTool } = useContext(CanvasContext);
 
   return (
     <Container>
       <SideBarNav>
-        <Item onClick={() => { setActive(0) }} active={active == 0 ? 1 : 0} >Tools</Item>
-        <Item onClick={() => { setActive(1) }} active={active == 1 ? 1 : 0}>Items</Item>
-        <Item onClick={() => { setActive(2) }} active={active == 2 ? 1 : 0}>Info</Item>
+        <Item onClick={() => { setActive(0); setActiveTool("default") }} active={active == 0 ? 1 : 0} >Tools</Item>
+        <Item onClick={() => { setActive(1); setActiveTool("default") }} active={active == 1 ? 1 : 0}>Items</Item>
+        <Item onClick={() => { setActive(2); setActiveTool("default") }} active={active == 2 ? 1 : 0}>Info</Item>
       </SideBarNav>
       {active == 0 && <Tools />}
       {active == 1 && <Items />}

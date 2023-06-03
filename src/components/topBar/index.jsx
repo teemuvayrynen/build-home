@@ -27,5 +27,5 @@ const Container = styled.div`
   align-items: center;
   justify-content: space-between;
   z-index: 2;
-  box-shadow: 0 4px 2px -2px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 2px -2px rgba(0,0,0,0.5);s
 `
