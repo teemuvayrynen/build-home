@@ -11,6 +11,7 @@ export const ItemContainer = styled.div`
   padding: 10px 0px;
   padding-left: 20px;
   border-bottom: 1px solid #e8e8e8;
+  position: relative;
 `
 
 export const Header = styled.h4`
