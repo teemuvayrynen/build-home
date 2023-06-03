@@ -1,4 +1,4 @@
-import React, { useReducer, useState } from "react"
+import React, { useState } from "react"
 import styled from "styled-components"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
@@ -7,7 +7,8 @@ import { addLevel, copyElements } from "../../redux/features/canvasSlice"
 import PopUpDialog from "../PopUpDialog.jsx"
 
 
-export default function LevelButton ({ currentLevel, setCurrentLevel }) {
+
+export default function LevelButton ({ selectedFloor, setSelectedFloor }) {
   const canvasState = useAppSelector(state => state.canvas.items)
   const canvasDispatch = useAppDispatch()
   const [popUpVisible, setPopUpVisible] = useState(false)
@@ -15,14 +16,14 @@ export default function LevelButton ({ currentLevel, setCurrentLevel }) {
   const handleCancelClick = () => {
     setPopUpVisible(false)
     canvasDispatch(addLevel())
-    setCurrentLevel(canvasState.length)
+    setSelectedFloor(canvasState.length)
   }
 
   const handleLevelAdd = () => {
     canvasDispatch(addLevel())
     setPopUpVisible(false)
-    canvasDispatch(copyElements(currentLevel))
-    setCurrentLevel(canvasState.length)
+    canvasDispatch(copyElements(selectedFloor))
+    setSelectedFloor(canvasState.length)
   }
 
   return (
@@ -36,8 +37,8 @@ export default function LevelButton ({ currentLevel, setCurrentLevel }) {
                   bottom={1} 
                   top={1} 
                   center={1}
-                  current={currentLevel == i.id ? 1 : 0} 
-                  onClick={() => {setCurrentLevel(i.id)}} 
+                  current={selectedFloor === i.id ? 1 : 0} 
+                  onClick={() => {setSelectedFloor(i.id)}} 
                   key={i.id}
                 >
                   {i.id}
@@ -47,8 +48,8 @@ export default function LevelButton ({ currentLevel, setCurrentLevel }) {
               return (
                 <LevelToggleButton 
                   bottom={1} 
-                  current={currentLevel == i.id ? 1 : 0} 
-                  onClick={() => {setCurrentLevel(i.id)}} 
+                  current={selectedFloor === i.id ? 1 : 0} 
+                  onClick={() => {setSelectedFloor(i.id)}} 
                   key={i.id}
                 >
                   {i.id}
@@ -58,8 +59,8 @@ export default function LevelButton ({ currentLevel, setCurrentLevel }) {
               return (
                 <LevelToggleButton 
                   top={1} 
-                  current={currentLevel == i.id ? 1 : 0} 
-                  onClick={() => {setCurrentLevel(i.id)}} 
+                  current={selectedFloor === i.id ? 1 : 0} 
+                  onClick={() => {setSelectedFloor(i.id)}} 
                   key={i.id}
                 >
                   {i.id}
@@ -68,8 +69,8 @@ export default function LevelButton ({ currentLevel, setCurrentLevel }) {
             } else {
               return (
                 <LevelToggleButton 
-                  current={currentLevel == i.id ? 1 : 0} 
-                  onClick={() => {setCurrentLevel(i.id)}} 
+                  current={selectedFloor === i.id ? 1 : 0} 
+                  onClick={() => {setSelectedFloor(i.id)}} 
                   key={i.id}
                 >
                   {i.id}

@@ -7,7 +7,7 @@ import elements from "../../../app/images"
 
 
 export default function Items() {
-  const { currentElement, setCurrentElement } = useContext(CanvasContext)
+  const { setSelectedElement } = useContext(CanvasContext)
 
   return (
     <Container>
@@ -18,17 +18,20 @@ export default function Items() {
         <Header>Wall Elements</Header>
         <FlexRow>
           <HoverDialog 
-            setCurrentElement={setCurrentElement}
+            setSelectedElement={setSelectedElement}
             src={"doors/door-black.svg"}
             element={elements.doorElements}
+            dim={{width: 30, height: 30}}
+            margin={0}
           />
           <HoverDialog 
-            setCurrentElement={setCurrentElement}
+            setSelectedElement={setSelectedElement}
             src={"windows/fixed-window.svg"}
             element={elements.windowElements}
+            dim={{width: 10, height: 30}}
+            margin={20}
           />
         </FlexRow>
-
       </ItemContainer>
       <ItemContainer>
         <Header>Furniture</Header>
@@ -37,7 +40,7 @@ export default function Items() {
   )
 }
 
-const HoverDialog = ({ setCurrentElement, src, element }) => {
+const HoverDialog = ({ setSelectedElement, src, element, dim, margin }) => {
   const [currentList, setCurrentList] = useState([])
   const visible = useRef(false)
 
@@ -45,12 +48,14 @@ const HoverDialog = ({ setCurrentElement, src, element }) => {
     <div
       onMouseOver={() => { visible.current = true; setCurrentList(element) }}
       onMouseLeave={() => { visible.current = false; setCurrentList([]) }}
+      style={{ marginLeft: `${margin}px` }}
     >
       <Image
         alt={"elementIcon"}
         src={src}
-        width={30}
-        height={30}
+        width={dim.width}
+        height={dim.height}
+        draggable="false"
       />
       {currentList.length > 0 && visible && (
         <ElementContainer>
@@ -60,16 +65,16 @@ const HoverDialog = ({ setCurrentElement, src, element }) => {
                 key={index}
                 alt={e}
                 src={e.src}
-                width={30}
-                height={30}
+                width={e.width}
+                height={e.height}
                 draggable="true"
                 onDragStart={() => {
-                  setCurrentElement({
+                  setSelectedElement({
                     type: "element",
                     src: e.altSrc,
                   })
                 }}
-                style={{ cursor: "grab" }}
+                style={{ cursor: "grab", padding: 3 }}
               />
             )
           })}

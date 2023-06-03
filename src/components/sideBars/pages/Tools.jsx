@@ -10,15 +10,15 @@ import PopUpDialog from "../../PopUpDialog.jsx";
 import { Container, ItemContainer, Header } from "./StyledFunctions.jsx"
 
 export default function Tools() {
-  const { activeTool, setActiveTool, currentLevel, setCurrentLevel } = useContext(CanvasContext);
+  const { activeTool, setActiveTool, selectedFloor, setSelectedFloor } = useContext(CanvasContext);
   const [popUpVisible, setPopUpVisible] = useState(false)
   const canvasDispatch = useAppDispatch()
   const canvasState = useAppSelector(state => state.canvas.items)
 
   const handleRemoveLevel = () => {
-    canvasDispatch(deleteLevel(currentLevel))
-    if (currentLevel !== 0) {
-      setCurrentLevel(prevState => prevState - 1)
+    canvasDispatch(deleteLevel(selectedFloor))
+    if (selectedFloor !== 0) {
+      setSelectedFloor(prevState => prevState - 1)
     }
     setPopUpVisible(false)
   }
@@ -92,9 +92,9 @@ export default function Tools() {
               <Tool onClick={() => {
                 canvasDispatch(addHistory({
                   type: "deleteElements",
-                  currentLevel: currentLevel,
+                  floor: selectedFloor,
                 }))
-                canvasDispatch(deleteElements(currentLevel))
+                canvasDispatch(deleteElements(selectedFloor))
               }}>
                 <FontAwesomeIcon icon={faTrash} fixedWidth/>
               </Tool>

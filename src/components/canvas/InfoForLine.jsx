@@ -6,24 +6,24 @@ import { useAppSelector } from "@/redux/hooks";
 
 export default function InfoForLine ({ dragging}) {
   const canvasState = useAppSelector(state => state.canvas.items)
-  const { currentLevel, currentElement } = useContext(CanvasContext);
+  const { selectedFloor, selectedElement } = useContext(CanvasContext);
   const items = useRef([])
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    if (!dragging || currentElement === null || currentElement.type !== "line") { 
+    if (!dragging || selectedElement === null || selectedElement.type !== "line") { 
       setVisible(false)    
       return 
     }
-    const element = canvasState[currentLevel].elements[currentElement.indexOfElements]
+    const element = canvasState[selectedFloor].elements[selectedElement.indexOfElements]
     if (element.points.length <= 2) { return }
     let currentPoint = null
     let previousPoint = null
     let nextPoint = null
 
-    if (currentElement.index === 0 || currentElement.index === element.points.length - 1) {
+    if (selectedElement.index === 0 || selectedElement.index === element.points.length - 1) {
       if (element.closed) {
-        if (currentElement.index === 0) {
+        if (selectedElement.index === 0) {
           currentPoint = element.points[0]
           previousPoint = element.points[element.points.length - 1]
           nextPoint = element.points[1]
@@ -34,9 +34,9 @@ export default function InfoForLine ({ dragging}) {
         }
       } else { return }
     } else {
-      currentPoint = element.points[currentElement.index]
-      previousPoint = element.points[currentElement.index - 1]
-      nextPoint = element.points[currentElement.index + 1]
+      currentPoint = element.points[selectedElement.index]
+      previousPoint = element.points[selectedElement.index - 1]
+      nextPoint = element.points[selectedElement.index + 1]
     }
 
     const l = math.lengthBetweenPointsMeters(previousPoint, currentPoint)
@@ -65,7 +65,7 @@ export default function InfoForLine ({ dragging}) {
     if (!visible) {
       setVisible(true)
     }
-  }, [dragging, currentElement, currentLevel, canvasState, visible])
+  }, [dragging, selectedElement, selectedFloor, canvasState, visible])
 
   return (
     <>

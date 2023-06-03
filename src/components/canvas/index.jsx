@@ -22,17 +22,17 @@ export default function Canvas() {
   const canvasDispatch = useAppDispatch()
 
   useEffect(() => {
-    //console.log("canvasState", canvasState)
+    console.log("canvasState", canvasState)
   }, [canvasState])
 
   const [drawing, setDrawing] = useState(false)
   const dragging = useState(false)
   const { 
     activeTool,
-    currentLevel, 
-    setCurrentLevel, 
-    currentElement, 
-    setCurrentElement} = useContext(CanvasContext);
+    selectedFloor, 
+    setSelectedFloor, 
+    selectedElement, 
+    setSelectedElement} = useContext(CanvasContext);
   const stageRef = useRef(null)
   const selection = useRef({
     visible: false,
@@ -58,44 +58,44 @@ export default function Canvas() {
   }
 
   const checkIsMishap = () => {
-    if (currentElement) {
-      if (currentElement.type === "line") {
-        const element = canvasState[currentLevel].elements[currentElement.indexOfElements]
+    if (selectedElement) {
+      if (selectedElement.type === "line") {
+        const element = canvasState[selectedFloor].elements[selectedElement.indexOfElements]
         if (element.points.length <= 2) {
           const pos0 = element.points[0]
           const pos1 = element.points[1]
           const distance = math.lengthBetweenPoints(pos0, pos1)
           if (distance < 5) {
             canvasDispatch(undoMisClick({
-              currentLevel: currentLevel,
+              floor: selectedFloor,
               type: "default",
             }))
             return true
           }
         } else {
-          const p1 = element.points[currentElement.index]
+          const p1 = element.points[selectedElement.index]
           let p2 = null
-          if (currentElement.index === 0) {
-            p2 = element.points[currentElement.index + 1]
+          if (selectedElement.index === 0) {
+            p2 = element.points[selectedElement.index + 1]
           } else {
-            p2 = element.points[currentElement.index - 1]
+            p2 = element.points[selectedElement.index - 1]
           }
           const distance = math.lengthBetweenPoints(p1, p2)
           if (distance < 5) {
             canvasDispatch(undoMisClick({
-              currentLevel: currentLevel,
-              indexOfElements: currentElement.indexOfElements,
-              index: currentElement.index,
+              floor: selectedFloor,
+              indexOfElements: selectedElement.indexOfElements,
+              index: selectedElement.index,
               type: "point",
             }))
             return true
           }
         }
-      } else if (currentElement.type === "rectangle") {
-        const element = canvasState[currentLevel].elements[currentElement.indexOfElements]
+      } else if (selectedElement.type === "rectangle") {
+        const element = canvasState[selectedFloor].elements[selectedElement.indexOfElements]
         if (element.width < 5 && element.height < 5) {
           canvasDispatch(undoMisClick({
-            currentLevel: currentLevel,
+            floor: selectedFloor,
             type: "default",
           }))
           return true
@@ -120,11 +120,11 @@ export default function Canvas() {
         break;
       case "line":
         setDrawing(true)
-        mouseDownLine(e, canvasState, canvasDispatch, currentLevel, setCurrentElement, addElement, addPoint)
+        mouseDownLine(e, canvasState, canvasDispatch, selectedFloor, setSelectedElement, addElement, addPoint)
         break;
       case "rectangle":
         setDrawing(true)
-        mouseDownRect(e, canvasState, canvasDispatch, currentLevel, setCurrentElement, addElement)
+        mouseDownRect(e, canvasState, canvasDispatch, selectedFloor, setSelectedElement, addElement)
         break;
     }
   }
@@ -141,12 +141,12 @@ export default function Canvas() {
         break
       case "line":
         if (drawing) {
-          mouseMoveLine(e, canvasDispatch, currentLevel, currentElement, movePoint)
+          mouseMoveLine(e, canvasDispatch, selectedFloor, selectedElement, movePoint)
         }
         break;
       case "rectangle":
         if (drawing) {
-          mouseMoveRect(e, canvasDispatch, currentLevel, currentElement, movePoint)
+          mouseMoveRect(e, canvasDispatch, selectedFloor, selectedElement, movePoint)
         }
         break;
     }
@@ -158,8 +158,8 @@ export default function Canvas() {
       const notMishap = checkIsMishap()
       if (!notMishap) {
         canvasDispatch(addHistory({
-          currentLevel: currentLevel,
-          indexOfElements: currentElement.indexOfElements,
+          floor: selectedFloor,
+          indexOfElements: selectedElement.indexOfElements,
           type: "add"
         }))
       }
@@ -170,28 +170,28 @@ export default function Canvas() {
       updateSelectionRect() 
     }
     if (activeTool == "line") {
-      const isNear = checkIsNearEndOfLine(canvasState, canvasDispatch, currentLevel, currentElement, closedElement)
+      const isNear = checkIsNearEndOfLine(canvasState, canvasDispatch, selectedFloor, selectedElement, closedElement)
       if (!isNear) {
         const notMisHap = checkIsMishap()
         if (!notMisHap) {
-          if (canvasState[currentLevel].elements[currentElement.indexOfElements].points.length === 2) {
+          if (canvasState[selectedFloor].elements[selectedElement.indexOfElements].points.length === 2) {
             canvasDispatch(addHistory({
-              currentLevel: currentLevel,
-              indexOfElements: currentElement.indexOfElements,
+              floor: selectedFloor,
+              indexOfElements: selectedElement.indexOfElements,
               type: "add"
             }))
           } else {
             canvasDispatch(addHistory({
               type: "addPoint",
-              currentLevel: currentLevel,
-              indexOfElements: currentElement.indexOfElements,
-              index: currentElement.index,
+              floor: selectedFloor,
+              indexOfElements: selectedElement.indexOfElements,
+              index: selectedElement.index,
             }))
           }
         }
       }
     }
-    setCurrentElement(null)
+    setSelectedElement(null)
   }
 
   const handleWheel = (e) => {
@@ -218,23 +218,23 @@ export default function Canvas() {
   return (
     <div
       onDrop={(e) => {
-        if (currentElement && currentElement.type === "element") {
+        if (selectedElement && selectedElement.type === "element") {
           e.preventDefault();
           stageRef.current.setPointersPositions(e)
           const elementObj = {
             type: "element",
-            src: currentElement.src,
+            src: selectedElement.src,
             point: stageRef.current.getPointerPosition(),
           }
           const dispatchObj = {
             element: elementObj,
-            currentLevel: currentLevel,
-            indexOfElements: canvasState[currentLevel].elements.length,
+            floor: selectedFloor,
+            indexOfElements: canvasState[selectedFloor].elements.length,
           }
           canvasDispatch(addElement(dispatchObj))
           canvasDispatch(addHistory({
-            currentLevel: currentLevel,
-            indexOfElements: canvasState[currentLevel].elements.length,
+            floor: selectedFloor,
+            indexOfElements: canvasState[selectedFloor].elements.length,
             type: "add"
           }))
         }
@@ -271,7 +271,7 @@ export default function Canvas() {
             <>
               <Layer
                 key={level.id}
-                visible={level.id == currentLevel ? true : false}
+                visible={level.id === selectedFloor ? true : false}
                 onMouseEnter={e => {
                   if (activeTool === "default" || activeTool === "divide") {
                     const container = e.target.getStage().container();
@@ -338,14 +338,14 @@ export default function Canvas() {
         </Layer>
       </Stage>
       <LevelButton 
-        currentLevel={currentLevel}
-        setCurrentLevel={setCurrentLevel}
+        selectedFloor={selectedFloor}
+        setSelectedFloor={setSelectedFloor}
       />
-      {canvasState[currentLevel].history.length > 0 &&
+      {canvasState[selectedFloor].history.length > 0 &&
         <>
           <ButtonRow>
-            <UndoRedoButton onClick={() => { canvasDispatch(undo(currentLevel)) }}>Undo</UndoRedoButton>
-            <UndoRedoButton onClick={() => { canvasDispatch(redo(currentLevel)) }}>Redo</UndoRedoButton>
+            <UndoRedoButton onClick={() => { canvasDispatch(undo(selectedFloor)) }}>Undo</UndoRedoButton>
+            <UndoRedoButton onClick={() => { canvasDispatch(redo(selectedFloor)) }}>Redo</UndoRedoButton>
           </ButtonRow>
         </>
       }
