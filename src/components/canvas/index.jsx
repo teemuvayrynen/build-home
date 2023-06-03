@@ -221,10 +221,12 @@ export default function Canvas() {
         if (selectedElement && selectedElement.type === "element") {
           e.preventDefault();
           stageRef.current.setPointersPositions(e)
+          const pos = stageRef.current.getRelativePointerPosition()
           const elementObj = {
             type: "element",
             src: selectedElement.src,
-            point: stageRef.current.getPointerPosition(),
+            x: pos.x,
+            y: pos.y
           }
           const dispatchObj = {
             element: elementObj,
@@ -286,7 +288,7 @@ export default function Canvas() {
                 }}
               >
                 <Group>
-                  {canvasState[index].elements.length > 0 && canvasState[index].elements.map((element, i) => {
+                  {canvasState[index].elements.map((element, i) => {
                     if (element && element.type === "line") {
                       const points = []
                       element.points.forEach(point => {
@@ -319,6 +321,7 @@ export default function Canvas() {
                       return (
                         <Image_ 
                           key={i}
+                          index={i}
                           element={element}
                         />
                       )
