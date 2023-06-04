@@ -25,14 +25,15 @@ export default function Canvas() {
     //console.log("canvasState", canvasState)
   }, [canvasState])
 
-  const [drawing, setDrawing] = useState(false)
-  const dragging = useState(false)
   const { 
     activeTool,
     selectedFloor, 
     setSelectedFloor, 
     selectedElement, 
-    setSelectedElement} = useContext(CanvasContext);
+    setSelectedElement,
+    dragging,
+    drawing,
+    setDrawing} = useContext(CanvasContext);
   const stageRef = useRef(null)
   const selection = useRef({
     visible: false,
@@ -226,7 +227,8 @@ export default function Canvas() {
             src: selectedElement.src,
             x: pos.x,
             y: pos.y,
-            rotation: 0
+            rotation: 0,
+            item: selectedElement.item
           }
           const dispatchObj = {
             element: elementObj,
@@ -239,6 +241,8 @@ export default function Canvas() {
             indexOfElements: canvasState[selectedFloor].elements.length,
             type: "add"
           }))
+          dragging[1](false)
+          setSelectedElement(null)
         }
       }}
       onDragOver={(e) => e.preventDefault()}
@@ -323,6 +327,7 @@ export default function Canvas() {
                           key={i}
                           index={i}
                           element={element}
+                          dragging={dragging}
                         />
                       )
                     }
@@ -347,8 +352,8 @@ export default function Canvas() {
       {canvasState[selectedFloor].history.length > 0 &&
         <>
           <ButtonRow>
-            <UndoRedoButton onClick={() => { canvasDispatch(undo(selectedFloor)) }}>Undo</UndoRedoButton>
-            <UndoRedoButton onClick={() => { canvasDispatch(redo(selectedFloor)) }}>Redo</UndoRedoButton>
+            <UndoRedoButton onClick={() => { canvasDispatch(undo(selectedFloor)); setSelectedElement(null) }}>Undo</UndoRedoButton>
+            <UndoRedoButton onClick={() => { canvasDispatch(redo(selectedFloor)); setSelectedElement(null) }}>Redo</UndoRedoButton>
           </ButtonRow>
         </>
       }

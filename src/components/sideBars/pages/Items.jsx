@@ -7,7 +7,7 @@ import elements from "../../../app/images"
 
 
 export default function Items() {
-  const { setSelectedElement } = useContext(CanvasContext)
+  const { setSelectedElement, dragging } = useContext(CanvasContext)
 
   return (
     <Container>
@@ -23,6 +23,7 @@ export default function Items() {
             element={elements.doorElements}
             dim={{width: 30, height: 30}}
             margin={0}
+            dragging={dragging}
           />
           <HoverDialog 
             setSelectedElement={setSelectedElement}
@@ -30,6 +31,7 @@ export default function Items() {
             element={elements.windowElements}
             dim={{width: 10, height: 30}}
             margin={20}
+            dragging={dragging}
           />
         </FlexRow>
       </ItemContainer>
@@ -40,7 +42,7 @@ export default function Items() {
   )
 }
 
-const HoverDialog = ({ setSelectedElement, src, element, dim, margin }) => {
+const HoverDialog = ({ setSelectedElement, src, element, dim, margin, dragging }) => {
   const [currentList, setCurrentList] = useState([])
   const visible = useRef(false)
 
@@ -69,10 +71,15 @@ const HoverDialog = ({ setSelectedElement, src, element, dim, margin }) => {
                 height={e.height}
                 draggable="true"
                 onDragStart={() => {
+                  dragging[1](true)
                   setSelectedElement({
                     type: "element",
                     src: e.altSrc,
+                    item: e.item
                   })
+                }}
+                onDragEnd={() => {
+                  dragging[1](false)
                 }}
                 style={{ cursor: "grab", padding: 3 }}
               />

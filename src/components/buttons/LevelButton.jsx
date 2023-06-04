@@ -1,10 +1,11 @@
-import React, { useState } from "react"
+import React, { useState, useContext } from "react"
 import styled from "styled-components"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import { useAppDispatch, useAppSelector } from "@/redux/hooks"
 import { addLevel, copyElements } from "../../redux/features/canvasSlice"
 import PopUpDialog from "../PopUpDialog.jsx"
+import { CanvasContext } from "@/context/canvasContext"
 
 
 
@@ -12,11 +13,13 @@ export default function LevelButton ({ selectedFloor, setSelectedFloor }) {
   const canvasState = useAppSelector(state => state.canvas.items)
   const canvasDispatch = useAppDispatch()
   const [popUpVisible, setPopUpVisible] = useState(false)
+  const { setSelectedElement } = useContext(CanvasContext)
 
   const handleCancelClick = () => {
     setPopUpVisible(false)
     canvasDispatch(addLevel())
     setSelectedFloor(canvasState.length)
+    setSelectedElement(null)
   }
 
   const handleLevelAdd = () => {
@@ -24,6 +27,7 @@ export default function LevelButton ({ selectedFloor, setSelectedFloor }) {
     setPopUpVisible(false)
     canvasDispatch(copyElements(selectedFloor))
     setSelectedFloor(canvasState.length)
+    setSelectedElement(null)
   }
 
   return (
@@ -38,7 +42,7 @@ export default function LevelButton ({ selectedFloor, setSelectedFloor }) {
                   top={1} 
                   center={1}
                   current={selectedFloor === i.id ? 1 : 0} 
-                  onClick={() => {setSelectedFloor(i.id)}} 
+                  onClick={() => {setSelectedFloor(i.id); setSelectedElement(null)}} 
                   key={i.id}
                 >
                   {i.id}
@@ -49,7 +53,7 @@ export default function LevelButton ({ selectedFloor, setSelectedFloor }) {
                 <LevelToggleButton 
                   bottom={1} 
                   current={selectedFloor === i.id ? 1 : 0} 
-                  onClick={() => {setSelectedFloor(i.id)}} 
+                  onClick={() => {setSelectedFloor(i.id); setSelectedElement(null)}} 
                   key={i.id}
                 >
                   {i.id}
@@ -60,7 +64,7 @@ export default function LevelButton ({ selectedFloor, setSelectedFloor }) {
                 <LevelToggleButton 
                   top={1} 
                   current={selectedFloor === i.id ? 1 : 0} 
-                  onClick={() => {setSelectedFloor(i.id)}} 
+                  onClick={() => {setSelectedFloor(i.id); setSelectedElement(null)}} 
                   key={i.id}
                 >
                   {i.id}
@@ -70,7 +74,7 @@ export default function LevelButton ({ selectedFloor, setSelectedFloor }) {
               return (
                 <LevelToggleButton 
                   current={selectedFloor === i.id ? 1 : 0} 
-                  onClick={() => {setSelectedFloor(i.id)}} 
+                  onClick={() => {setSelectedFloor(i.id); setSelectedElement(null)}} 
                   key={i.id}
                 >
                   {i.id}

@@ -5,7 +5,7 @@ import { useAppDispatch } from '@/redux/hooks'
 import { moveElement, rotateElement } from '@/redux/features/canvasSlice'
 import { CanvasContext } from '@/context/canvasContext'
 
-export default function Image_({ index, element }) {
+export default function Image_({ index, element, dragging }) {
   const [img] = useImage(element.src)
   const canvasDispatch = useAppDispatch()
   const { selectedFloor, selectedElement, setSelectedElement, activeTool } = useContext(CanvasContext)
@@ -27,6 +27,7 @@ export default function Image_({ index, element }) {
       indexOfElements: index,
       point: pos
     }))
+    dragging[1](false)
   }
 
   return (
@@ -39,10 +40,13 @@ export default function Image_({ index, element }) {
         rotation={element.rotation}
         image={img}
         draggable={activeTool === "default" ? true : false}
+        onDragStart={() => { dragging[1](true) }}
         onDragEnd={e => { handleDragEnd(e) }}
         onClick={() => {
           setSelectedElement({
-            id: imageRef.current._id
+            id: imageRef.current._id,
+            indexOfElements: index,
+            floor: selectedFloor
           })
         }}
         onTransformEnd={() => {
