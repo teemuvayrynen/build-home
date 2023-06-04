@@ -1,4 +1,4 @@
-import React, { useContext } from "react"
+import React, { useContext, useRef } from "react"
 import { Line, Group } from "react-konva"
 import { CanvasContext } from "../../context/canvasContext.jsx"
 import * as math from "../../functions/math"
@@ -8,7 +8,8 @@ import { moveElement, divideLine, addHistory } from "../../redux/features/canvas
 
 export default function Line_({index, element, points, drawing, dragging}) {
   const canvasDispatch = useAppDispatch()
-  const { activeTool, selectedFloor } = useContext(CanvasContext)
+  const { activeTool, selectedFloor, setSelectedElement } = useContext(CanvasContext)
+  const lineRef = useRef()
 
   const handleDragEnd = (e) => {
     const pos = e.target.position()
@@ -99,19 +100,26 @@ export default function Line_({index, element, points, drawing, dragging}) {
           }
         }
       }
+    } else if (activeTool === "default") {
+      setSelectedElement({
+        id: lineRef.current._id,
+        type: "line",
+        indexOfElements: index,
+        floor: selectedFloor
+      })
     }
-
   }
 
   return (
     <>
       <Group>
         <Line
+          ref={lineRef}
           x={element.x}
           y={element.y}
           points={points}
           stroke="black"
-          strokeWidth={10}
+          strokeWidth={element.strokeWidth}
           shadowColor="grey"
           shadowBlur={4}
           shadowOffset={{ x: 2, y: 1 }}
@@ -185,6 +193,7 @@ export const mouseDownLine = (e, canvasState, canvasDispatch, selectedFloor, set
     points: [{x: 0, y: 0}, {x: 0, y: 0}],
     x: pos.x,
     y: pos.y,
+    strokeWidth: 10
   }
   const dispatchObj = {
     element: lineObject,

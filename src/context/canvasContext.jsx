@@ -6,6 +6,8 @@ export const CanvasProvider = (props) => {
   const [activeTool, setActiveTool] = useState("default");
   const [selectedFloor, setSelectedFloor] = useState(0)
   const [selectedElement, setSelectedElement] = useState(null)
+  const [drawing, setDrawing] = useState(false)
+  const dragging = useState(false)
 
   return (
     <CanvasContext.Provider 
@@ -15,7 +17,10 @@ export const CanvasProvider = (props) => {
         selectedFloor,
         setSelectedFloor,
         selectedElement,
-        setSelectedElement
+        setSelectedElement,
+        dragging,
+        drawing,
+        setDrawing
       }}>
       {props.children}
     </CanvasContext.Provider>
