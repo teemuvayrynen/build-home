@@ -35,3 +35,39 @@ export const midPoint = (a, b) => {
 export const randomId = () => {
   return Math.random().toString(36).substring(2, 8)
 }
+
+export const calcPolygonArea = (element) => {
+  const points = element.points
+  let area = 0
+  let j = points.length - 1
+  for (let i = 0; i < points.length; i++) {
+    area += ((element.x + points[j].x) + (element.x + points[i].x)) * ((element.y + points[j].y) - (element.y + points[i].y))
+    j = i
+  }
+  return Math.abs(area / 2)
+}
+
+export function calculateArea(element) {
+  const points = element.points;
+  const numPoints = points.length;
+  let area = 0;
+
+  for (let i = 0; i < numPoints; i++) {
+    const point1 = {
+      x: element.x + points[i].x,
+      y: element.y + points[i].y,
+    }
+    const point2 = {
+      x: element.x + points[(i + 1) % numPoints].x,
+      y: element.y + points[(i + 1) % numPoints].y,
+    }
+
+    area += (point2.x + point1.x) * (point2.y - point1.y);
+  }
+
+  const pixelsPerMeter = 50;
+  const squareMetersPerSquarePixel = 1 / (pixelsPerMeter * pixelsPerMeter);
+  const areaInSquareMeters = Math.abs(area) / 2 * squareMetersPerSquarePixel;
+
+  return areaInSquareMeters;
+}

@@ -21,10 +21,7 @@ export default function RightBar() {
       setVisible(false)
       selectedRef.current = null
     }
-  }, [selectedElement, dragging, drawing, canvasState, selectedFloor])
-
-  useEffect(() => { console.log(visible)}, [visible])
-  
+  }, [selectedElement, dragging, drawing, canvasState, selectedFloor]) 
 
   return (
     <Container visible={visible ? 1 : 0}>

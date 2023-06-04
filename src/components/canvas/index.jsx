@@ -227,7 +227,8 @@ export default function Canvas() {
             src: selectedElement.src,
             x: pos.x,
             y: pos.y,
-            rotation: 0
+            rotation: 0,
+            item: selectedElement.item
           }
           const dispatchObj = {
             element: elementObj,

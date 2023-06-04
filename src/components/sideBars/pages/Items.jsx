@@ -75,6 +75,7 @@ const HoverDialog = ({ setSelectedElement, src, element, dim, margin, dragging }
                   setSelectedElement({
                     type: "element",
                     src: e.altSrc,
+                    item: e.item
                   })
                 }}
                 onDragEnd={() => {
