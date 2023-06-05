@@ -46,9 +46,13 @@ export default function Info() {
               {x: element.x + points[j + 1].x, y: element.y + points[j + 1].y})
             wallLength += l
           }
+          if (element.closed) {
+            wallLength += math.lengthBetweenPointsMeters(
+              {x: element.x + points[0].x, y: element.y + points[0].y}, 
+              {x: element.x + points.at(-1).x, y: element.y + points.at(-1).y})
+          }
           if (element.closed && element.strokeWidth === 10) {
             squareMeter += math.calculateArea(element)
-            
           }
         }
       }
