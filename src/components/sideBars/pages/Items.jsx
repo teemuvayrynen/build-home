@@ -1,22 +1,48 @@
 import Image from 'next/image.js'
-import { useContext, useRef, useState } from 'react'
+import { useContext, useRef, useState, useEffect } from 'react'
 import styled from "styled-components"
 import elements from "../../../app/images"
 import { CanvasContext } from "../../../context/canvasContext.jsx"
 import { Container, FlexContainer, FlexRow, FlexRowSpaceBetween, Header, ItemContainer, Text } from "./StyledFunctions.jsx"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
+import { useAppSelector, useAppDispatch } from '@/redux/hooks'
+import * as math from "../../../functions/math.js"
+import { addElement, removeGeneratedRooms } from '@/redux/features/canvasSlice'
 
 
 export default function Items() {
-  const { setSelectedElement, dragging } = useContext(CanvasContext)
+  const { setSelectedElement, dragging, selectedFloor } = useContext(CanvasContext)
+  const canvasState = useAppSelector(state => state.canvas.items)
+  const canvasDispatch = useAppDispatch()
   const [num, setNum] = useState(0)
   const [generating, setGenerating] = useState(false)
 
+  useEffect(() => {console.log(canvasState)}, [canvasState])
+
   const handleSubmit = () => {
-    if (!generating) {
+    if (!generating && num > 0) {
+      canvasDispatch(removeGeneratedRooms(selectedFloor))
       setGenerating(true)
-    
+      const rooms = math.generateRooms(canvasState, selectedFloor, num)
+      rooms.forEach((room, index) => {
+        
+        const rectObject = {
+          type: "rectangle",
+          x: room.x,
+          y: room.y,
+          width: room.width,
+          height: room.height,
+          strokeWidth: 5,
+          generated: true,
+        }
+        const dispatchObj = {
+          element: rectObject,
+          floor: selectedFloor,
+          indexOfElements: canvasState[selectedFloor].elements.length,
+        }
+        canvasDispatch(addElement(dispatchObj))
+      })
       setGenerating(false)
     }
   }
