@@ -1,6 +1,5 @@
 import React, { useRef, useEffect, useContext, useState } from 'react'
-import { Container, ItemContainer, Header } from "./StyledFunctions.jsx"
-import styled from "styled-components"
+import { Container, ItemContainer, Header, Text, FlexContainer, FlexRowSpaceBetween } from "./StyledFunctions.jsx"
 import { useAppSelector } from '@/redux/hooks'
 import globals from "../../../app/globals.js"
 import { CanvasContext } from '@/context/canvasContext.jsx'
@@ -46,9 +45,13 @@ export default function Info() {
               {x: element.x + points[j + 1].x, y: element.y + points[j + 1].y})
             wallLength += l
           }
+          if (element.closed) {
+            wallLength += math.lengthBetweenPointsMeters(
+              {x: element.x + points[0].x, y: element.y + points[0].y}, 
+              {x: element.x + points.at(-1).x, y: element.y + points.at(-1).y})
+          }
           if (element.closed && element.strokeWidth === 10) {
             squareMeter += math.calculateArea(element)
-            
           }
         }
       }
@@ -75,83 +78,66 @@ export default function Info() {
       <ItemContainer>
         <Header>Specs</Header>
         <FlexContainer>
-          <FlexRow>
+          <FlexRowSpaceBetween>
             <Text>Square meters:</Text>
             {specs && (
               <Text>{specs.squareMeter} m²</Text>
             )}
-          </FlexRow>
-          <FlexRow>
+          </FlexRowSpaceBetween>
+          <FlexRowSpaceBetween>
             <Text>Wall length:</Text>
             {specs && (
               <Text>{specs.wallLength} m</Text>
             )}
-          </FlexRow>
+          </FlexRowSpaceBetween>
         </FlexContainer>
       </ItemContainer>
       <ItemContainer>
         <Header>Elements</Header>
         <FlexContainer>
-          <FlexRow>
+          <FlexRowSpaceBetween>
             <Text>Door amount:</Text>
             {specs && (
               <Text>{specs.doors}</Text>
             )}
-          </FlexRow>
-          <FlexRow>
+          </FlexRowSpaceBetween>
+          <FlexRowSpaceBetween>
             <Text>Window amount:</Text>
             {specs && (
               <Text>{specs.windows}</Text>
             )}
-          </FlexRow>
+          </FlexRowSpaceBetween>
         </FlexContainer>
       </ItemContainer>
       <ItemContainer>
         <Header>Price</Header>
         <FlexContainer>
-          <FlexRow>
+          <FlexRowSpaceBetween>
             <Text>Wall price:</Text>
             {price && (
               <Text>{price.wallPrice} €</Text>
             )}
-          </FlexRow>
-          <FlexRow>
+          </FlexRowSpaceBetween>
+          <FlexRowSpaceBetween>
             <Text>Doors price:</Text>
             {price && (
               <Text>{price.doorsPrice} €</Text>
             )}
-          </FlexRow>
-          <FlexRow>
+          </FlexRowSpaceBetween>
+          <FlexRowSpaceBetween>
             <Text>Windows price:</Text>
             {price && (
               <Text>{price.windowsPrice} €</Text>
             )}
-          </FlexRow>
-          <FlexRow>
+          </FlexRowSpaceBetween>
+          <FlexRowSpaceBetween>
             <Text>Together:</Text>
             {price && (
               <Text>{price.together} €</Text>
             )}
-          </FlexRow>
+          </FlexRowSpaceBetween>
         </FlexContainer>
       </ItemContainer>
     </Container>
   )
 }
-
-const FlexContainer = styled.div`
-  margin-top: 10px;
-`
-
-const FlexRow = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  padding: 5px 20px 0px 0px;
-`
-
-const Text = styled.div`
-  font-weight: 500;
-  font-size: 14px;
-  padding-bottom: 3px;
-`

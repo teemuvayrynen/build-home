@@ -211,6 +211,10 @@ export const canvas = createSlice({
     },
     changeStrokeWidth: (state, action: PayloadAction<any>) => {
       state.items[action.payload.floor].elements[action.payload.indexOfElements].strokeWidth = action.payload.strokeWidth
+    },
+    removeGeneratedRooms: (state, action: PayloadAction<number>) => {
+      const elements = state.items[action.payload].elements 
+      state.items[action.payload].elements = elements.filter((element: any) => !element.generated)
     }
   }
 })
@@ -231,7 +235,8 @@ export const {
   undoMisClick,
   copyElements,
   rotateElement,
-  changeStrokeWidth
+  changeStrokeWidth,
+  removeGeneratedRooms
 } = canvas.actions;
 
 export default canvas.reducer;

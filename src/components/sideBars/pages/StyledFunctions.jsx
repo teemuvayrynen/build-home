@@ -18,3 +18,26 @@ export const Header = styled.h4`
   font-weight: 600;
   margin: 0;
 `
+
+export const Text = styled.div`
+  font-weight: 500;
+  font-size: 14px;
+`
+
+export const FlexContainer = styled.div`
+  margin-top: 5px;
+`
+
+export const FlexRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  padding: 10px 20px 0px 0px;
+`
+
+export const FlexRowSpaceBetween = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px 0px 0px;
+`

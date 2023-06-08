@@ -32,8 +32,12 @@ export const midPoint = (a, b) => {
   return {x: (a.x + b.x) / 2, y: (a.y + b.y) / 2}
 }
 
-export const randomId = () => {
-  return Math.random().toString(36).substring(2, 8)
+function getRandomInt(max) {
+  return Math.floor(Math.random() * max);
+}
+
+function getRandomArbitrary(min, max) {
+  return Math.random() * (max - min) + min;
 }
 
 export const calcPolygonArea = (element) => {
@@ -70,4 +74,54 @@ export function calculateArea(element) {
   const areaInSquareMeters = Math.abs(area) / 2 * squareMetersPerSquarePixel;
 
   return areaInSquareMeters;
+}
+
+export const generateRooms = (canvasState, selectedFloor, numOfRooms) => {
+  const elements = canvasState[selectedFloor].elements
+  const rooms = []
+  let index = -1
+
+  for (let i = 0; i < elements.length; i++) {
+    if (elements[i].type === "rectangle") {
+      index = i
+      break
+    }
+  }
+
+  if (index !== -1) {
+    const offset = 2.5
+    let roomAmount = numOfRooms
+    const element = elements[index]
+    const points = [
+      {x: element.x + offset, y: element.y + offset, width: 1, height: 1},
+      {x: element.x + element.width - offset, y: element.y + offset, width: -1, height: 1},
+      {x: element.x + offset, y: element.y + element.height - offset, width: 1, height: -1},
+      {x: element.x + element.width - offset, y: element.y + element.height - offset, width: -1, height: -1}
+    ]
+    while (roomAmount > 0) {
+      const num = getRandomInt(points.length)
+      const wallWidth = getRandomArbitrary(2,4)
+      const wallHeight = getRandomArbitrary(2,4)
+      const point = points[num]
+      points.splice(num, 1)
+      point.width *= wallWidth * 50
+      point.height *= wallHeight * 50
+      rooms.push(point)
+
+      const pointObj = {
+        x: point.x, y: point.y + point.width, width: point.width > 0 ? 1 : -1, height: point.height > 0 ? 1 : -1
+      }
+      const pointObj2 = {
+        x: point.x + point.width, y: point.y, width: point.width > 0 ? 1 : -1, height: point.height > 0 ? 1 : -1
+      }
+      points.push(pointObj)
+      points.push(pointObj2)
+      console.log(points)
+      roomAmount--
+    }
+
+    return rooms
+
+  }
+  return []
 }

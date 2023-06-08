@@ -85,7 +85,8 @@ export const mouseDownRect = (e, canvasState, canvasDispatch, selectedFloor, set
     y: pos.y,
     width: 0,
     height: 0,
-    strokeWidth: 10
+    strokeWidth: 10,
+    generated: false,
   }
   const dispatchObj = {
     element: rectObject,
