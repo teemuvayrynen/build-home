@@ -26,7 +26,6 @@ export default function Items() {
       setGenerating(true)
       const rooms = math.generateRooms(canvasState, selectedFloor, num)
       rooms.forEach((room, index) => {
-        
         const rectObject = {
           type: "rectangle",
           x: room.x,

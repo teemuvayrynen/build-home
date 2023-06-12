@@ -57,7 +57,6 @@ const Button = styled.button`
   font-size: 14px;
   cursor: pointer;
   margin: 0px 15px;
-  
 `
 
 const Background = styled.div`

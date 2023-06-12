@@ -5,11 +5,11 @@ import * as math from "../../functions/math"
 import Circle_ from "./Circle_.jsx"
 import { useAppDispatch } from "@/redux/hooks";
 import { moveElement, divideLine, addHistory } from "../../redux/features/canvasSlice"
+import { v4 as uuidv4 } from 'uuid';
 
 export default function Line_({index, element, points, drawing, dragging}) {
   const canvasDispatch = useAppDispatch()
-  const { activeTool, selectedFloor, setSelectedElement } = useContext(CanvasContext)
-  const lineRef = useRef()
+  const { activeTool, selectedFloor, setSelectedElement, selectedElement, setContextMenuObj, setActiveTool } = useContext(CanvasContext)
 
   const handleDragEnd = (e) => {
     const pos = e.target.position()
@@ -102,54 +102,59 @@ export default function Line_({index, element, points, drawing, dragging}) {
       }
     } else if (activeTool === "default") {
       setSelectedElement({
-        id: lineRef.current._id,
+        id: element.id,
         type: "line",
         indexOfElements: index,
         floor: selectedFloor
       })
+      if (e.evt.button === 2) {
+     
+        setContextMenuObj({
+          x: e.evt.clientX,
+          y: e.evt.clientY,
+          indexOfElements: index,
+          floor: selectedFloor
+        })
+      } 
     }
   }
 
   return (
-    <>
-      <Group>
-        <Line
-          ref={lineRef}
-          x={element.x}
-          y={element.y}
-          points={points}
-          stroke="black"
-          strokeWidth={element.strokeWidth}
-          shadowColor="grey"
-          shadowBlur={4}
-          shadowOffset={{ x: 2, y: 1 }}
-          shadowOpacity={0.3}
-          closed={element.closed}
-          draggable={activeTool == "default" ? true : false}
-          onDragEnd={handleDragEnd}
-          hitStrokeWidth={10}
-          onClick={handleClick}
-        />
-        {element.points.map((point, i) => {
-          const temp = {
-            x: point.x + element.x,
-            y: point.y + element.y
-          }
-          return (
-            <>
-              <Circle_ 
-                index={i}
-                indexOfElements={index}
-                point={temp}
-                drawing={drawing}
-                type="line"
-                dragging={dragging}
-              />
-            </>
-          )
-        })}
-      </Group>
-    </>
+    <Group>
+      <Line
+        x={element.x}
+        y={element.y}
+        points={points}
+        stroke={selectedElement && selectedElement.id === element.id ? "#00B3FF" : "black"}
+        strokeWidth={element.strokeWidth}
+        shadowColor="grey"
+        shadowBlur={4}
+        shadowOffset={{ x: 2, y: 1 }}
+        shadowOpacity={0.3}
+        closed={element.closed}
+        draggable={activeTool == "default" ? true : false}
+        onDragEnd={handleDragEnd}
+        hitStrokeWidth={10}
+        onClick={handleClick}
+      />
+      {element.points.map((point, i) => {
+        const temp = {
+          x: point.x + element.x,
+          y: point.y + element.y
+        }
+        return (
+          <Circle_ 
+            key={uuidv4()}
+            index={i}
+            indexOfElements={index}
+            point={temp}
+            drawing={drawing}
+            type="line"
+            dragging={dragging}
+          />
+        )
+      })}
+    </Group>
   )
 }
 
@@ -188,6 +193,7 @@ export const mouseDownLine = (e, canvasState, canvasDispatch, selectedFloor, set
     }
   }
   const lineObject = {
+    id: uuidv4(),
     type: "line",
     closed: false,
     points: [{x: 0, y: 0}, {x: 0, y: 0}],
@@ -196,6 +202,7 @@ export const mouseDownLine = (e, canvasState, canvasDispatch, selectedFloor, set
     strokeWidth: 10
   }
   const dispatchObj = {
+    id: lineObject.id,
     element: lineObject,
     floor: selectedFloor,
     indexOfElements: canvasState[selectedFloor].elements.length,
@@ -204,6 +211,7 @@ export const mouseDownLine = (e, canvasState, canvasDispatch, selectedFloor, set
 
   canvasDispatch(addElement(dispatchObj))
   setSelectedElement({
+    id: lineObject.id,
     type: "line",
     indexOfElements: canvasState[selectedFloor].elements.length,
     index: 1
@@ -213,6 +221,7 @@ export const mouseDownLine = (e, canvasState, canvasDispatch, selectedFloor, set
 export const mouseMoveLine = (e, canvasDispatch, selectedFloor, selectedElement, movePoint) => {
   const pos = e.target.getStage().getRelativePointerPosition()
   const dispatchObj = {
+    id: selectedElement.id,
     type: "line",
     point: pos,
     floor: selectedFloor,
@@ -236,6 +245,7 @@ export const checkIsNearEndOfLine = (canvasState, canvasDispatch, selectedFloor,
     }
     if (math.lengthBetweenPoints(pos0, pos1) <= 10) {
       const dispatchObj = {
+        id: selectedElement.id,
         floor: selectedFloor,
         indexOfElements: selectedElement.indexOfElements,
         index: selectedElement.index
