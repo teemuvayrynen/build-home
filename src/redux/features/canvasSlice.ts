@@ -69,6 +69,9 @@ export const canvas = createSlice({
     deleteElements: (state, action: PayloadAction<number>) => {
       state.items[action.payload].elements = []  
     },
+    deleteElement: (state, actions: PayloadAction<any>) => {
+
+    },
     addPoint: (state, action: PayloadAction<any>) => {
       const element = state.items[action.payload.floor].elements[action.payload.indexOfElements]
       const newPos = {

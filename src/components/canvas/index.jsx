@@ -1,6 +1,7 @@
 "use client"
-import React, { useState, useContext, useRef, useEffect } from 'react';
+import React, { useContext, useRef, useEffect } from 'react';
 import { Stage, Layer, Group, Rect, Image } from 'react-konva';
+import { v4 as uuidv4 } from 'uuid';
 import { CanvasContext } from "../../context/canvasContext.jsx"
 import styled from "styled-components"
 import Line_, { mouseDownLine, mouseMoveLine, checkIsNearEndOfLine } from "./Line_.jsx"
@@ -11,6 +12,7 @@ import Image_ from "./Image_.jsx"
 import RightBar from "../sideBars/RightBar.jsx"
 import LevelButton from "../buttons/LevelButton.jsx"
 import * as math from "../../functions/math"
+import ContextMenu from "../ContextMenu.jsx"
 import useWindowSize from "../../hooks/useWindowSize.jsx"
 import { useAppSelector, useAppDispatch } from '@/redux/hooks';
 import { addElement, movePoint, addPoint, closedElement, undo, redo, addHistory, undoMisClick } from "../../redux/features/canvasSlice"
@@ -22,7 +24,7 @@ export default function Canvas() {
   const canvasDispatch = useAppDispatch()
 
   useEffect(() => {
-    //console.log("canvasState", canvasState)
+    console.log("canvasState", canvasState)
   }, [canvasState])
 
   const { 
@@ -33,7 +35,8 @@ export default function Canvas() {
     setSelectedElement,
     dragging,
     drawing,
-    setDrawing} = useContext(CanvasContext);
+    setDrawing,
+    setContextMenuObj} = useContext(CanvasContext);
   const stageRef = useRef(null)
   const selection = useRef({
     visible: false,
@@ -107,87 +110,94 @@ export default function Canvas() {
   }
 
   const handleMouseDown = (e) => {
-    switch (activeTool) {
-      case "default":
-        if (!dragging[0] && e.target === e.target.getStage()) {
-          setSelectedElement(null)
-          const pos = e.target.getStage().getRelativePointerPosition();
-          selection.current.visible = true
-          selection.current.x = pos.x
-          selection.current.y = pos.y
-          selection.current.x2 = pos.x
-          selection.current.y2 = pos.y
-          updateSelectionRect()
-        }
-        break;
-      case "line":
-        setDrawing(true)
-        mouseDownLine(e, canvasState, canvasDispatch, selectedFloor, setSelectedElement, addElement, addPoint)
-        break;
-      case "rectangle":
-        setDrawing(true)
-        mouseDownRect(e, canvasState, canvasDispatch, selectedFloor, setSelectedElement, addElement)
-        break;
+    if (e.evt.button === 0) {
+      setContextMenuObj(null)
+      switch (activeTool) {
+        case "default":
+          if (!dragging[0] && e.target === e.target.getStage()) {
+            setSelectedElement(null)
+            const pos = e.target.getStage().getRelativePointerPosition();
+            selection.current.visible = true
+            selection.current.x = pos.x
+            selection.current.y = pos.y
+            selection.current.x2 = pos.x
+            selection.current.y2 = pos.y
+            updateSelectionRect()
+          }
+          break;
+        case "line":
+          setDrawing(true)
+          mouseDownLine(e, canvasState, canvasDispatch, selectedFloor, setSelectedElement, addElement, addPoint)
+          break;
+        case "rectangle":
+          setDrawing(true)
+          mouseDownRect(e, canvasState, canvasDispatch, selectedFloor, setSelectedElement, addElement)
+          break;
+      }
     }
   }
 
   const handleMouseMove = (e) => {
-    switch (activeTool) {
-      case "default":
-        if (selection.current.visible) {
-          const pos = e.target.getStage().getRelativePointerPosition();
-          selection.current.x2 = pos.x
-          selection.current.y2 = pos.y
-          updateSelectionRect()
-        }
-        break
-      case "line":
-        if (drawing) {
-          mouseMoveLine(e, canvasDispatch, selectedFloor, selectedElement, movePoint)
-        }
-        break;
-      case "rectangle":
-        if (drawing) {
-          mouseMoveRect(e, canvasDispatch, selectedFloor, selectedElement, movePoint)
-        }
-        break;
+    if (e.evt.button === 0) {
+      switch (activeTool) {
+        case "default":
+          if (selection.current.visible) {
+            const pos = e.target.getStage().getRelativePointerPosition();
+            selection.current.x2 = pos.x
+            selection.current.y2 = pos.y
+            updateSelectionRect()
+          }
+          break
+        case "line":
+          if (drawing) {
+            mouseMoveLine(e, canvasDispatch, selectedFloor, selectedElement, movePoint)
+          }
+          break;
+        case "rectangle":
+          if (drawing) {
+            mouseMoveRect(e, canvasDispatch, selectedFloor, selectedElement, movePoint)
+          }
+          break;
+      }
     }
   }
 
   const handleMouseUp = (e) => {
     setDrawing(false)
-    if (activeTool === "rectangle") {
-      const notMishap = checkIsMishap()
-      if (!notMishap) {
-        canvasDispatch(addHistory({
-          floor: selectedFloor,
-          indexOfElements: selectedElement.indexOfElements,
-          type: "add"
-        }))
+    if (e.evt.button === 0) {
+      if (activeTool === "rectangle") {
+        const notMishap = checkIsMishap()
+        if (!notMishap) {
+          canvasDispatch(addHistory({
+            floor: selectedFloor,
+            indexOfElements: selectedElement.indexOfElements,
+            type: "add"
+          }))
+        }
       }
-    }
-    if (activeTool == "default") {
-      selection.current.visible = false
-      updateSelectionRect() 
-    }
-    if (activeTool == "line") {
-      const isNear = checkIsNearEndOfLine(canvasState, canvasDispatch, selectedFloor, selectedElement, closedElement)
-      if (!isNear) {
-        const notMisHap = checkIsMishap()
-        if (!notMisHap) {
-          if (canvasState[selectedFloor].elements[selectedElement.indexOfElements].points.length === 2) {
-            canvasDispatch(addHistory({
-              floor: selectedFloor,
-              indexOfElements: selectedElement.indexOfElements,
-              type: "add"
-            }))
-          } else {
-            canvasDispatch(addHistory({
-              type: "addPoint",
-              floor: selectedFloor,
-              indexOfElements: selectedElement.indexOfElements,
-              index: selectedElement.index,
-            }))
+      if (activeTool == "default") {
+        selection.current.visible = false
+        updateSelectionRect() 
+      }
+      if (activeTool == "line") {
+        const isNear = checkIsNearEndOfLine(canvasState, canvasDispatch, selectedFloor, selectedElement, closedElement)
+        if (!isNear) {
+          const notMisHap = checkIsMishap()
+          if (!notMisHap) {
+            if (canvasState[selectedFloor].elements[selectedElement.indexOfElements].points.length === 2) {
+              canvasDispatch(addHistory({
+                floor: selectedFloor,
+                indexOfElements: selectedElement.indexOfElements,
+                type: "add"
+              }))
+            } else {
+              canvasDispatch(addHistory({
+                type: "addPoint",
+                floor: selectedFloor,
+                indexOfElements: selectedElement.indexOfElements,
+                index: selectedElement.index,
+              }))
+            }
           }
         }
       }
@@ -223,6 +233,7 @@ export default function Canvas() {
           stageRef.current.setPointersPositions(e)
           const pos = stageRef.current.getRelativePointerPosition()
           const elementObj = {
+            id: uuidv4(),
             type: "element",
             src: selectedElement.src,
             x: pos.x,
@@ -231,12 +242,14 @@ export default function Canvas() {
             item: selectedElement.item
           }
           const dispatchObj = {
+            id: elementObj.id,
             element: elementObj,
             floor: selectedFloor,
             indexOfElements: canvasState[selectedFloor].elements.length,
           }
           canvasDispatch(addElement(dispatchObj))
           canvasDispatch(addHistory({
+            id: elementObj.id,
             floor: selectedFloor,
             indexOfElements: canvasState[selectedFloor].elements.length,
             type: "add"
@@ -271,70 +284,70 @@ export default function Canvas() {
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
+        onContextMenu={(e) => {
+          e.evt.preventDefault()
+          setContextMenuObj(null)
+        }}
       >
         {canvasState.map((level, index) => {
           return (
-            <>
-              <Layer
-                key={level.id}
-                visible={level.id === selectedFloor ? true : false}
-                onMouseEnter={e => {
-                  if (activeTool === "default" || activeTool === "divide") {
-                    const container = e.target.getStage().container();
-                    container.style.cursor = "pointer";
+            <Layer
+              key={level.id}
+              visible={level.id === selectedFloor ? true : false}
+              onMouseEnter={e => {
+                if (activeTool === "default" || activeTool === "divide") {
+                  const container = e.target.getStage().container();
+                  container.style.cursor = "pointer";
+                }
+              }}
+              onMouseLeave={e => {
+                if (activeTool === "default" || activeTool === "divide") {
+                  const container = e.target.getStage().container();
+                  container.style.cursor = "default";
+                }
+              }}
+            >
+              <Group>
+                {canvasState[index].elements.map((element, i) => {
+                  if (element && element.type === "line") {
+                    const points = []
+                    element.points.forEach(point => {
+                      points.push(point.x)
+                      points.push(point.y)
+                    })
+                    return (
+                      <Line_ 
+                        key={element.id}
+                        index={i}
+                        element={element}
+                        points={points}
+                        drawing={drawing}
+                        dragging={dragging}
+                      />
+                    )
+                  } else if (element && element.type === "rectangle") {
+                    return (
+                      <Rect_ 
+                        key={element.id}
+                        index={i}
+                        element={element}
+                        drawing={drawing}
+                        dragging={dragging}
+                      />
+                    )
+                  } else if (element && element.type === "element") {
+                    return (
+                      <Image_ 
+                        key={element.id}
+                        index={i}
+                        element={element}
+                        dragging={dragging}
+                      />
+                    )
                   }
-                }}
-                onMouseLeave={e => {
-                  if (activeTool === "default" || activeTool === "divide") {
-                    const container = e.target.getStage().container();
-                    container.style.cursor = "default";
-                  }
-                }}
-              >
-                <Group>
-                  {canvasState[index].elements.map((element, i) => {
-                    if (element && element.type === "line") {
-                      const points = []
-                      element.points.forEach(point => {
-                        points.push(point.x)
-                        points.push(point.y)
-                      })
-                      return (
-                        <>
-                          <Line_ 
-                            key={i}
-                            index={i}
-                            element={element}
-                            points={points}
-                            drawing={drawing}
-                            dragging={dragging}
-                          />
-                        </>
-                      )
-                    } else if (element && element.type === "rectangle") {
-                      return (
-                        <Rect_ 
-                          key={i}
-                          index={i}
-                          element={element}
-                          drawing={drawing}
-                          dragging={dragging}
-                        />
-                      )
-                    } else if (element && element.type === "element") {
-                      return (
-                        <Image_ 
-                          key={i}
-                          index={i}
-                          element={element}
-                          dragging={dragging}
-                        />
-                      )
-                    }
-                  })}
-                </Group>
-              </Layer>
-            </>
+                })}
+              </Group>
+            </Layer>
           )
         })}
         <Layer>
@@ -363,6 +376,7 @@ export default function Canvas() {
         dragging={dragging[0]}
       />
       <RightBar />
+      <ContextMenu />
     </div>
   )
 }

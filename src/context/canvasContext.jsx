@@ -7,6 +7,7 @@ export const CanvasProvider = (props) => {
   const [selectedFloor, setSelectedFloor] = useState(0)
   const [selectedElement, setSelectedElement] = useState(null)
   const [drawing, setDrawing] = useState(false)
+  const [contextMenuObj, setContextMenuObj] = useState(null)
   const dragging = useState(false)
 
   return (
@@ -20,7 +21,9 @@ export const CanvasProvider = (props) => {
         setSelectedElement,
         dragging,
         drawing,
-        setDrawing
+        setDrawing,
+        contextMenuObj,
+        setContextMenuObj
       }}>
       {props.children}
     </CanvasContext.Provider>

@@ -13,11 +13,11 @@ export default function Image_({ index, element, dragging }) {
   const trRef = useRef()
 
   useEffect(() => {
-    if (selectedElement && imageRef.current && imageRef.current._id === selectedElement.id) {
+    if (selectedElement && element.id === selectedElement.id) {
       trRef.current.nodes([imageRef.current])
       trRef.current.getLayer().batchDraw()
     }
-  }, [selectedElement])
+  }, [selectedElement, element])
 
   
   const handleDragEnd = (e) => {
@@ -44,7 +44,8 @@ export default function Image_({ index, element, dragging }) {
         onDragEnd={e => { handleDragEnd(e) }}
         onClick={() => {
           setSelectedElement({
-            id: imageRef.current._id,
+            id: element.id,
+            type: "element",
             indexOfElements: index,
             floor: selectedFloor
           })
@@ -58,7 +59,7 @@ export default function Image_({ index, element, dragging }) {
           }))
         }}
       />
-      {selectedElement && imageRef.current && selectedElement.id === imageRef.current._id && (
+      {selectedElement && selectedElement.id === element.id && (
         <Transformer
           ref={trRef}
           resizeEnabled={false}

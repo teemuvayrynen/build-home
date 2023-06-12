@@ -4,22 +4,24 @@ import { CanvasContext } from '@/context/canvasContext';
 import { useAppSelector } from '@/redux/hooks';
 import { useAppDispatch } from '@/redux/hooks';
 import { changeStrokeWidth } from '@/redux/features/canvasSlice';
+import globals from "../../app/globals"
 
 
 export default function RightBar() {
   const [visible, setVisible] = useState(false);
   const canvasState = useAppSelector(state => state.canvas.items)
   const { selectedElement, dragging, drawing, selectedFloor } = useContext(CanvasContext)
-  const selectedRef = useRef()
+  const [selected, setSelected] = useState(null)
 
   useEffect(() => {
     if (!dragging[0] && !drawing && selectedElement) {
       setVisible(true)
       const element = canvasState[selectedFloor].elements[selectedElement.indexOfElements]
-      selectedRef.current = element
+      console.log(selectedElement)
+      setSelected(element)
     } else {
       setVisible(false)
-      selectedRef.current = null
+      setSelected(null)
     }
   }, [selectedElement, dragging, drawing, canvasState, selectedFloor]) 
 
@@ -28,17 +30,29 @@ export default function RightBar() {
       {selectedElement && selectedElement.type === "element" && (
         null
       )}
-      {selectedElement && selectedRef.current && selectedElement.type === "rectangle" && (
+      {selectedElement && selected && selectedElement.type !== "element" && (
         <FlexRow>
           <Text>Wall:</Text>
-          <SelectMenuWall width={selectedRef.current.strokeWidth} selectedElement={selectedElement} />
+          <SelectMenuWall width={selected.strokeWidth} selectedElement={selectedElement} />
         </FlexRow>
       )}
-      {selectedElement && selectedRef.current && selectedElement.type === "line" && (
-        <FlexRow>
-          <Text>Wall:</Text>
-          <SelectMenuWall width={selectedRef.current.strokeWidth} selectedElement={selectedElement} />
-        </FlexRow>
+      {selectedElement && selected && selectedElement.type === "rectangle" && (
+        <>
+          <FlexRow>
+            <Text>Width:</Text>
+            <Text>{Math.round(selected.width / globals.lengthParameter * 100) / 100}</Text>
+          </FlexRow>
+          <FlexRow>
+            <Text>Height:</Text>
+            <Text>{Math.round(selected.height / globals.lengthParameter * 100) / 100}</Text>
+          </FlexRow>
+        </>
+      )}
+      {selectedElement && selected && selectedElement.type === "line" && (
+        null
+      )}
+      {selectedElement && selected && (
+        <DeleteButton>Delete</DeleteButton>
       )}
     </Container>
   )
@@ -47,6 +61,10 @@ export default function RightBar() {
 const SelectMenuWall = ({ width, selectedElement }) => {
   const canvasDispatch = useAppDispatch()
   const [value, setValue] = useState(width)
+
+  useEffect(() => {
+    setValue(width)
+  }, [width])
 
   const handleChange = (e) => {
     canvasDispatch(changeStrokeWidth({
@@ -96,5 +114,21 @@ const FlexRow = styled.div`
 const Text = styled.div`
   weight: 400;
   margin: 0;
+`
+
+const DeleteButton = styled.button`
+  background: #FF0000;
+  border: none;
+  padding: 8px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 2px 0px rgba(0,0,0,1);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  margin: 20px 15px;
+  color: white;
+  &:hover {
+    background: #ff4d4d;
+  }
 `
 
