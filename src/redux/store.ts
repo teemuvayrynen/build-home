@@ -15,7 +15,8 @@ import {addLevel,
         undoMisClick,
         copyElements,
         changeStrokeWidth,
-        removeGeneratedRooms} from './features/canvasSlice';
+        removeGeneratedRooms,
+        deleteElement} from './features/canvasSlice';
 
 type CanvasState = {
   items: any[];
@@ -24,7 +25,7 @@ type CanvasState = {
 const initialState = {
   items: [{
     id: 0,
-    elements: [],
+    elements: {},
     history: [],
     historyStep: -1
   }]
@@ -49,7 +50,8 @@ listenerMiddleware.startListening({
     copyElements,
     rotateElement,
     changeStrokeWidth,
-    removeGeneratedRooms),
+    removeGeneratedRooms,
+    deleteElement),
   effect: (action, listeneAPI) => {
     localStorage.setItem('canvasState', JSON.stringify(listeneAPI.getState() as RootState))
   }

@@ -19,12 +19,12 @@ export default function InfoBox ({ stageRef, drawing, dragging }) {
 
   useEffect(() => {
     if (selectedElement && (dragging || drawing)) {
-      const element = canvasState[selectedFloor].elements[selectedElement.indexOfElements]
+      const element = canvasState[selectedFloor].elements[selectedElement.id]
       if (selectedElement.type === "rectangle") {
         if (!visible) {
           setVisible(true)
         }
-        const element = canvasState[selectedFloor].elements[selectedElement.indexOfElements]
+        const element = canvasState[selectedFloor].elements[selectedElement.id]
         
         width.current = Math.round(element.width / globals.lengthParameter * 100) / 100
         height.current = Math.round(element.height / globals.lengthParameter * 100) / 100

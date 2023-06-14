@@ -7,7 +7,7 @@ type CanvasState = {
 const initialState = {
   items: [{
     id: 0,
-    elements: [],
+    elements: {},
     history: [],
     historyStep: -1
   }]
@@ -21,7 +21,7 @@ export const canvas = createSlice({
       const prev = state.items[state.items.length - 1];
       const newLevel = {
         id: prev.id + 1,
-        elements: [],
+        elements: {},
         history: [],
         historyStep: -1
       }
@@ -35,11 +35,11 @@ export const canvas = createSlice({
       }
     },
     addElement: (state, action: PayloadAction<any>) => {
-      state.items[action.payload.floor].elements.push(action.payload.element)
+      state.items[action.payload.floor].elements[action.payload.id] = action.payload.element
     },
     movePoint: (state, action: PayloadAction<any>) => {
       if (action.payload.type === "rectangle") {
-        const element = state.items[action.payload.floor].elements[action.payload.indexOfElements]
+        const element = state.items[action.payload.floor].elements[action.payload.id]
         if (action.payload.index === 0) {
           element.x = action.payload.point.x
           element.y = action.payload.point.y
@@ -58,7 +58,7 @@ export const canvas = createSlice({
           element.height = action.payload.point.y - element.y
         }
       } else if (action.payload.type === "line") {
-        const element = state.items[action.payload.floor].elements[action.payload.indexOfElements]
+        const element = state.items[action.payload.floor].elements[action.payload.id]
         const newPos = {
           x: action.payload.point.x - element.x,
           y: action.payload.point.y - element.y
@@ -67,13 +67,13 @@ export const canvas = createSlice({
       }
     },
     deleteElements: (state, action: PayloadAction<number>) => {
-      state.items[action.payload].elements = []  
+      state.items[action.payload].elements = {}
     },
     deleteElement: (state, actions: PayloadAction<any>) => {
-
+      delete state.items[actions.payload.floor].elements[actions.payload.id]
     },
     addPoint: (state, action: PayloadAction<any>) => {
-      const element = state.items[action.payload.floor].elements[action.payload.indexOfElements]
+      const element = state.items[action.payload.floor].elements[action.payload.id]
       const newPos = {
         x: action.payload.point.x - element.x,
         y: action.payload.point.y - element.y
@@ -85,7 +85,7 @@ export const canvas = createSlice({
       }
     },
     closedElement: (state, action: PayloadAction<any>) => {
-      const element = state.items[action.payload.floor].elements[action.payload.indexOfElements]
+      const element = state.items[action.payload.floor].elements[action.payload.id]
       if (action.payload.index === 0) {
         element.points.shift()
       } else {
@@ -93,8 +93,8 @@ export const canvas = createSlice({
       }
       element.closed = true
       const historyItem = {
+        id: action.payload.id,
         type: "closed",
-        indexOfElements: action.payload.indexOfElements,
         index: action.payload.index,
       }
       let history = state.items[action.payload.floor].history.slice(0, state.items[action.payload.floor].historyStep + 1)
@@ -103,12 +103,12 @@ export const canvas = createSlice({
       state.items[action.payload.floor].historyStep++
     },
     moveElement: (state, action: PayloadAction<any>) => {
-      const element = state.items[action.payload.floor].elements[action.payload.indexOfElements]
+      const element = state.items[action.payload.floor].elements[action.payload.id]
       element.x = action.payload.point.x
       element.y = action.payload.point.y
     },
     divideLine: (state, action: PayloadAction<any>) => {
-      const element = state.items[action.payload.floor].elements[action.payload.indexOfElements]
+      const element = state.items[action.payload.floor].elements[action.payload.id]
       element.points.splice(action.payload.index, 0, action.payload.point)
     },
     undo: (state, action: PayloadAction<number>) => {
@@ -117,14 +117,14 @@ export const canvas = createSlice({
       const historyStep = floor.historyStep
       const historyItem = floor.history[historyStep]
       state.items[action.payload].historyStep--
-      const element = floor.elements[historyItem.indexOfElements]
+      const element = floor.elements[historyItem.id]
 
       if (historyItem.type === "closed") {
         element.closed = false
         return
       }
       if (historyItem.type === "add") {
-        floor.elements.splice(historyItem.indexOfElements, 1)
+        delete floor.elements[historyItem.id]
         return
       }
       if (historyItem.type === "addPoint") {
@@ -142,21 +142,21 @@ export const canvas = createSlice({
       floor.historyStep++
       const nextHistoryItem = floor.history[floor.historyStep]
       if (nextHistoryItem.type === "closed") {
-        const element = floor.elements[nextHistoryItem.indexOfElements]
+        const element = floor.elements[nextHistoryItem.id]
         element.closed = true
         return
       }
       if (nextHistoryItem.type === "add") {
-        floor.elements.splice(nextHistoryItem.indexOfElements, 0, nextHistoryItem.element)
+        floor.elements[nextHistoryItem.id] = nextHistoryItem.element
         return
       }
       if (nextHistoryItem.type === "addPoint") {
-        const element = floor.elements[nextHistoryItem.indexOfElements]
+        const element = floor.elements[nextHistoryItem.id]
         element.points.splice(nextHistoryItem.index, 0, nextHistoryItem.element.points[nextHistoryItem.index])
         return
       }
       if (nextHistoryItem.type === "deleteElements") {
-        floor.elements = []
+        floor.elements = {}
         return
       }
     },
@@ -165,16 +165,16 @@ export const canvas = createSlice({
       let historyItem = {}
       if (action.payload.type === "add") {
         historyItem = {
+          id: action.payload.id,
           type: "add",
-          indexOfElements: action.payload.indexOfElements,
-          element: floor.elements[action.payload.indexOfElements]
+          element: floor.elements[action.payload.id]
         }
       } else if (action.payload.type === "addPoint") {
         historyItem = {
+          id: action.payload.id,
           type: "addPoint",
-          indexOfElements: action.payload.indexOfElements,
           index: action.payload.index,
-          element: floor.elements[action.payload.indexOfElements]
+          element: floor.elements[action.payload.id]
         }
       } else if (action.payload.type === "deleteElements") {
         historyItem = {
@@ -191,11 +191,11 @@ export const canvas = createSlice({
     undoMisClick: (state, action: PayloadAction<any>) => {
       const floor = state.items[action.payload.floor]
       if (action.payload.type === "default") {
-        floor.elements.pop()
+        delete floor.elements[action.payload.id]
         return
       } 
       if (action.payload.type === "point") {
-        floor.elements[action.payload.indexOfElements].points.splice(action.payload.index, 1)
+        floor.elements[action.payload.id].points.splice(action.payload.index, 1)
         return
       }
     },
@@ -210,14 +210,20 @@ export const canvas = createSlice({
       }
     },
     rotateElement: (state, action: PayloadAction<any>) => {
-      state.items[action.payload.floor].elements[action.payload.indexOfElements].rotation = action.payload.rotation
+      state.items[action.payload.floor].elements[action.payload.id].rotation = action.payload.rotation
     },
     changeStrokeWidth: (state, action: PayloadAction<any>) => {
-      state.items[action.payload.floor].elements[action.payload.indexOfElements].strokeWidth = action.payload.strokeWidth
+      state.items[action.payload.floor].elements[action.payload.id].strokeWidth = action.payload.strokeWidth
     },
     removeGeneratedRooms: (state, action: PayloadAction<number>) => {
       const elements = state.items[action.payload].elements 
-      state.items[action.payload].elements = elements.filter((element: any) => !element.generated)
+
+      for (const key in elements) {
+        const element = elements[key]
+        if (element.generated) {
+          delete elements[key]
+        }
+      }
     }
   }
 })
@@ -239,7 +245,8 @@ export const {
   copyElements,
   rotateElement,
   changeStrokeWidth,
-  removeGeneratedRooms
+  removeGeneratedRooms,
+  deleteElement
 } = canvas.actions;
 
 export default canvas.reducer;

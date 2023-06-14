@@ -1,14 +1,16 @@
-import Image from 'next/image.js'
-import { useContext, useRef, useState, useEffect } from 'react'
+import { useContext, useState, useEffect } from 'react'
+import { v4 as uuidv4 } from 'uuid';
 import styled from "styled-components"
-import elements from "../../../app/images"
-import { CanvasContext } from "../../../context/canvasContext.jsx"
-import { Container, FlexContainer, FlexRow, FlexRowSpaceBetween, Header, ItemContainer, Text } from "./StyledFunctions.jsx"
+import elements from "../../../../app/images"
+import { CanvasContext } from "../../../../context/canvasContext.jsx"
+import { Container, FlexContainer, FlexRow, FlexRowSpaceBetween, Header, ItemContainer, Text } from "../StyledFunctions.jsx"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
 import { useAppSelector, useAppDispatch } from '@/redux/hooks'
-import * as math from "../../../functions/math.js"
+import * as math from "../../../../functions/math.js"
 import { addElement, removeGeneratedRooms } from '@/redux/features/canvasSlice'
+import HoverDialog from "./HoverDialog.jsx"
+import Images from "./Images.jsx"
 
 
 export default function Items() {
@@ -27,6 +29,7 @@ export default function Items() {
       const rooms = math.generateRooms(canvasState, selectedFloor, num)
       rooms.forEach((room, index) => {
         const rectObject = {
+          id: uuidv4(),
           type: "rectangle",
           x: room.x,
           y: room.y,
@@ -36,9 +39,9 @@ export default function Items() {
           generated: true,
         }
         const dispatchObj = {
+          id: rectObject.id,
           element: rectObject,
           floor: selectedFloor,
-          indexOfElements: canvasState[selectedFloor].elements.length,
         }
         canvasDispatch(addElement(dispatchObj))
       })
@@ -80,7 +83,7 @@ export default function Items() {
           <FlexRow>
             <HoverDialog 
               setSelectedElement={setSelectedElement}
-              src={"doors/door-black.svg"}
+              src={"doors/door.svg"}
               element={elements.doorElements}
               dim={{width: 30, height: 30}}
               margin={0}
@@ -98,75 +101,17 @@ export default function Items() {
         </FlexContainer>
       </ItemContainer>
       <ItemContainer>
-        <Header>Furniture</Header>
+        <Header>Bathroom</Header>
+        <FlexRow>
+          <Images 
+            element={elements.bathroomElements} 
+            setSelectedElement={setSelectedElement}
+            dragging={dragging}/>
+        </FlexRow>
       </ItemContainer>
     </Container>
   )
 }
-
-const HoverDialog = ({ setSelectedElement, src, element, dim, margin, dragging }) => {
-  const [currentList, setCurrentList] = useState([])
-  const visible = useRef(false)
-
-  return (
-    <div
-      onMouseOver={() => { visible.current = true; setCurrentList(element) }}
-      onMouseLeave={() => { visible.current = false; setCurrentList([]) }}
-      style={{ marginLeft: `${margin}px` }}
-    >
-      <Image
-        alt={"elementIcon"}
-        src={src}
-        width={dim.width}
-        height={dim.height}
-        draggable="false"
-      />
-      {currentList.length > 0 && visible && (
-        <ElementContainer>
-          {currentList.map((e, index) => {
-            return (
-              <Image 
-                key={index}
-                alt={e}
-                src={e.src}
-                width={e.width}
-                height={e.height}
-                draggable="true"
-                onDragStart={() => {
-                  dragging[1](true)
-                  setSelectedElement({
-                    type: "element",
-                    src: e.altSrc,
-                    item: e.item
-                  })
-                }}
-                onDragEnd={() => {
-                  dragging[1](false)
-                }}
-                style={{ cursor: "grab", padding: 3 }}
-              />
-            )
-          })}
-        </ElementContainer>
-      )}
-    </div>
-  )
-}
-
-const ElementContainer = styled.div`
-  background: white;
-  position: absolute;
-  top: 72px;
-  z-index: 100;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  max-width: 100px;
-  padding: 10px;
-  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.4);
-  border-radius: 10px;
-  justify-content: space-evenly;
-`
 
 const Input = styled.input`
   max-width: 40px;

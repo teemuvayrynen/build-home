@@ -1,14 +1,16 @@
 import React, { useContext, useState, useEffect, useRef } from "react"
 import styled from "styled-components"
 import { CanvasContext } from "../context/canvasContext"
-import { useAppSelector } from "@/redux/hooks"
+import { useAppSelector, useAppDispatch } from "@/redux/hooks"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faScissors } from '@fortawesome/free-solid-svg-icons'
 import { faTrashCan } from "@fortawesome/free-regular-svg-icons";
+import { deleteElement } from "@/redux/features/canvasSlice"
 
 export default function ContextMenu() {
-  const { contextMenuObj, setContextMenuObj } = useContext(CanvasContext)
+  const { contextMenuObj, setContextMenuObj, setSelectedElement, selectedFloor } = useContext(CanvasContext)
   const canvasState = useAppSelector(state => state.canvas.items)
+  const canvasDispatch = useAppDispatch()
   const elementRef = useRef()
 
   useEffect(() => {
@@ -19,7 +21,9 @@ export default function ContextMenu() {
   }, [contextMenuObj, canvasState])
 
   const handleDelete = () => {
+    canvasDispatch(deleteElement({floor: selectedFloor, id: contextMenuObj.id }))
     setContextMenuObj(null)
+    setSelectedElement(null)
   }
 
   const handleSplit = () => {
@@ -36,7 +40,9 @@ export default function ContextMenu() {
           </FlexRow>
           <hr style={{ margin: 0 }}/>
           <FlexRow onClick={handleDelete} style={{ borderRadius: "0px 0px 8px 8px" }}>
-            <Item>Delete</Item>
+            <Item>
+              Delete
+            </Item>
             <FontAwesomeIcon icon={faTrashCan} />
           </FlexRow>
         </Container>

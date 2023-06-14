@@ -1,23 +1,22 @@
 import styled from 'styled-components';
-import React, { useState, useContext, useEffect, useRef } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { CanvasContext } from '@/context/canvasContext';
-import { useAppSelector } from '@/redux/hooks';
-import { useAppDispatch } from '@/redux/hooks';
-import { changeStrokeWidth } from '@/redux/features/canvasSlice';
+import { useAppSelector, useAppDispatch } from '@/redux/hooks';
+import { changeStrokeWidth, deleteElement } from '@/redux/features/canvasSlice';
 import globals from "../../app/globals"
 
 
 export default function RightBar() {
   const [visible, setVisible] = useState(false);
   const canvasState = useAppSelector(state => state.canvas.items)
-  const { selectedElement, dragging, drawing, selectedFloor } = useContext(CanvasContext)
+  const canvasDispatch = useAppDispatch()
+  const { selectedElement, dragging, drawing, selectedFloor, setSelectedElement } = useContext(CanvasContext)
   const [selected, setSelected] = useState(null)
 
   useEffect(() => {
     if (!dragging[0] && !drawing && selectedElement) {
       setVisible(true)
-      const element = canvasState[selectedFloor].elements[selectedElement.indexOfElements]
-      console.log(selectedElement)
+      const element = canvasState[selectedFloor].elements[selectedElement.id]
       setSelected(element)
     } else {
       setVisible(false)
@@ -52,7 +51,12 @@ export default function RightBar() {
         null
       )}
       {selectedElement && selected && (
-        <DeleteButton>Delete</DeleteButton>
+        <DeleteButton onClick={() => {
+          canvasDispatch(deleteElement({floor: selectedFloor, id: selectedElement.id}))
+          setSelectedElement(null)
+        }}>
+          Delete
+        </DeleteButton>
       )}
     </Container>
   )
@@ -68,9 +72,9 @@ const SelectMenuWall = ({ width, selectedElement }) => {
 
   const handleChange = (e) => {
     canvasDispatch(changeStrokeWidth({
+      id: selectedElement.id,
       strokeWidth: Number(e.target.value),
       floor: selectedElement.floor,
-      indexOfElements: selectedElement.indexOfElements
     }))
     setValue(Number(e.target.value))
   }
@@ -86,7 +90,7 @@ const SelectMenuWall = ({ width, selectedElement }) => {
 }
 
 const Select = styled.select`
-  font-size: 16px;
+  font-size: 14px;
   border: none;
 `
 
@@ -114,6 +118,7 @@ const FlexRow = styled.div`
 const Text = styled.div`
   weight: 400;
   margin: 0;
+  font-size: 14px;
 `
 
 const DeleteButton = styled.button`

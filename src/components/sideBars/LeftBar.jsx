@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import React, { useState, useContext } from 'react';
 import Tools from './pages/Tools.jsx';
-import Items from './pages/Items.jsx';
+import Items from './pages/items/Items.jsx';
 import Info from './pages/Info.jsx';
 import { CanvasContext } from '../../context/canvasContext.jsx';
 
