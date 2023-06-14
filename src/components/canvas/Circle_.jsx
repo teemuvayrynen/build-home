@@ -5,7 +5,7 @@ import { useAppDispatch } from "@/redux/hooks";
 import { movePoint } from "../../redux/features/canvasSlice"
 
 
-export default function Circle_ ({ element, index, indexOfElements, point, drawing, type, dragging }) {
+export default function Circle_ ({ element, index, point, drawing, type, dragging }) {
   const canvasDispatch = useAppDispatch()
   const oldDim = useRef({ x: 0, y: 0 })
   const { activeTool, selectedFloor, setSelectedElement } = useContext(CanvasContext)
@@ -15,9 +15,9 @@ export default function Circle_ ({ element, index, indexOfElements, point, drawi
     if (!dragging[0]) return
     const pos = e.target.getStage().getRelativePointerPosition()
     const dispatchObj = {
+      id: element.id,
       type,
       floor: selectedFloor,
-      indexOfElements: indexOfElements,
       index: index,
       point: pos,
       oldDim: oldDim.current
@@ -44,7 +44,6 @@ export default function Circle_ ({ element, index, indexOfElements, point, drawi
           setSelectedElement({
             id: element.id,
             type: type,
-            indexOfElements: indexOfElements,
             index: index,
           })
           dragging[1](true)

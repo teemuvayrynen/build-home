@@ -3,7 +3,7 @@ import React, { useContext, useRef, useEffect } from 'react';
 import { Stage, Layer, Group, Rect, Image } from 'react-konva';
 import { v4 as uuidv4 } from 'uuid';
 import { CanvasContext } from "../../context/canvasContext.jsx"
-import styled from "styled-components"
+import styled, { keyframes } from "styled-components"
 import Line_, { mouseDownLine, mouseMoveLine, checkIsNearEndOfLine } from "./Line_.jsx"
 import Rect_, { mouseDownRect, mouseMoveRect } from "./Rect_.jsx"
 import InfoBox from "./InfoBox.jsx"
@@ -24,7 +24,7 @@ export default function Canvas() {
   const canvasDispatch = useAppDispatch()
 
   useEffect(() => {
-    console.log("canvasState", canvasState)
+    //console.log("canvasState", canvasState)
   }, [canvasState])
 
   const { 
@@ -65,13 +65,14 @@ export default function Canvas() {
   const checkIsMishap = () => {
     if (selectedElement) {
       if (selectedElement.type === "line") {
-        const element = canvasState[selectedFloor].elements[selectedElement.indexOfElements]
+        const element = canvasState[selectedFloor].elements[selectedElement.id]
         if (element.points.length <= 2) {
           const pos0 = element.points[0]
           const pos1 = element.points[1]
           const distance = math.lengthBetweenPoints(pos0, pos1)
           if (distance < 5) {
             canvasDispatch(undoMisClick({
+              id: selectedElement.id,
               floor: selectedFloor,
               type: "default",
             }))
@@ -88,8 +89,8 @@ export default function Canvas() {
           const distance = math.lengthBetweenPoints(p1, p2)
           if (distance < 5) {
             canvasDispatch(undoMisClick({
+              id: selectedElement.id,
               floor: selectedFloor,
-              indexOfElements: selectedElement.indexOfElements,
               index: selectedElement.index,
               type: "point",
             }))
@@ -97,9 +98,10 @@ export default function Canvas() {
           }
         }
       } else if (selectedElement.type === "rectangle") {
-        const element = canvasState[selectedFloor].elements[selectedElement.indexOfElements]
+        const element = canvasState[selectedFloor].elements[selectedElement.id]
         if (element.width < 5 && element.height < 5) {
           canvasDispatch(undoMisClick({
+            id: selectedElement.id,
             floor: selectedFloor,
             type: "default",
           }))
@@ -132,7 +134,7 @@ export default function Canvas() {
           break;
         case "rectangle":
           setDrawing(true)
-          mouseDownRect(e, canvasState, canvasDispatch, selectedFloor, setSelectedElement, addElement)
+          mouseDownRect(e, canvasDispatch, selectedFloor, setSelectedElement, addElement)
           break;
       }
     }
@@ -170,8 +172,8 @@ export default function Canvas() {
         const notMishap = checkIsMishap()
         if (!notMishap) {
           canvasDispatch(addHistory({
+            id: selectedElement.id,
             floor: selectedFloor,
-            indexOfElements: selectedElement.indexOfElements,
             type: "add"
           }))
         }
@@ -185,17 +187,17 @@ export default function Canvas() {
         if (!isNear) {
           const notMisHap = checkIsMishap()
           if (!notMisHap) {
-            if (canvasState[selectedFloor].elements[selectedElement.indexOfElements].points.length === 2) {
+            if (canvasState[selectedFloor].elements[selectedElement.id].points.length === 2) {
               canvasDispatch(addHistory({
+                id: selectedElement.id,
                 floor: selectedFloor,
-                indexOfElements: selectedElement.indexOfElements,
                 type: "add"
               }))
             } else {
               canvasDispatch(addHistory({
+                id: selectedElement.id,
                 type: "addPoint",
                 floor: selectedFloor,
-                indexOfElements: selectedElement.indexOfElements,
                 index: selectedElement.index,
               }))
             }
@@ -245,14 +247,12 @@ export default function Canvas() {
           const dispatchObj = {
             id: elementObj.id,
             element: elementObj,
-            floor: selectedFloor,
-            indexOfElements: canvasState[selectedFloor].elements.length,
+            floor: selectedFloor
           }
           canvasDispatch(addElement(dispatchObj))
           canvasDispatch(addHistory({
             id: elementObj.id,
             floor: selectedFloor,
-            indexOfElements: canvasState[selectedFloor].elements.length,
             type: "add"
           }))
           dragging[1](false)
@@ -309,7 +309,8 @@ export default function Canvas() {
               }}
             >
               <Group>
-                {canvasState[index].elements.map((element, i) => {
+                {Object.keys(canvasState[index].elements).map((key, i) => {
+                  const element = canvasState[index].elements[key]
                   if (element && element.type === "line") {
                     const points = []
                     element.points.forEach(point => {
@@ -319,7 +320,6 @@ export default function Canvas() {
                     return (
                       <Line_ 
                         key={element.id}
-                        index={i}
                         element={element}
                         points={points}
                         drawing={drawing}
@@ -330,7 +330,6 @@ export default function Canvas() {
                     return (
                       <Rect_ 
                         key={element.id}
-                        index={i}
                         element={element}
                         drawing={drawing}
                         dragging={dragging}

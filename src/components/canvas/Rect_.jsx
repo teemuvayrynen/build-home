@@ -6,7 +6,7 @@ import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { moveElement } from "../../redux/features/canvasSlice"
 import { v4 as uuidv4 } from 'uuid';
 
-export default function Rect_ ({index, element, drawing, dragging}) {
+export default function Rect_ ({ element, drawing, dragging}) {
   const canvasState = useAppSelector(state => state.canvas.items)
   const canvasDispatch = useAppDispatch()
   const {activeTool, selectedFloor, setSelectedElement, selectedElement } = useContext(CanvasContext)
@@ -15,15 +15,15 @@ export default function Rect_ ({index, element, drawing, dragging}) {
   const handleDragEnd = (e) => {
     const pos = e.target.position()
     canvasDispatch(moveElement({
+      id: element.id,
       floor: selectedFloor,
-      indexOfElements: index,
       point: pos
     }))
   }
 
   useEffect(() => {
-    if (canvasState[selectedFloor] && canvasState[selectedFloor].elements[index]) {
-      const e = canvasState[selectedFloor].elements[index]
+    if (canvasState[selectedFloor] && canvasState[selectedFloor].elements[element.id]) {
+      const e = canvasState[selectedFloor].elements[element.id]
       setModifiedPoints([
         {x: e.x, y: e.y},
         {x: e.x + e.width, y: e.y + e.height},
@@ -31,7 +31,7 @@ export default function Rect_ ({index, element, drawing, dragging}) {
         {x: e.x, y: e.y + e.height}
       ])
     }
-  }, [selectedFloor, canvasState, index])
+  }, [selectedFloor, canvasState, element])
 
   return (
     <>
@@ -52,7 +52,6 @@ export default function Rect_ ({index, element, drawing, dragging}) {
           setSelectedElement({
             id: element.id,
             type: "rectangle",
-            indexOfElements: index,
             floor: selectedFloor
           })
         }}
@@ -63,7 +62,6 @@ export default function Rect_ ({index, element, drawing, dragging}) {
             key={i}
             element={element}
             index={i}
-            indexOfElements={index}
             point={point} 
             drawing={drawing}
             type="rectangle"
@@ -75,7 +73,7 @@ export default function Rect_ ({index, element, drawing, dragging}) {
   )
 }
 
-export const mouseDownRect = (e, canvasState, canvasDispatch, selectedFloor, setSelectedElement, addElement) => {
+export const mouseDownRect = (e, canvasDispatch, selectedFloor, setSelectedElement, addElement) => {
   const pos = e.target.getStage().getRelativePointerPosition();
   const rectObject = {
     id: uuidv4(),
@@ -91,21 +89,20 @@ export const mouseDownRect = (e, canvasState, canvasDispatch, selectedFloor, set
     id: rectObject.id,
     element: rectObject,
     floor: selectedFloor,
-    indexOfElements: canvasState[selectedFloor].elements.length,
   }
   canvasDispatch(addElement(dispatchObj))
   setSelectedElement({
+    id: rectObject.id,
     type: "rectangle",
-    indexOfElements: canvasState[selectedFloor].elements.length,
   })
 }
 
 export const mouseMoveRect = (e, canvasDispatch, selectedFloor, selectedElement, movePoint) => {
   const pos = e.target.getStage().getRelativePointerPosition();
   const dispatchObj = {
+    id: selectedElement.id,
     type: "rectangle",
     floor: selectedFloor,
-    indexOfElements: selectedElement.indexOfElements,
     point: pos,
     index: 1
   }

@@ -23,8 +23,8 @@ export default function Image_({ index, element, dragging }) {
   const handleDragEnd = (e) => {
     const pos = e.target.position()
     canvasDispatch(moveElement({
+      id: element.id,
       floor: selectedFloor,
-      indexOfElements: index,
       point: pos
     }))
     dragging[1](false)
@@ -46,15 +46,14 @@ export default function Image_({ index, element, dragging }) {
           setSelectedElement({
             id: element.id,
             type: "element",
-            indexOfElements: index,
             floor: selectedFloor
           })
         }}
         onTransformEnd={() => {
           const node = imageRef.current
           canvasDispatch(rotateElement({
+            id: element.id,
             floor: selectedFloor,
-            indexOfElements: index,
             rotation: node.attrs.rotation
           }))
         }}

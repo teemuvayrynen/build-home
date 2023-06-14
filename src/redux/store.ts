@@ -24,7 +24,7 @@ type CanvasState = {
 const initialState = {
   items: [{
     id: 0,
-    elements: [],
+    elements: {},
     history: [],
     historyStep: -1
   }]

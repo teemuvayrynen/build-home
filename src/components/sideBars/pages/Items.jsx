@@ -1,5 +1,6 @@
 import Image from 'next/image.js'
 import { useContext, useRef, useState, useEffect } from 'react'
+import { v4 as uuidv4 } from 'uuid';
 import styled from "styled-components"
 import elements from "../../../app/images"
 import { CanvasContext } from "../../../context/canvasContext.jsx"
@@ -27,6 +28,7 @@ export default function Items() {
       const rooms = math.generateRooms(canvasState, selectedFloor, num)
       rooms.forEach((room, index) => {
         const rectObject = {
+          id: uuidv4(),
           type: "rectangle",
           x: room.x,
           y: room.y,
@@ -36,9 +38,9 @@ export default function Items() {
           generated: true,
         }
         const dispatchObj = {
+          id: rectObject.id,
           element: rectObject,
           floor: selectedFloor,
-          indexOfElements: canvasState[selectedFloor].elements.length,
         }
         canvasDispatch(addElement(dispatchObj))
       })
