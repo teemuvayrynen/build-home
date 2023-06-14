@@ -17,7 +17,7 @@ const Images = ({ element, setSelectedElement, dragging }) => {
               dragging[1](true)
               setSelectedElement({
                 type: "element",
-                src: e.altSrc,
+                src: e.src,
                 item: e.item
               })
             }}

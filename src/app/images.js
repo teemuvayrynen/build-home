@@ -9,8 +9,7 @@ const doorElements = [{
   width: 30,
   height: 30,
   item: "door"
-}
-]
+}]
 
 const windowElements = [{
     src: "windows/fixed-window.svg",
