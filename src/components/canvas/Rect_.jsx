@@ -40,7 +40,7 @@ export default function Rect_ ({index, element, drawing, dragging}) {
         y={element.y}
         width={element.width}
         height={element.height}
-        stroke={selectedElement && selectedElement.id === element.id ? "#00B3FF" : "black"}
+        stroke={!drawing && !dragging[0] && selectedElement && selectedElement.id === element.id ? "#00B3FF" : "black"}
         strokeWidth={element.strokeWidth}
         shadowColor="grey"
         shadowBlur={4}
@@ -60,7 +60,7 @@ export default function Rect_ ({index, element, drawing, dragging}) {
       {modifiedPoints.map((point, i) => {
         return (
           <Circle_
-            key={uuidv4()}
+            key={i}
             element={element}
             index={i}
             indexOfElements={index}

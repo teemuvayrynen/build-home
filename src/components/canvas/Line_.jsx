@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export default function Line_({index, element, points, drawing, dragging}) {
   const canvasDispatch = useAppDispatch()
-  const { activeTool, selectedFloor, setSelectedElement, selectedElement, setContextMenuObj, setActiveTool } = useContext(CanvasContext)
+  const { activeTool, selectedFloor, setSelectedElement, selectedElement, setContextMenuObj } = useContext(CanvasContext)
 
   const handleDragEnd = (e) => {
     const pos = e.target.position()
@@ -101,14 +101,15 @@ export default function Line_({index, element, points, drawing, dragging}) {
         }
       }
     } else if (activeTool === "default") {
-      setSelectedElement({
-        id: element.id,
-        type: "line",
-        indexOfElements: index,
-        floor: selectedFloor
-      })
+      if (!drawing && !dragging[0]) {
+        setSelectedElement({
+          id: element.id,
+          type: "line",
+          indexOfElements: index,
+          floor: selectedFloor
+        })
+      }
       if (e.evt.button === 2) {
-     
         setContextMenuObj({
           x: e.evt.clientX,
           y: e.evt.clientY,
@@ -125,7 +126,7 @@ export default function Line_({index, element, points, drawing, dragging}) {
         x={element.x}
         y={element.y}
         points={points}
-        stroke={selectedElement && selectedElement.id === element.id ? "#00B3FF" : "black"}
+        stroke={!drawing && !dragging[0] && selectedElement && selectedElement.id === element.id ? "#00B3FF" : "black"}
         strokeWidth={element.strokeWidth}
         shadowColor="grey"
         shadowBlur={4}
@@ -144,7 +145,8 @@ export default function Line_({index, element, points, drawing, dragging}) {
         }
         return (
           <Circle_ 
-            key={uuidv4()}
+            key={i}
+            element={element}
             index={i}
             indexOfElements={index}
             point={temp}

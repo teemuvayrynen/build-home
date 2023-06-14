@@ -29,6 +29,7 @@ export default function Canvas() {
 
   const { 
     activeTool,
+    setActiveTool,
     selectedFloor, 
     setSelectedFloor, 
     selectedElement, 
@@ -286,7 +287,7 @@ export default function Canvas() {
         onMouseUp={handleMouseUp}
         onContextMenu={(e) => {
           e.evt.preventDefault()
-          setContextMenuObj(null)
+          setActiveTool("default")
         }}
       >
         {canvasState.map((level, index) => {

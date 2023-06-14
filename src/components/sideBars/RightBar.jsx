@@ -17,7 +17,6 @@ export default function RightBar() {
     if (!dragging[0] && !drawing && selectedElement) {
       setVisible(true)
       const element = canvasState[selectedFloor].elements[selectedElement.indexOfElements]
-      console.log(selectedElement)
       setSelected(element)
     } else {
       setVisible(false)

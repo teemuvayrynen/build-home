@@ -1,7 +1,7 @@
 import React, { useContext, useState, useRef } from "react"
 import { Circle } from "react-konva"
 import { CanvasContext } from "../../context/canvasContext.jsx"
-import { useAppSelector, useAppDispatch } from "@/redux/hooks";
+import { useAppDispatch } from "@/redux/hooks";
 import { movePoint } from "../../redux/features/canvasSlice"
 
 
@@ -42,6 +42,7 @@ export default function Circle_ ({ element, index, indexOfElements, point, drawi
             }
           }
           setSelectedElement({
+            id: element.id,
             type: type,
             indexOfElements: indexOfElements,
             index: index,
