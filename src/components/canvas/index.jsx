@@ -339,7 +339,6 @@ export default function Canvas() {
                     return (
                       <Image_ 
                         key={element.id}
-                        index={i}
                         element={element}
                         dragging={dragging}
                       />

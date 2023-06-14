@@ -1,31 +1,36 @@
 const doorElements = [{
-  src: "doors/door-black.svg",
-  altSrc: "doors/door-white.svg",
+  src: "doors/door.svg",
   width: 30,
   height: 30,
-  item: "outside-door"
+  item: "door"
 },
 {
-  src: "doors/door-black-mirror.svg",
-  altSrc: "doors/door-white-mirror.svg",
+  src: "doors/door-mirror.svg",
   width: 30,
   height: 30,
-  item: "outside-door"
+  item: "door"
 }
 ]
 
 const windowElements = [{
     src: "windows/fixed-window.svg",
-    altSrc: "windows/fixed-window.svg",
     width: 10,
     height: 30,
     item: "fixed-window"
   }
 ]
 
+const bathroomElements = [{
+  src: "bathroom/toilet.svg",
+  width: 25,
+  height: 35,
+  item: "toilet"
+}]
+
 const elements = {
   doorElements,
-  windowElements
+  windowElements,
+  bathroomElements
 }
 
 export default elements

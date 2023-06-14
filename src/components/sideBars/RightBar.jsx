@@ -1,16 +1,16 @@
 import styled from 'styled-components';
-import React, { useState, useContext, useEffect, useRef } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { CanvasContext } from '@/context/canvasContext';
-import { useAppSelector } from '@/redux/hooks';
-import { useAppDispatch } from '@/redux/hooks';
-import { changeStrokeWidth } from '@/redux/features/canvasSlice';
+import { useAppSelector, useAppDispatch } from '@/redux/hooks';
+import { changeStrokeWidth, deleteElement } from '@/redux/features/canvasSlice';
 import globals from "../../app/globals"
 
 
 export default function RightBar() {
   const [visible, setVisible] = useState(false);
   const canvasState = useAppSelector(state => state.canvas.items)
-  const { selectedElement, dragging, drawing, selectedFloor } = useContext(CanvasContext)
+  const canvasDispatch = useAppDispatch()
+  const { selectedElement, dragging, drawing, selectedFloor, setSelectedElement } = useContext(CanvasContext)
   const [selected, setSelected] = useState(null)
 
   useEffect(() => {
@@ -51,7 +51,12 @@ export default function RightBar() {
         null
       )}
       {selectedElement && selected && (
-        <DeleteButton>Delete</DeleteButton>
+        <DeleteButton onClick={() => {
+          canvasDispatch(deleteElement({floor: selectedFloor, id: selectedElement.id}))
+          setSelectedElement(null)
+        }}>
+          Delete
+        </DeleteButton>
       )}
     </Container>
   )

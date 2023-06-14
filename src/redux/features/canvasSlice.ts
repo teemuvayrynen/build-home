@@ -70,7 +70,7 @@ export const canvas = createSlice({
       state.items[action.payload].elements = {}
     },
     deleteElement: (state, actions: PayloadAction<any>) => {
-
+      delete state.items[actions.payload.floor].elements[actions.payload.id]
     },
     addPoint: (state, action: PayloadAction<any>) => {
       const element = state.items[action.payload.floor].elements[action.payload.id]
@@ -245,7 +245,8 @@ export const {
   copyElements,
   rotateElement,
   changeStrokeWidth,
-  removeGeneratedRooms
+  removeGeneratedRooms,
+  deleteElement
 } = canvas.actions;
 
 export default canvas.reducer;

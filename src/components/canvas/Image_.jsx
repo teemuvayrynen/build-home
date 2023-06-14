@@ -5,7 +5,7 @@ import { useAppDispatch } from '@/redux/hooks'
 import { moveElement, rotateElement } from '@/redux/features/canvasSlice'
 import { CanvasContext } from '@/context/canvasContext'
 
-export default function Image_({ index, element, dragging }) {
+export default function Image_({ element, dragging }) {
   const [img] = useImage(element.src)
   const canvasDispatch = useAppDispatch()
   const { selectedFloor, selectedElement, setSelectedElement, activeTool } = useContext(CanvasContext)
@@ -61,7 +61,6 @@ export default function Image_({ index, element, dragging }) {
       {selectedElement && selectedElement.id === element.id && (
         <Transformer
           ref={trRef}
-          resizeEnabled={false}
         />
       )}
     </>
