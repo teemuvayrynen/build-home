@@ -15,7 +15,7 @@ export default function InfoForLine ({ dragging}) {
       setVisible(false)    
       return 
     }
-    const element = canvasState[selectedFloor].elements[selectedElement.indexOfElements]
+    const element = canvasState[selectedFloor].elements[selectedElement.id]
     if (element.points.length <= 2) { return }
     let currentPoint = null
     let previousPoint = null

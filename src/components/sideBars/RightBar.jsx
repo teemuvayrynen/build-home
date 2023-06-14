@@ -16,8 +16,7 @@ export default function RightBar() {
   useEffect(() => {
     if (!dragging[0] && !drawing && selectedElement) {
       setVisible(true)
-      const element = canvasState[selectedFloor].elements[selectedElement.indexOfElements]
-      console.log(selectedElement)
+      const element = canvasState[selectedFloor].elements[selectedElement.id]
       setSelected(element)
     } else {
       setVisible(false)
@@ -68,9 +67,9 @@ const SelectMenuWall = ({ width, selectedElement }) => {
 
   const handleChange = (e) => {
     canvasDispatch(changeStrokeWidth({
+      id: selectedElement.id,
       strokeWidth: Number(e.target.value),
       floor: selectedElement.floor,
-      indexOfElements: selectedElement.indexOfElements
     }))
     setValue(Number(e.target.value))
   }
@@ -86,7 +85,7 @@ const SelectMenuWall = ({ width, selectedElement }) => {
 }
 
 const Select = styled.select`
-  font-size: 16px;
+  font-size: 14px;
   border: none;
 `
 
@@ -114,6 +113,7 @@ const FlexRow = styled.div`
 const Text = styled.div`
   weight: 400;
   margin: 0;
+  font-size: 14px;
 `
 
 const DeleteButton = styled.button`

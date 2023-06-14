@@ -17,8 +17,8 @@ export default function Info() {
     let wallLength = 0
     let squareMeter = 0
     const elements = canvasState[selectedFloor].elements
-    for (let i = 0; i < elements.length; i++) {
-      const element = elements[i]
+    for (const key in elements) {
+      const element = elements[key]
       switch (element.type) {
         case "element": {
           if (element.item === "fixed-window") {
