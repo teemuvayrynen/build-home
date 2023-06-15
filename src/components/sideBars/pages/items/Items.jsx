@@ -83,7 +83,7 @@ export default function Items() {
           <FlexRow>
             <HoverDialog 
               setSelectedElement={setSelectedElement}
-              src={"doors/door.svg"}
+              src={"/doors/door.svg"}
               element={elements.doorElements}
               dim={{width: 30, height: 30}}
               margin={0}
@@ -91,7 +91,7 @@ export default function Items() {
             />
             <HoverDialog 
               setSelectedElement={setSelectedElement}
-              src={"windows/fixed-window.svg"}
+              src={"/windows/fixed-window.svg"}
               element={elements.windowElements}
               dim={{width: 10, height: 30}}
               margin={20}
