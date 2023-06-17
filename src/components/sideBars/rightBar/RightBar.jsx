@@ -2,8 +2,11 @@ import styled from 'styled-components';
 import React, { useState, useContext, useEffect } from 'react';
 import { CanvasContext } from '@/context/canvasContext';
 import { useAppSelector, useAppDispatch } from '@/redux/hooks';
-import { changeStrokeWidth, deleteElement } from '@/redux/features/canvasSlice';
-import globals from "../../app/globals"
+import globals from "../../../app/globals"
+import { rotateElement, changeRectDim, deleteElement } from '@/redux/features/canvasSlice';
+import SelectMenuWall from "./SelectMenuWall"
+import * as math from "@/functions/math"
+import BarItemsForLine from "./BarItemsForLine.jsx"
 
 
 export default function RightBar() {
@@ -27,10 +30,19 @@ export default function RightBar() {
   return (
     <Container visible={visible ? 1 : 0}>
       {selectedElement && selectedElement.type === "element" && (
-        null
+        <FlexRow>
+          <Text>Rotation:</Text>
+          <Input type="number" value={selected ? Math.round(selected.rotation * 100) / 100 : 0} onChange={e => {
+            canvasDispatch(rotateElement({
+              id: selectedElement.id,
+              floor: selectedFloor,
+              rotation: e.target.value
+            }))
+          }} />
+        </FlexRow>
       )}
       {selectedElement && selected && selectedElement.type !== "element" && (
-        <FlexRow>
+        <FlexRow style={{ padding: 15 }}>
           <Text>Wall:</Text>
           <SelectMenuWall width={selected.strokeWidth} selectedElement={selectedElement} />
         </FlexRow>
@@ -39,16 +51,45 @@ export default function RightBar() {
         <>
           <FlexRow>
             <Text>Width:</Text>
-            <Text>{Math.round(selected.width / globals.lengthParameter * 100) / 100}</Text>
+            <Input type="number" value={selected ? Math.round(selected.width / globals.lengthParameter * 100) / 100 : 0} onChange={e => {
+              canvasDispatch(changeRectDim({
+                id: selectedElement.id,
+                floor: selectedFloor,
+                width: e.target.value * globals.lengthParameter,
+                height: selected.height
+              }))
+            }} />
           </FlexRow>
           <FlexRow>
             <Text>Height:</Text>
-            <Text>{Math.round(selected.height / globals.lengthParameter * 100) / 100}</Text>
+            <Input type="number" value={selected ? Math.round(selected.height / globals.lengthParameter * 100) / 100 : 0} onChange={e => {
+              canvasDispatch(changeRectDim({
+                id: selectedElement.id,
+                floor: selectedFloor,
+                width: selected.width,
+                height: e.target.value * globals.lengthParameter
+              }))
+            }} />
           </FlexRow>
         </>
       )}
       {selectedElement && selected && selectedElement.type === "line" && (
-        null
+        <>
+          {selected.points && selected.points.map((point, index) => {
+            if (index < selected.points.length - 1) {
+              return (
+                <BarItemsForLine 
+                  key={index} 
+                  index={index} 
+                  point={point} 
+                  selected={selected}
+                  selectedElement={selectedElement}
+                  selectedFloor={selectedFloor}
+                />
+              )
+            }
+          })}
+        </>
       )}
       {selectedElement && selected && (
         <DeleteButton onClick={() => {
@@ -62,38 +103,6 @@ export default function RightBar() {
   )
 }
 
-const SelectMenuWall = ({ width, selectedElement }) => {
-  const canvasDispatch = useAppDispatch()
-  const [value, setValue] = useState(width)
-
-  useEffect(() => {
-    setValue(width)
-  }, [width])
-
-  const handleChange = (e) => {
-    canvasDispatch(changeStrokeWidth({
-      id: selectedElement.id,
-      strokeWidth: Number(e.target.value),
-      floor: selectedElement.floor,
-    }))
-    setValue(Number(e.target.value))
-  }
-
-  return (
-    <>
-      <Select value={value} onChange={handleChange}>
-        <option value={10}>Outer wall</option>
-        <option value={5}>Inside wall</option>
-      </Select>
-    </>
-  )
-}
-
-const Select = styled.select`
-  font-size: 14px;
-  border: none;
-`
-
 const Container = styled.div`
   position: fixed;
   width: 250px;
@@ -105,14 +114,16 @@ const Container = styled.div`
   transition: 0.2s ease-in-out;
   display: flex;
   flex-direction: column;
+  overflow-y: scroll;
 `
 
 const FlexRow = styled.div`
   display: flex;
   flex-direction: row;
-  padding: 20px;
+  padding: 10px;
   border-bottom: 1px solid #e8e8e8;
   justify-content: space-between;
+  align-items: center;
 `
 
 const Text = styled.div`
@@ -130,10 +141,21 @@ const DeleteButton = styled.button`
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
-  margin: 20px 15px;
+  margin: 0px 15px;
+  margin-top: 20px;
+  margin-bottom: 100px;
   color: white;
   &:hover {
     background: #ff4d4d;
   }
+`
+
+const Input = styled.input`
+  border: none;
+  padding: 8px;
+  font-size: 14px;
+  width: 70px;
+  box-shadow: 0px 0px 2px rgba(0, 0, 0.3);
+  border-radius: 6px;
 `
 

@@ -38,11 +38,13 @@ export default function Circle_ ({ element, index, point, drawing, type, draggin
 
   const handleDrag = (e) => {
     if (!dragging[0]) return
-    const angle = getAngle()
     const pos = e.target.getStage().getRelativePointerPosition()
-
-    if (angle === 90 || angle === 0) {
-      if (math.lengthBetweenPoints(point, pos) < 10) return 
+    
+    if (element.type === "line") {
+      const angle = getAngle()
+      if (angle === 90 || angle === 0) {
+        if (math.lengthBetweenPoints(point, pos) < 10) return 
+      }
     }
     
     const dispatchObj = {
@@ -55,9 +57,6 @@ export default function Circle_ ({ element, index, point, drawing, type, draggin
     }
     canvasDispatch(movePoint(dispatchObj))
     e.target.getLayer().batchDraw()
-
-
-
   }
 
   return (

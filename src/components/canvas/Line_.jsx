@@ -12,7 +12,7 @@ export default function Line_({element, points, drawing, dragging}) {
   const { activeTool, selectedFloor, setSelectedElement, selectedElement, setContextMenuObj } = useContext(CanvasContext)
 
   const handleDragEnd = (e) => {
-    const pos = e.target
+    const pos = e.target.position()
     canvasDispatch(moveElement({
       id: element.id,
       floor: selectedFloor,
