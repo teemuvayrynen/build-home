@@ -1,18 +1,18 @@
 const doorElements = [{
-  src: "doors/door.svg",
+  src: "/doors/door.svg",
   width: 30,
   height: 30,
   item: "door"
 },
 {
-  src: "doors/door-mirror.svg",
+  src: "/doors/door-mirror.svg",
   width: 30,
   height: 30,
   item: "door"
 }]
 
 const windowElements = [{
-    src: "windows/fixed-window.svg",
+    src: "/windows/fixed-window.svg",
     width: 10,
     height: 30,
     item: "fixed-window"
@@ -20,7 +20,7 @@ const windowElements = [{
 ]
 
 const bathroomElements = [{
-  src: "bathroom/toilet.svg",
+  src: "/bathroom/toilet.svg",
   width: 25,
   height: 35,
   item: "toilet"
