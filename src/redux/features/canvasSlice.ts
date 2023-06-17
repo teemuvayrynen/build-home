@@ -224,6 +224,10 @@ export const canvas = createSlice({
           delete elements[key]
         }
       }
+    },
+    changeRectDim: (state, action: PayloadAction<any>) => {
+      state.items[action.payload.floor].elements[action.payload.id].width = action.payload.width
+      state.items[action.payload.floor].elements[action.payload.id].height = action.payload.height
     }
   }
 })
@@ -246,7 +250,8 @@ export const {
   rotateElement,
   changeStrokeWidth,
   removeGeneratedRooms,
-  deleteElement
+  deleteElement,
+  changeRectDim
 } = canvas.actions;
 
 export default canvas.reducer;

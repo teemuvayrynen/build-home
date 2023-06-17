@@ -5,6 +5,26 @@ export const lengthBetweenPoints = (a, b) => {
   return l
 }
 
+export const getNewPointByLength = (a, b, l) => {
+  const length = l * globals.lengthParameter
+  let initialLength = lengthBetweenPoints(a, b)
+  if (initialLength === 0) {
+    initialLength = 0.2
+  }
+  console.log(length)
+  const dirX = (b.x - a.x) / initialLength
+  const dirY = (b.y - a.y) / initialLength
+
+  const pos = {
+    x: a.x + dirX * length,
+    y: a.y + dirY * length
+  }
+
+  console.log(pos)
+
+  return pos
+}
+
 export const lengthBetweenPointsMeters = (a, b) => {
   const l = lengthBetweenPoints(a, b)
   return Math.round(l / globals.lengthParameter * 100) / 100

@@ -3,13 +3,14 @@ import React, { useContext, useRef, useEffect } from 'react';
 import { Stage, Layer, Group, Rect, Image } from 'react-konva';
 import { v4 as uuidv4 } from 'uuid';
 import { CanvasContext } from "../../context/canvasContext.jsx"
-import styled, { keyframes } from "styled-components"
+import styled from "styled-components"
 import Line_, { mouseDownLine, mouseMoveLine, checkIsNearEndOfLine } from "./Line_.jsx"
 import Rect_, { mouseDownRect, mouseMoveRect } from "./Rect_.jsx"
 import InfoBox from "./InfoBox.jsx"
 import InfoForLine from "./InfoForLine.jsx"
+import LineSelected from "./LineSelected.jsx"
 import Image_ from "./Image_.jsx"
-import RightBar from "../sideBars/RightBar.jsx"
+import RightBar from "../sideBars/rightBar/RightBar.jsx"
 import LevelButton from "../buttons/LevelButton.jsx"
 import * as math from "../../functions/math"
 import ContextMenu from "../ContextMenu.jsx"
@@ -24,7 +25,7 @@ export default function Canvas() {
   const canvasDispatch = useAppDispatch()
 
   useEffect(() => {
-    //console.log("canvasState", canvasState)
+    console.log("canvasState", canvasState)
   }, [canvasState])
 
   const { 
@@ -351,6 +352,7 @@ export default function Canvas() {
         })}
         <Layer>
           <InfoForLine dragging={dragging[0]} />
+          <LineSelected />
           <Rect 
             ref={selectionRectRef}
             fill="rgba(0, 161, 255, 0.3)"
