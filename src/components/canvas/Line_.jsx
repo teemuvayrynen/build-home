@@ -1,5 +1,5 @@
-import React, { useContext, useRef } from "react"
-import { Line, Group } from "react-konva"
+import React, { useContext } from "react"
+import { Line, Group, Shape } from "react-konva"
 import { CanvasContext } from "../../context/canvasContext.jsx"
 import * as math from "../../functions/math"
 import Circle_ from "./Circle_.jsx"
@@ -7,12 +7,12 @@ import { useAppDispatch } from "@/redux/hooks";
 import { moveElement, divideLine, addHistory } from "../../redux/features/canvasSlice"
 import { v4 as uuidv4 } from 'uuid';
 
-export default function Line_({index, element, points, drawing, dragging}) {
+export default function Line_({element, points, drawing, dragging}) {
   const canvasDispatch = useAppDispatch()
   const { activeTool, selectedFloor, setSelectedElement, selectedElement, setContextMenuObj } = useContext(CanvasContext)
 
   const handleDragEnd = (e) => {
-    const pos = e.target.position()
+    const pos = e.target
     canvasDispatch(moveElement({
       id: element.id,
       floor: selectedFloor,
@@ -118,6 +118,7 @@ export default function Line_({index, element, points, drawing, dragging}) {
       } 
     }
   }
+  
 
   return (
     <Group>
@@ -137,6 +138,33 @@ export default function Line_({index, element, points, drawing, dragging}) {
         hitStrokeWidth={10}
         onClick={handleClick}
       />
+      {/* <Shape 
+        sceneFunc={(context, shape) => {
+          context.beginPath()
+          context.moveTo(element.x, element.y)
+          
+          for (let i = 1; i < element.points.length; i++) {
+            const point = element.points[i]
+            context.lineTo(element.x + point.x, element.y + point.y)
+            context.stroke()
+          }
+
+          if (element.closed) {
+            context.closePath()
+          }
+          context.fillStrokeShape(shape)
+        }}
+        stroke={!drawing && !dragging[0] && selectedElement && selectedElement.id === element.id ? "#00B3FF" : "black"}
+        strokeWidth={element.strokeWidth}
+        shadowColor="grey"
+        shadowBlur={4}
+        shadowOffset={{ x: 2, y: 1 }}
+        shadowOpacity={0.3}
+        draggable={activeTool == "default" ? true : false}
+        onDragEnd={handleDragEnd}
+        hitStrokeWidth={10}
+        onClick={handleClick}
+      /> */}
       {element.points.map((point, i) => {
         const temp = {
           x: point.x + element.x,
@@ -200,7 +228,9 @@ export const mouseDownLine = (e, canvasState, canvasDispatch, selectedFloor, set
     points: [{x: 0, y: 0}, {x: 0, y: 0}],
     x: pos.x,
     y: pos.y,
-    strokeWidth: 10
+    strokeWidth: 10,
+    originalX: pos.x,
+    originalY: pos.y
   }
   const dispatchObj = {
     id: lineObject.id,

@@ -24,7 +24,7 @@ export default function Canvas() {
   const canvasDispatch = useAppDispatch()
 
   useEffect(() => {
-    //console.log("canvasState", canvasState)
+    console.log("canvasState", canvasState)
   }, [canvasState])
 
   const { 

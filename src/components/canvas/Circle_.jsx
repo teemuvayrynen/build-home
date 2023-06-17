@@ -3,6 +3,7 @@ import { Circle } from "react-konva"
 import { CanvasContext } from "../../context/canvasContext.jsx"
 import { useAppDispatch } from "@/redux/hooks";
 import { movePoint } from "../../redux/features/canvasSlice"
+import * as math from "../../functions/math.js"
 
 
 export default function Circle_ ({ element, index, point, drawing, type, dragging }) {
@@ -11,9 +12,39 @@ export default function Circle_ ({ element, index, point, drawing, type, draggin
   const { activeTool, selectedFloor, setSelectedElement } = useContext(CanvasContext)
   const [visible, setVisible] = useState(false)
 
+  const getAngle = () => {
+    let angle = -1
+    if (index !== element.points.length - 1) {
+      angle = math.findLineAngle({
+        x: element.x + element.points[index].x,
+        y: element.y + element.points[index].y
+      },
+      {
+        x: element.x + element.points[index + 1].x,
+        y: element.y + element.points[index + 1].y
+      })
+    } else {
+      angle = math.findLineAngle({
+        x: element.x + element.points[index - 1].x,
+        y: element.y + element.points[index - 1].y
+      },
+      {
+        x: element.x + element.points[index].x,
+        y: element.y + element.points[index].y
+      })
+    }
+    return angle
+  }
+
   const handleDrag = (e) => {
     if (!dragging[0]) return
+    const angle = getAngle()
     const pos = e.target.getStage().getRelativePointerPosition()
+
+    if (angle === 90 || angle === 0) {
+      if (math.lengthBetweenPoints(point, pos) < 10) return 
+    }
+    
     const dispatchObj = {
       id: element.id,
       type,
@@ -24,6 +55,9 @@ export default function Circle_ ({ element, index, point, drawing, type, draggin
     }
     canvasDispatch(movePoint(dispatchObj))
     e.target.getLayer().batchDraw()
+
+
+
   }
 
   return (
