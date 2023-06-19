@@ -122,32 +122,21 @@ export default function Line_({element, points, drawing, dragging}) {
 
   return (
     <Group>
-      <Line
-        x={element.x}
-        y={element.y}
-        points={points}
-        stroke={!drawing && !dragging[0] && selectedElement && selectedElement.id === element.id ? "#00B3FF" : "black"}
-        strokeWidth={element.strokeWidth}
-        shadowColor="grey"
-        shadowBlur={4}
-        shadowOffset={{ x: 2, y: 1 }}
-        shadowOpacity={0.3}
-        closed={element.closed}
-        draggable={activeTool == "default" ? true : false}
-        onDragEnd={handleDragEnd}
-        hitStrokeWidth={10}
-        onClick={handleClick}
-      />
-      {/* <Shape 
+      <Shape 
         sceneFunc={(context, shape) => {
           context.beginPath()
           context.moveTo(element.x, element.y)
           
           for (let i = 1; i < element.points.length; i++) {
             const point = element.points[i]
-            context.lineTo(element.x + point.x, element.y + point.y)
-            context.stroke()
+            if (point.bezier) {
+              
+            } else {
+              context.lineTo(element.x + point.x, element.y + point.y)
+            }
+            
           }
+          context.stroke()
 
           if (element.closed) {
             context.closePath()
@@ -164,7 +153,7 @@ export default function Line_({element, points, drawing, dragging}) {
         onDragEnd={handleDragEnd}
         hitStrokeWidth={10}
         onClick={handleClick}
-      /> */}
+      />
       {element.points.map((point, i) => {
         const temp = {
           x: point.x + element.x,
@@ -225,7 +214,7 @@ export const mouseDownLine = (e, canvasState, canvasDispatch, selectedFloor, set
     id: uuidv4(),
     type: "line",
     closed: false,
-    points: [{x: 0, y: 0}, {x: 0, y: 0}],
+    points: [{x: 0, y: 0, bezier: false}, {x: 0, y: 0, bezier: false}],
     x: pos.x,
     y: pos.y,
     strokeWidth: 10,

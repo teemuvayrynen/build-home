@@ -15,6 +15,8 @@ const LineSelected = () => {
     if (selectedElement.type !== "line") return
 
     const element = canvasState[selectedFloor].elements[selectedElement.id]
+    if (!element) return
+    
     let arr = []
     for (let i = 0; i < element.points.length - 1; i++) {
       const p1 = {
