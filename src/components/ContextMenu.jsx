@@ -3,7 +3,7 @@ import styled from "styled-components"
 import { CanvasContext } from "../context/canvasContext"
 import { useAppSelector, useAppDispatch } from "@/redux/hooks"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faScissors } from '@fortawesome/free-solid-svg-icons'
+import { faScissors, faLock, faLayerGroup } from '@fortawesome/free-solid-svg-icons'
 import { faTrashCan } from "@fortawesome/free-regular-svg-icons";
 import { deleteElement } from "@/redux/features/canvasSlice"
 
@@ -39,10 +39,18 @@ export default function ContextMenu() {
             <FontAwesomeIcon icon={faScissors} />
           </FlexRow>
           <hr style={{ margin: 0 }}/>
+          <FlexRow onClick={handleDelete} style={{ borderRadius: "0px 0px 0px 0px" }}>
+            <Item>Lock</Item>
+            <FontAwesomeIcon icon={faLock} />
+          </FlexRow>
+          <hr style={{ margin: 0 }}/>
+          <FlexRow onClick={handleDelete} style={{ borderRadius: "0px 0px 0px 0px" }}>
+            <Item>Group</Item>
+            <FontAwesomeIcon icon={faLayerGroup} />
+          </FlexRow>
+          <hr style={{ margin: 0 }}/>
           <FlexRow onClick={handleDelete} style={{ borderRadius: "0px 0px 8px 8px" }}>
-            <Item>
-              Delete
-            </Item>
+            <Item>Delete</Item>
             <FontAwesomeIcon icon={faTrashCan} />
           </FlexRow>
         </Container>

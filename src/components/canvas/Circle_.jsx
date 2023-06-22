@@ -41,9 +41,12 @@ export default function Circle_ ({ element, index, point, drawing, type, draggin
     const pos = e.target.getStage().getRelativePointerPosition()
     
     if (element.type === "line") {
-      const angle = getAngle()
+      let angle = getAngle()
+      angle = Math.abs(angle)
       if (angle === 90 || angle === 0) {
-        if (math.lengthBetweenPoints(point, pos) < 10) return 
+        if (math.lengthBetweenPoints(point, pos) < 20) {
+          return
+        }
       }
     }
     

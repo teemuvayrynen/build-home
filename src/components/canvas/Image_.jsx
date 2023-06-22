@@ -39,7 +39,7 @@ export default function Image_({ element, dragging }) {
         y={element.y}
         rotation={element.rotation}
         image={img}
-        draggable={activeTool === "default" ? true : false}
+        draggable={activeTool === "default" && !element.locked ? true : false}
         onDragStart={() => { dragging[1](true) }}
         onDragEnd={e => { handleDragEnd(e) }}
         onClick={() => {

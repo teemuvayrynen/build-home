@@ -71,6 +71,48 @@ export const calcPolygonArea = (element) => {
   return Math.abs(area / 2)
 }
 
+const handleLineCalculaions = (element, pos, i, j) => {
+  const p1 = {
+    x: element.points[i].x + element.x,
+    y: element.points[i].y + element.y
+  }
+  const p2 = {
+    x: element.points[j].x + element.x,
+    y: element.points[j].y + element.y
+  }
+  const l = lengthBetweenPoints(p1, p2)
+  const l1 = lengthBetweenPoints(pos, p1)
+  const l2 = lengthBetweenPoints(pos, p2)
+  if (Math.abs(l1 + l2 - l) < 5) {
+    return true
+  }
+  return false
+}
+
+export const getLine = (element, pos) => {
+  let index = -1
+
+  for (let i = 0; i < element.points.length; i++) {
+    if (i <= element.points.length - 2) {
+      const found = handleLineCalculaions(element, pos, i, i + 1)
+      if (found) {
+        index = i
+        break
+      }
+    }
+  }
+
+
+  if (element.closed && index === -1) {
+    const found = handleLineCalculaions(element, pos, element.points.length - 1, 0)
+    if (found) {
+      index = element.points.length - 1
+    }
+  }
+
+  return index 
+}
+
 export function calculateArea(element) {
   const points = element.points;
   const numPoints = points.length;
