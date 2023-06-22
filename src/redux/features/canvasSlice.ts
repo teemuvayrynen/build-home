@@ -63,7 +63,8 @@ export const canvas = createSlice({
           x: action.payload.point.x - element.x,
           y: action.payload.point.y - element.y
         }
-        element.points[action.payload.index] = newPos
+        element.points[action.payload.index].x = newPos.x
+        element.points[action.payload.index].y = newPos.y
       }
     },
     deleteElements: (state, action: PayloadAction<number>) => {
@@ -76,7 +77,8 @@ export const canvas = createSlice({
       const element = state.items[action.payload.floor].elements[action.payload.id]
       const newPos = {
         x: action.payload.point.x - element.x,
-        y: action.payload.point.y - element.y
+        y: action.payload.point.y - element.y,
+        bezier: false
       }
       if (action.payload.index === 0) {
         element.points.unshift(newPos)

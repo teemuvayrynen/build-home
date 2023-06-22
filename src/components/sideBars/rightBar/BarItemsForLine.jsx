@@ -1,25 +1,34 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import styled from "styled-components"
 
 import { useAppDispatch } from '@/redux/hooks';
 import * as math from "@/functions/math"
 import { movePoint } from '@/redux/features/canvasSlice';
 
-const BarItemsForLine = ({ selected, index, point, selectedElement, selectedFloor }) => {
-  const [length, setLength] = useState(() => {
-    const p1 = {
-      x: selected.x + point.x,
-      y: selected.y + point.y
-    }
-    const p2 = {
-      x: selected.x + selected.points[index + 1].x,
-      y: selected.y + selected.points[index + 1].y
-    }
+const BarItemsForLine = ({ selected, index, point, selectedElement, selectedFloor, closed }) => {
+  const [length, setLength] = useState()
+  let secondIndex = null
+  if (index === selected.points.length - 1 && closed) {
+    secondIndex = 0
+  } else {
+    secondIndex = index + 1
+  }
 
-    return math.lengthBetweenPointsMeters(p1, p2)
-  })
+  const p1 = {
+    x: selected.x + point.x,
+    y: selected.y + point.y
+  }
+  const p2 = {
+    x: selected.x + selected.points[secondIndex].x,
+    y: selected.y + selected.points[secondIndex].y
+  }
+  let temp = math.lengthBetweenPointsMeters(p1, p2)
+    
+  useEffect(() => {
+    setLength(temp)
+  }, [temp])
+    
   const canvasDispatch = useAppDispatch()
-
 
   return (
     <FlexRow style={{ paddingLeft: 20, paddingRight: 20 }}>
@@ -34,8 +43,8 @@ const BarItemsForLine = ({ selected, index, point, selectedElement, selectedFloo
               y: selected.y + point.y
             }
             const p2 = {
-              x: selected.x + selected.points[index + 1].x,
-              y: selected.y + selected.points[index + 1].y
+              x: selected.x + selected.points[secondIndex].x,
+              y: selected.y + selected.points[secondIndex].y
             }
             const p = math.getNewPointByLength(p1, p2, length)
             canvasDispatch(movePoint({
@@ -43,7 +52,7 @@ const BarItemsForLine = ({ selected, index, point, selectedElement, selectedFloo
               id: selectedElement.id,
               floor: selectedFloor,
               point: p,
-              index: index + 1
+              index: index === selected.points.length - 1 ? 0 : index + 1
             }))
           }
         }}

@@ -4,7 +4,7 @@ import { CanvasContext } from "../../context/canvasContext.jsx"
 import * as math from "../../functions/math"
 import { useAppSelector } from "@/redux/hooks";
 
-export default function InfoForLine ({ dragging}) {
+export default function InfoForLine ({ dragging }) {
   const canvasState = useAppSelector(state => state.canvas.items)
   const { selectedFloor, selectedElement } = useContext(CanvasContext);
   const items = useRef([])
