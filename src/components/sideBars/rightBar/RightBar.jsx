@@ -10,7 +10,7 @@ import BarItemsForLine from "./BarItemsForLine.jsx"
 
 
 export default function RightBar() {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(false)
   const canvasState = useAppSelector(state => state.canvas.items)
   const canvasDispatch = useAppDispatch()
   const { selectedElement, dragging, drawing, selectedFloor, setSelectedElement } = useContext(CanvasContext)
@@ -75,16 +75,18 @@ export default function RightBar() {
       )}
       {selectedElement && selected && selectedElement.type === "line" && (
         <>
-          {selected.points && selected.points.map((point, index) => {
-            if (index < selected.points.length - 1) {
+          {selectedElement.indexes && selectedElement.indexes.map((item, index) => {
+            const point = selected.points[item]
+            if (item !== selected.points.length - 1 || selected.closed) {
               return (
                 <BarItemsForLine 
                   key={index} 
-                  index={index} 
+                  index={item} 
                   point={point} 
                   selected={selected}
                   selectedElement={selectedElement}
                   selectedFloor={selectedFloor}
+                  closed={selected.closed}
                 />
               )
             }

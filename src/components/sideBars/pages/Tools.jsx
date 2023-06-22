@@ -8,9 +8,10 @@ import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { deleteElements, addHistory, deleteLevel } from "../../../redux/features/canvasSlice"
 import PopUpDialog from "../../PopUpDialog.jsx";
 import { Container, ItemContainer, Header } from "./StyledFunctions.jsx"
+import { useKeyDown, useKeyUp } from "@/hooks/useKeyDownAndUp.jsx"
 
 export default function Tools() {
-  const { activeTool, setActiveTool, selectedFloor, setSelectedFloor } = useContext(CanvasContext);
+  const { activeTool, setActiveTool, selectedFloor, setSelectedFloor, setSelectedElement } = useContext(CanvasContext);
   const [popUpVisible, setPopUpVisible] = useState(false)
   const canvasDispatch = useAppDispatch()
   const canvasState = useAppSelector(state => state.canvas.items)
@@ -26,6 +27,16 @@ export default function Tools() {
   const handleCancelClick = () => {
     setPopUpVisible(false)
   }
+
+  // Handle space button = 32
+  useKeyDown(() => {
+    setActiveTool("move")
+  }, [32]);
+
+  useKeyUp(() => {
+    setActiveTool("default")
+  }, [])
+
 
   return (
     <>
@@ -95,6 +106,7 @@ export default function Tools() {
                   floor: selectedFloor,
                 }))
                 canvasDispatch(deleteElements(selectedFloor))
+                setSelectedElement(null)
               }}>
                 <FontAwesomeIcon icon={faTrash} fixedWidth/>
               </Tool>

@@ -28,6 +28,7 @@ export default function Canvas() {
     console.log("canvasState", canvasState)
   }, [canvasState])
 
+
   const { 
     activeTool,
     setActiveTool,
@@ -49,6 +50,15 @@ export default function Canvas() {
   })
   const selectionRectRef = useRef()
   const windowSize = useWindowSize() 
+
+  useEffect(() => {
+    const container = stageRef.current.container();
+    if (activeTool === "move") {
+      container.style.cursor = "move";
+    } else {
+      container.style.cursor = "default";
+    }
+  }, [activeTool])
 
 
   const updateSelectionRect = () => {
@@ -243,7 +253,9 @@ export default function Canvas() {
             x: pos.x,
             y: pos.y,
             rotation: 0,
-            item: selectedElement.item
+            item: selectedElement.item,
+            group: null,
+            locked: false
           }
           const dispatchObj = {
             id: elementObj.id,
@@ -273,16 +285,6 @@ export default function Canvas() {
         height={windowSize.height}
         style={{ background: "rgb(240, 240, 240)" }}
         draggable={activeTool === "move" ? true : false}
-        onMouseEnter={e => {
-          if (activeTool === "move") {
-            const container = e.target.getStage().container();
-            container.style.cursor = "move";
-          }
-        }}
-        onMouseLeave={e => {
-          const container = e.target.getStage().container();
-          container.style.cursor = "default";
-        }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -313,16 +315,10 @@ export default function Canvas() {
                 {Object.keys(canvasState[index].elements).map((key, i) => {
                   const element = canvasState[index].elements[key]
                   if (element && element.type === "line") {
-                    const points = []
-                    element.points.forEach(point => {
-                      points.push(point.x)
-                      points.push(point.y)
-                    })
                     return (
                       <Line_ 
                         key={element.id}
                         element={element}
-                        points={points}
                         drawing={drawing}
                         dragging={dragging}
                       />

@@ -14,6 +14,7 @@ export default function Rect_ ({ element, drawing, dragging}) {
 
   const handleDragEnd = (e) => {
     const pos = e.target.position()
+    console.log(pos)
     canvasDispatch(moveElement({
       id: element.id,
       floor: selectedFloor,
@@ -46,7 +47,7 @@ export default function Rect_ ({ element, drawing, dragging}) {
         shadowBlur={4}
         shadowOffset={{ x: 2, y: 1 }}
         shadowOpacity={0.3}
-        draggable={activeTool == "default" ? true : false}
+        draggable={activeTool === "default" && !element.locked ? true : false}
         onDragEnd={handleDragEnd}
         onClick={() => {
           setSelectedElement({
@@ -84,6 +85,8 @@ export const mouseDownRect = (e, canvasDispatch, selectedFloor, setSelectedEleme
     height: 0,
     strokeWidth: 10,
     generated: false,
+    group: null,
+    locked: false
   }
   const dispatchObj = {
     id: rectObject.id,

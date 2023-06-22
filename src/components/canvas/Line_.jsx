@@ -1,4 +1,4 @@
-import React, { useContext } from "react"
+import React, { useContext, useRef } from "react"
 import { Line, Group, Shape } from "react-konva"
 import { CanvasContext } from "../../context/canvasContext.jsx"
 import * as math from "../../functions/math"
@@ -7,7 +7,7 @@ import { useAppDispatch } from "@/redux/hooks";
 import { moveElement, divideLine, addHistory } from "../../redux/features/canvasSlice"
 import { v4 as uuidv4 } from 'uuid';
 
-export default function Line_({element, points, drawing, dragging}) {
+export default function Line_({element, drawing, dragging}) {
   const canvasDispatch = useAppDispatch()
   const { activeTool, selectedFloor, setSelectedElement, selectedElement, setContextMenuObj } = useContext(CanvasContext)
 
@@ -21,9 +21,9 @@ export default function Line_({element, points, drawing, dragging}) {
   }
 
   const handleClick = (e) => {
+    const stage = e.target.getStage()
+    const pos = stage.getRelativePointerPosition()
     if (activeTool === "divide") {
-      const stage = e.target.getStage()
-      const pos = stage.getRelativePointerPosition()
       const p = {
         x: pos.x - element.x,
         y: pos.y - element.y
@@ -42,72 +42,25 @@ export default function Line_({element, points, drawing, dragging}) {
           index: 1
         }))
       } else {
-        for (let i = 0; i < element.points.length; ++i) {
-          if (i <= element.points.length - 2) {
-            const p1 = {
-              x: element.points[i].x + element.x,
-              y: element.points[i].y + element.y
-            }
-            const p2 = {
-              x: element.points[i + 1].x + element.x,
-              y: element.points[i + 1].y + element.y
-            }
-            const l = math.lengthBetweenPoints(p1, p2)
-            const l1 = math.lengthBetweenPoints(pos, p1)
-            const l2 = math.lengthBetweenPoints(pos, p2)
-            if (Math.abs(l1 + l2 - l) < 5) {
-              canvasDispatch(divideLine({
-                id: element.id,
-                floor: selectedFloor,
-                point: p,
-                index: i + 1
-              }))
-              canvasDispatch(addHistory({
-                id: element.id,
-                type: "addPoint",
-                floor: selectedFloor,
-                index: i + 1
-              }))
-              break
-            }
-          }
-        }
-        if (element.closed) {
-          const p1 = {
-            x: element.points[element.points.length - 1].x + element.x,
-            y: element.points[element.points.length - 1].y + element.y
-          }
-          const p2 = {
-            x: element.points[0].x + element.x,
-            y: element.points[0].y + element.y
-          }
-          const l = math.lengthBetweenPoints(p1, p2)
-          const l1 = math.lengthBetweenPoints(pos, p1)
-          const l2 = math.lengthBetweenPoints(pos, p2)
-          if (Math.abs(l1 + l2 - l) < 5) {
-            canvasDispatch(divideLine({
-              id: element.id,
-              floor: selectedFloor,
-              point: p,
-              index: element.points.length
-            }))
-            canvasDispatch(addHistory({
-              id: element.id,
-              type: "addPoint",
-              floor: selectedFloor,
-              index: element.points.length
-            }))
-          }
-        }
+        let index = math.getLine(element, pos)
+        if (index === -1) return
+        canvasDispatch(divideLine({
+          id: element.id,
+          floor: selectedFloor,
+          point: p,
+          index: index + 1
+        }))
+        canvasDispatch(addHistory({
+          id: element.id,
+          type: "addPoint",
+          floor: selectedFloor,
+          index: index + 1
+        }))
       }
     } else if (activeTool === "default") {
-      if (!drawing && !dragging[0]) {
-        setSelectedElement({
-          id: element.id,
-          type: "line",
-          floor: selectedFloor
-        })
-      }
+      if (dragging[0] || drawing) return
+      let index = math.getLine(element, pos)
+      let arr = []
       if (e.evt.button === 2) {
         setContextMenuObj({
           id: element.id,
@@ -115,41 +68,79 @@ export default function Line_({element, points, drawing, dragging}) {
           y: e.evt.clientY,
           floor: selectedFloor
         })
-      } 
+        if (!selectedElement) {
+          if (index === -1 ) {
+            arr = [...Array(element.points.length).keys()]
+          } else {
+            arr.push(index)
+          }
+          setSelectedElement({
+            id: element.id,
+            type: "line",
+            floor: selectedFloor,
+            indexes: arr.sort()
+          })
+        }
+      } else {
+        if (index === -1 ) {
+          arr = [...Array(element.points.length).keys()]
+        } else if (index !== -1 && !e.evt.shiftKey) {
+          arr.push(index)
+        } else if (index !== -1 && e.evt.shiftKey) {
+          if (selectedElement) {
+            if (selectedElement.indexes.length !== element.points.length) {
+              arr = selectedElement.indexes
+            }
+            if (!selectedElement.indexes.includes(index)) {
+              arr.push(index)
+            }
+          } else {
+            arr.push(index)
+          }
+        }
+        setSelectedElement({
+          id: element.id,
+          type: "line",
+          floor: selectedFloor,
+          indexes: arr.sort()
+        })
+      }
     }
   }
-  
 
   return (
     <Group>
       <Shape 
+        x={element.x}
+        y={element.y}
         sceneFunc={(context, shape) => {
           context.beginPath()
-          context.moveTo(element.x, element.y)
+          context.moveTo(element.points[0].x, element.points[0].y)
           
           for (let i = 1; i < element.points.length; i++) {
             const point = element.points[i]
             if (point.bezier) {
               
             } else {
-              context.lineTo(element.x + point.x, element.y + point.y)
+              context.lineTo(point.x, point.y)
             }
-            
           }
-          context.stroke()
 
           if (element.closed) {
             context.closePath()
           }
           context.fillStrokeShape(shape)
         }}
-        stroke={!drawing && !dragging[0] && selectedElement && selectedElement.id === element.id ? "#00B3FF" : "black"}
+        stroke={"black"}
         strokeWidth={element.strokeWidth}
         shadowColor="grey"
         shadowBlur={4}
         shadowOffset={{ x: 2, y: 1 }}
         shadowOpacity={0.3}
-        draggable={activeTool == "default" ? true : false}
+        draggable={activeTool === "default" && !element.locked ? true : false}
+        onDragStart={() => {
+          setSelectedElement(null)
+        }}
         onDragEnd={handleDragEnd}
         hitStrokeWidth={10}
         onClick={handleClick}
@@ -218,8 +209,8 @@ export const mouseDownLine = (e, canvasState, canvasDispatch, selectedFloor, set
     x: pos.x,
     y: pos.y,
     strokeWidth: 10,
-    originalX: pos.x,
-    originalY: pos.y
+    group: null,
+    locked: false
   }
   const dispatchObj = {
     id: lineObject.id,
