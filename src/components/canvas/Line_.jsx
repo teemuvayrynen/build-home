@@ -1,5 +1,5 @@
 import React, { useContext, useRef } from "react"
-import { Line, Group, Shape } from "react-konva"
+import { Group, Shape } from "react-konva"
 import { CanvasContext } from "../../context/canvasContext.jsx"
 import * as math from "../../functions/math"
 import Circle_ from "./Circle_.jsx"
@@ -63,10 +63,8 @@ export default function Line_({element, drawing, dragging}) {
       let arr = []
       if (e.evt.button === 2) {
         setContextMenuObj({
-          id: element.id,
           x: e.evt.clientX,
           y: e.evt.clientY,
-          floor: selectedFloor
         })
         if (!selectedElement) {
           if (index === -1 ) {
@@ -116,16 +114,14 @@ export default function Line_({element, drawing, dragging}) {
         sceneFunc={(context, shape) => {
           context.beginPath()
           context.moveTo(element.points[0].x, element.points[0].y)
-          
           for (let i = 1; i < element.points.length; i++) {
             const point = element.points[i]
             if (point.bezier) {
-              
+              context.quadraticCurveTo(point.bezierX, point.bezierY, point.x, point.y)
             } else {
               context.lineTo(point.x, point.y)
             }
           }
-
           if (element.closed) {
             context.closePath()
           }
@@ -146,20 +142,38 @@ export default function Line_({element, drawing, dragging}) {
         onClick={handleClick}
       />
       {element.points.map((point, i) => {
-        const temp = {
-          x: point.x + element.x,
-          y: point.y + element.y
-        }
         return (
-          <Circle_ 
+          <Group
             key={i}
-            element={element}
-            index={i}
-            point={temp}
-            drawing={drawing}
-            type="line"
-            dragging={dragging}
-          />
+          >
+            <Circle_
+              element={element}
+              index={i}
+              point={{
+                x: point.x + element.x,
+                y: point.y + element.y
+              }}
+              drawing={drawing}
+              type="line"
+              dragging={dragging}
+              bezier={false}
+            />
+            {point.bezier && (
+              <Circle_ 
+                key={i}
+                element={element}
+                index={i}
+                point={{
+                  x: point.bezierX + element.x,
+                  y: point.bezierY + element.y
+                }}
+                drawing={drawing}
+                type="line"
+                dragging={dragging}
+                bezier={true}
+              />
+            )}
+          </Group>
         )
       })}
     </Group>
@@ -205,7 +219,7 @@ export const mouseDownLine = (e, canvasState, canvasDispatch, selectedFloor, set
     id: uuidv4(),
     type: "line",
     closed: false,
-    points: [{x: 0, y: 0, bezier: false}, {x: 0, y: 0, bezier: false}],
+    points: [{x: 0, y: 0, bezier: false, bezierX: 0, bezierY: 0}, {x: 0, y: 0, bezier: false, bezierX: 0, bezierY: 0}],
     x: pos.x,
     y: pos.y,
     strokeWidth: 10,

@@ -6,10 +6,10 @@ import { movePoint } from "../../redux/features/canvasSlice"
 import * as math from "../../functions/math.js"
 
 
-export default function Circle_ ({ element, index, point, drawing, type, dragging }) {
+export default function Circle_ ({ element, index, point, drawing, type, dragging, bezier }) {
   const canvasDispatch = useAppDispatch()
   const oldDim = useRef({ x: 0, y: 0 })
-  const { activeTool, selectedFloor, setSelectedElement } = useContext(CanvasContext)
+  const { activeTool, selectedFloor, setSelectedElement, selectedElement } = useContext(CanvasContext)
   const [visible, setVisible] = useState(false)
 
   const getAngle = () => {
@@ -56,7 +56,8 @@ export default function Circle_ ({ element, index, point, drawing, type, draggin
       floor: selectedFloor,
       index: index,
       point: pos,
-      oldDim: oldDim.current
+      oldDim: oldDim.current,
+      bezier: bezier
     }
     canvasDispatch(movePoint(dispatchObj))
     e.target.getLayer().batchDraw()
@@ -93,7 +94,7 @@ export default function Circle_ ({ element, index, point, drawing, type, draggin
         hitStrokeWidth={10}
         onMouseOver={() => { setVisible(true) }}
         onMouseOut={() => { setVisible(false)}}
-        opacity={visible && !drawing && !dragging[0] ? 1 : 0}
+        opacity={(visible || (bezier && selectedElement && selectedElement.id === element.id)) && !drawing && !dragging[0] ? 1 : 0}
       />
     </>
   )

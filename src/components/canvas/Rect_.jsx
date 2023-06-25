@@ -67,6 +67,7 @@ export default function Rect_ ({ element, drawing, dragging}) {
             drawing={drawing}
             type="rectangle"
             dragging={dragging}
+            bezier={false}
           />
         )
       })}

@@ -63,8 +63,13 @@ export const canvas = createSlice({
           x: action.payload.point.x - element.x,
           y: action.payload.point.y - element.y
         }
-        element.points[action.payload.index].x = newPos.x
-        element.points[action.payload.index].y = newPos.y
+        if (action.payload.bezier) {
+          element.points[action.payload.index].bezierX = newPos.x
+          element.points[action.payload.index].bezierY = newPos.y
+        } else {
+          element.points[action.payload.index].x = newPos.x
+          element.points[action.payload.index].y = newPos.y
+        }
       }
     },
     deleteElements: (state, action: PayloadAction<number>) => {
@@ -78,7 +83,9 @@ export const canvas = createSlice({
       const newPos = {
         x: action.payload.point.x - element.x,
         y: action.payload.point.y - element.y,
-        bezier: false
+        bezier: false,
+        bezierX: 0, 
+        bezierY: 0
       }
       if (action.payload.index === 0) {
         element.points.unshift(newPos)
@@ -221,7 +228,6 @@ export const canvas = createSlice({
     },
     removeGeneratedRooms: (state, action: PayloadAction<number>) => {
       const elements = state.items[action.payload].elements 
-
       for (const key in elements) {
         const element = elements[key]
         if (element.generated) {
@@ -232,6 +238,23 @@ export const canvas = createSlice({
     changeRectDim: (state, action: PayloadAction<any>) => {
       state.items[action.payload.floor].elements[action.payload.id].width = action.payload.width
       state.items[action.payload.floor].elements[action.payload.id].height = action.payload.height
+    },
+    changeToBezier: (state, action: PayloadAction<any>) => {
+      const indexes = action.payload.indexes
+      const element = state.items[action.payload.floor].elements[action.payload.id]
+      for (let i = 0; i < indexes.length; i++) {
+        const index = indexes[i]
+        const nextIndex = index + 1
+        if (nextIndex < element.points.length) {
+          const mid = {
+            x: (element.points[nextIndex].x + element.points[index].x) / 2,
+            y: (element.points[nextIndex].y + element.points[index].y) / 2
+          }
+          element.points[nextIndex].bezier = true
+          element.points[nextIndex].bezierX = mid.x
+          element.points[nextIndex].bezierY = mid.y
+        }
+      }
     }
   }
 })
@@ -255,7 +278,8 @@ export const {
   changeStrokeWidth,
   removeGeneratedRooms,
   deleteElement,
-  changeRectDim
+  changeRectDim,
+  changeToBezier
 } = canvas.actions;
 
 export default canvas.reducer;
