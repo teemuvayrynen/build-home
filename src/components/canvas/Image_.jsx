@@ -2,7 +2,7 @@ import React, { useContext, useRef, useEffect } from 'react'
 import { Image, Transformer } from 'react-konva'
 import useImage from 'use-image'
 import { useAppDispatch } from '@/redux/hooks'
-import { moveElement, rotateElement } from '@/redux/features/canvasSlice'
+import { moveElement, editElement } from '@/redux/features/canvasSlice'
 import { CanvasContext } from '@/context/canvasContext'
 
 export default function Image_({ element, dragging }) {
@@ -39,6 +39,8 @@ export default function Image_({ element, dragging }) {
         y={element.y}
         rotation={element.rotation}
         image={img}
+        scaleX={element.scaleX}
+        scaleY={element.scaleY}
         draggable={activeTool === "default" && !element.locked ? true : false}
         onDragStart={() => { dragging[1](true) }}
         onDragEnd={e => { handleDragEnd(e) }}
@@ -51,10 +53,13 @@ export default function Image_({ element, dragging }) {
         }}
         onTransformEnd={() => {
           const node = imageRef.current
-          canvasDispatch(rotateElement({
+          console.log(node)
+          canvasDispatch(editElement({
             id: element.id,
             floor: selectedFloor,
-            rotation: node.attrs.rotation
+            rotation: node.attrs.rotation,
+            scaleX: node.attrs.scaleX,
+            scaleY: node.attrs.scaleY
           }))
         }}
       />

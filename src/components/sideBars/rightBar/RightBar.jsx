@@ -3,7 +3,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import { CanvasContext } from '@/context/canvasContext';
 import { useAppSelector, useAppDispatch } from '@/redux/hooks';
 import globals from "../../../app/globals"
-import { rotateElement, changeRectDim, deleteElement } from '@/redux/features/canvasSlice';
+import { editElement, changeRectDim, deleteElement } from '@/redux/features/canvasSlice';
 import SelectMenuWall from "./SelectMenuWall"
 import * as math from "@/functions/math"
 import BarItemsForLine from "./BarItemsForLine.jsx"
@@ -29,14 +29,16 @@ export default function RightBar() {
 
   return (
     <Container visible={visible ? 1 : 0}>
-      {selectedElement && selectedElement.type === "element" && (
+      {selectedElement && selected && selectedElement.type === "element" && (
         <FlexRow>
           <Text>Rotation:</Text>
           <Input type="number" value={selected ? Math.round(selected.rotation * 100) / 100 : 0} onChange={e => {
-            canvasDispatch(rotateElement({
+            canvasDispatch(editElement({
               id: selectedElement.id,
               floor: selectedFloor,
-              rotation: e.target.value
+              rotation: e.target.value,
+              scaleX: selected.scaleX,
+              scaleY: selected.scaleY
             }))
           }} />
         </FlexRow>

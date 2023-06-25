@@ -211,8 +211,10 @@ export const canvas = createSlice({
         historyStep: copy.historyStep
       }
     },
-    rotateElement: (state, action: PayloadAction<any>) => {
+    editElement: (state, action: PayloadAction<any>) => {
       state.items[action.payload.floor].elements[action.payload.id].rotation = action.payload.rotation
+      state.items[action.payload.floor].elements[action.payload.id].scaleX = action.payload.scaleX
+      state.items[action.payload.floor].elements[action.payload.id].scaleY = action.payload.scaleY
     },
     changeStrokeWidth: (state, action: PayloadAction<any>) => {
       state.items[action.payload.floor].elements[action.payload.id].strokeWidth = action.payload.strokeWidth
@@ -249,7 +251,7 @@ export const {
   addHistory,
   undoMisClick,
   copyElements,
-  rotateElement,
+  editElement,
   changeStrokeWidth,
   removeGeneratedRooms,
   deleteElement,

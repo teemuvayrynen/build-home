@@ -1,5 +1,5 @@
 import { configureStore, createListenerMiddleware, isAnyOf, isAllOf } from '@reduxjs/toolkit';
-import canvasReducer, { rotateElement } from './features/canvasSlice';
+import canvasReducer from './features/canvasSlice';
 import {addLevel,
         deleteLevel,
         addElement,
@@ -17,7 +17,8 @@ import {addLevel,
         changeStrokeWidth,
         removeGeneratedRooms,
         deleteElement,
-        changeRectDim} from './features/canvasSlice';
+        changeRectDim,
+        editElement} from './features/canvasSlice';
 
 type CanvasState = {
   items: any[];
@@ -49,7 +50,7 @@ listenerMiddleware.startListening({
     addHistory,
     undoMisClick,
     copyElements,
-    rotateElement,
+    editElement,
     changeStrokeWidth,
     removeGeneratedRooms,
     deleteElement,

@@ -255,7 +255,9 @@ export default function Canvas() {
             rotation: 0,
             item: selectedElement.item,
             group: null,
-            locked: false
+            locked: false,
+            scaleX: 1,
+            scaleY: 1
           }
           const dispatchObj = {
             id: elementObj.id,
