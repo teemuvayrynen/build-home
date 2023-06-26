@@ -2,7 +2,7 @@ import React, { useContext, useRef, useEffect } from 'react'
 import { Image, Transformer } from 'react-konva'
 import useImage from 'use-image'
 import { useAppDispatch } from '@/redux/hooks'
-import { moveElement, editElement } from '@/redux/features/canvasSlice'
+import { moveElement, editElement, addHistoryAsync } from '@/redux/features/canvasSlice'
 import { CanvasContext } from '@/context/canvasContext'
 
 export default function Image_({ element, dragging }) {
@@ -27,7 +27,7 @@ export default function Image_({ element, dragging }) {
       floor: selectedFloor,
       point: pos
     }))
-    dragging[1](false)
+    canvasDispatch(addHistoryAsync({floor: selectedFloor}))
   }
 
   return (
@@ -42,7 +42,6 @@ export default function Image_({ element, dragging }) {
         scaleX={element.scaleX}
         scaleY={element.scaleY}
         draggable={activeTool === "default" && !element.locked ? true : false}
-        onDragStart={() => { dragging[1](true) }}
         onDragEnd={e => { handleDragEnd(e) }}
         onClick={() => {
           setSelectedElement({
@@ -53,7 +52,6 @@ export default function Image_({ element, dragging }) {
         }}
         onTransformEnd={() => {
           const node = imageRef.current
-          console.log(node)
           canvasDispatch(editElement({
             id: element.id,
             floor: selectedFloor,
@@ -61,6 +59,7 @@ export default function Image_({ element, dragging }) {
             scaleX: node.attrs.scaleX,
             scaleY: node.attrs.scaleY
           }))
+          canvasDispatch(addHistoryAsync({floor: selectedFloor}))
         }}
       />
       {selectedElement && selectedElement.id === element.id && (

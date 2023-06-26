@@ -132,22 +132,6 @@ export const canvas = createSlice({
       const nextHistoryItem = floor.history[floor.historyStep]
       floor.elements = nextHistoryItem.elements
     },
-    addHistory: (state, action: PayloadAction<any>) => {
-      const floor = state.items[action.payload.floor]
-      let historyItem = {
-        elements: action.payload.elements
-      }
-
-      if (floor.history.length === 20) {
-        floor.history.shift()
-        floor.historyStep--
-      }
-      
-      let history = floor.history.slice(0, floor.historyStep + 1)
-      history.push(historyItem)
-      state.items[action.payload.floor].history = history
-      state.items[action.payload.floor].historyStep++
-    },
     undoMisClick: (state, action: PayloadAction<any>) => {
       const floor = state.items[action.payload.floor]
       if (action.payload.type === "default") {
@@ -249,7 +233,6 @@ export const {
   divideLine,
   undo,
   redo,
-  addHistory,
   undoMisClick,
   copyElements,
   editElement,

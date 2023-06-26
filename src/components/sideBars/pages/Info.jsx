@@ -23,7 +23,7 @@ export default function Info() {
         case "element": {
           if (element.item === "fixed-window") {
             windowAmount++
-          } else if (element.item === "outside-door") {
+          } else if (element.item === "door") {
             doorAmount++
           }
           break
