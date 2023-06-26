@@ -3,7 +3,7 @@ import { Rect } from "react-konva"
 import { CanvasContext } from "../../context/canvasContext.jsx"
 import Circle_ from "./Circle_.jsx";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
-import { moveElement } from "../../redux/features/canvasSlice"
+import { moveElement, addHistoryAsync } from "../../redux/features/canvasSlice"
 import { v4 as uuidv4 } from 'uuid';
 
 export default function Rect_ ({ element, drawing, dragging}) {
@@ -20,6 +20,7 @@ export default function Rect_ ({ element, drawing, dragging}) {
       floor: selectedFloor,
       point: pos
     }))
+    canvasDispatch(addHistoryAsync({floor: selectedFloor}))
   }
 
   useEffect(() => {
@@ -108,7 +109,7 @@ export const mouseMoveRect = (e, canvasDispatch, selectedFloor, selectedElement,
     type: "rectangle",
     floor: selectedFloor,
     point: pos,
-    index: 1
+    index: 1,
   }
   canvasDispatch(movePoint(dispatchObj))
 }

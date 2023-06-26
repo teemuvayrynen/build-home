@@ -2,7 +2,7 @@ import React, { useContext, useState, useRef } from "react"
 import { Circle } from "react-konva"
 import { CanvasContext } from "../../context/canvasContext.jsx"
 import { useAppDispatch } from "@/redux/hooks";
-import { movePoint } from "../../redux/features/canvasSlice"
+import { movePoint, moveBezier, addHistoryAsync } from "../../redux/features/canvasSlice"
 import * as math from "../../functions/math.js"
 
 
@@ -57,9 +57,12 @@ export default function Circle_ ({ element, index, point, drawing, type, draggin
       index: index,
       point: pos,
       oldDim: oldDim.current,
-      bezier: bezier
     }
-    canvasDispatch(movePoint(dispatchObj))
+    if (bezier) {
+      canvasDispatch(moveBezier(dispatchObj))
+    } else {
+      canvasDispatch(movePoint(dispatchObj))
+    }
     e.target.getLayer().batchDraw()
   }
 
@@ -87,6 +90,9 @@ export default function Circle_ ({ element, index, point, drawing, type, draggin
         }}
         onMouseUp={() => { dragging[1](false); setSelectedElement(null) }}
         onDragMove={handleDrag}
+        onDragEnd={() => {
+          canvasDispatch(addHistoryAsync({floor: selectedFloor}))
+        }}
         shadowColor="grey"
         shadowBlur={4}
         shadowOffset={{ x: 2, y: 1 }}

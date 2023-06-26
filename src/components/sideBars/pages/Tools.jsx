@@ -5,7 +5,7 @@ import { faSquare, faTrashCan } from "@fortawesome/free-regular-svg-icons";
 import React, { useContext, useState } from "react";
 import { CanvasContext } from "../../../context/canvasContext.jsx"
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
-import { deleteElements, addHistory, deleteLevel } from "../../../redux/features/canvasSlice"
+import { deleteElements, deleteLevel, addHistoryAsync } from "../../../redux/features/canvasSlice"
 import PopUpDialog from "../../PopUpDialog.jsx";
 import { Container, ItemContainer, Header } from "./StyledFunctions.jsx"
 import { useKeyDown, useKeyUp } from "@/hooks/useKeyDownAndUp.jsx"
@@ -101,11 +101,8 @@ export default function Tools() {
             </ToolColumn>
             <ToolColumn>
               <Tool onClick={() => {
-                canvasDispatch(addHistory({
-                  type: "deleteElements",
-                  floor: selectedFloor,
-                }))
                 canvasDispatch(deleteElements(selectedFloor))
+                canvasDispatch(addHistoryAsync({floor: selectedFloor}))
                 setSelectedElement(null)
               }}>
                 <FontAwesomeIcon icon={faTrash} fixedWidth/>

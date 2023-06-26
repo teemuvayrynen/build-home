@@ -4,7 +4,7 @@ import { CanvasContext } from "../../context/canvasContext.jsx"
 import * as math from "../../functions/math"
 import Circle_ from "./Circle_.jsx"
 import { useAppDispatch } from "@/redux/hooks";
-import { moveElement, divideLine, addHistory } from "../../redux/features/canvasSlice"
+import { moveElement, divideLine, moveBezier, addHistoryAsync } from "../../redux/features/canvasSlice"
 import { v4 as uuidv4 } from 'uuid';
 
 export default function Line_({element, drawing, dragging}) {
@@ -18,6 +18,7 @@ export default function Line_({element, drawing, dragging}) {
       floor: selectedFloor,
       point: pos
     }))
+    canvasDispatch(addHistoryAsync({floor: selectedFloor}))
   }
 
   const handleClick = (e) => {
@@ -35,12 +36,7 @@ export default function Line_({element, drawing, dragging}) {
           point: p,
           index: 1
         }))
-        canvasDispatch(addHistory({
-          id: element.id,
-          type: "addPoint",
-          floor: selectedFloor,
-          index: 1
-        }))
+        canvasDispatch(addHistoryAsync({floor: selectedFloor}))
       } else {
         let index = math.getLine(element, pos)
         if (index === -1) return
@@ -50,12 +46,7 @@ export default function Line_({element, drawing, dragging}) {
           point: p,
           index: index + 1
         }))
-        canvasDispatch(addHistory({
-          id: element.id,
-          type: "addPoint",
-          floor: selectedFloor,
-          index: index + 1
-        }))
+        canvasDispatch(addHistoryAsync({floor: selectedFloor}))
       }
     } else if (activeTool === "default") {
       if (dragging[0] || drawing) return
@@ -181,13 +172,12 @@ export default function Line_({element, drawing, dragging}) {
 }
 
 
-export const mouseDownLine = (e, canvasState, canvasDispatch, selectedFloor, setSelectedElement, addElement, addPoint) => {
+export const mouseDownLine = (e, canvasState, canvasDispatch, selectedFloor, setSelectedElement, addElement, addPoint, bezier) => {
   const pos = e.target.getStage().getRelativePointerPosition();
   const elements = canvasState[selectedFloor].elements
 
   for (const key in elements) {
     const element = elements[key]
-    if (element.type !== "line") continue
     const j = element.points.findIndex(e => {
       const p = {
         x: e.x + element.x,
@@ -202,13 +192,17 @@ export const mouseDownLine = (e, canvasState, canvasDispatch, selectedFloor, set
           id: element.id,
           floor: selectedFloor,
           index: row,
-          point: pos
+          point: pos,
+          bezier: bezier
         }
         canvasDispatch(addPoint(dispatchObj))
         setSelectedElement({
           id: element.id,
           type: "line",
-          index: row
+          index: row,
+          bezier: bezier,
+          x: pos.x,
+          y: pos.y,
         })
         return
       }
@@ -219,7 +213,7 @@ export const mouseDownLine = (e, canvasState, canvasDispatch, selectedFloor, set
     id: uuidv4(),
     type: "line",
     closed: false,
-    points: [{x: 0, y: 0, bezier: false, bezierX: 0, bezierY: 0}, {x: 0, y: 0, bezier: false, bezierX: 0, bezierY: 0}],
+    points: [{x: 0, y: 0, bezier: false, bezierX: 0, bezierY: 0}, {x: 0, y: 0, bezier: bezier, bezierX: 0, bezierY: 0}],
     x: pos.x,
     y: pos.y,
     strokeWidth: 10,
@@ -236,7 +230,10 @@ export const mouseDownLine = (e, canvasState, canvasDispatch, selectedFloor, set
   setSelectedElement({
     id: lineObject.id,
     type: "line",
-    index: 1
+    index: 1,
+    bezier: bezier,
+    x: pos.x,
+    y: pos.y
   })
 }
 
@@ -247,9 +244,16 @@ export const mouseMoveLine = (e, canvasDispatch, selectedFloor, selectedElement,
     type: "line",
     point: pos,
     floor: selectedFloor,
-    index: selectedElement.index,
+    index: selectedElement.index
   }
   canvasDispatch(movePoint(dispatchObj))
+  if (selectedElement.bezier) {
+    const mid = {
+      x: (pos.x + selectedElement.x) / 2 + 60,
+      y: (pos.y + selectedElement.y) / 2 - 60
+    }
+    canvasDispatch(moveBezier({...dispatchObj, point: mid, index: selectedElement.index === 0 ? 1 : selectedElement.index}))
+  }
 }
 
 export const checkIsNearEndOfLine = (canvasState, canvasDispatch, selectedFloor, selectedElement, closedElement) => {

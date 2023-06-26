@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 
 type CanvasState = {
   items: any[];
@@ -8,8 +8,10 @@ const initialState = {
   items: [{
     id: 0,
     elements: {},
-    history: [],
-    historyStep: -1
+    history: [{
+      elements: {}
+    }],
+    historyStep: 0
   }]
 } as CanvasState;
 
@@ -63,14 +65,18 @@ export const canvas = createSlice({
           x: action.payload.point.x - element.x,
           y: action.payload.point.y - element.y
         }
-        if (action.payload.bezier) {
-          element.points[action.payload.index].bezierX = newPos.x
-          element.points[action.payload.index].bezierY = newPos.y
-        } else {
-          element.points[action.payload.index].x = newPos.x
-          element.points[action.payload.index].y = newPos.y
-        }
+        element.points[action.payload.index].x = newPos.x
+        element.points[action.payload.index].y = newPos.y
       }
+    },
+    moveBezier: (state, action: PayloadAction<any>) => {
+      const element = state.items[action.payload.floor].elements[action.payload.id]
+      const newPos = {
+        x: action.payload.point.x - element.x,
+        y: action.payload.point.y - element.y
+      }
+      element.points[action.payload.index].bezierX = newPos.x
+      element.points[action.payload.index].bezierY = newPos.y
     },
     deleteElements: (state, action: PayloadAction<number>) => {
       state.items[action.payload].elements = {}
@@ -80,36 +86,28 @@ export const canvas = createSlice({
     },
     addPoint: (state, action: PayloadAction<any>) => {
       const element = state.items[action.payload.floor].elements[action.payload.id]
-      const newPos = {
+      const newPoint = {
         x: action.payload.point.x - element.x,
         y: action.payload.point.y - element.y,
-        bezier: false,
-        bezierX: 0, 
-        bezierY: 0
+        bezier: action.payload.bezier,
+        bezierX: action.payload.bezier ? action.payload.point.x - element.x : 0,
+        bezierY: action.payload.bezier ? action.payload.point.y - element.y : 0
       }
       if (action.payload.index === 0) {
-        element.points.unshift(newPos)
+        element.points[0].bezier = newPoint.bezier
+        element.points.unshift({ x: newPoint.x, y: newPoint.y, bezier: false, bezierX: 0, bezierY: 0 })
       } else {
-        element.points.push(newPos)
+        element.points.push(newPoint)
       }
     },
     closedElement: (state, action: PayloadAction<any>) => {
       const element = state.items[action.payload.floor].elements[action.payload.id]
+      element.closed = true
       if (action.payload.index === 0) {
         element.points.shift()
       } else {
        element.points.pop()
       }
-      element.closed = true
-      const historyItem = {
-        id: action.payload.id,
-        type: "closed",
-        index: action.payload.index,
-      }
-      let history = state.items[action.payload.floor].history.slice(0, state.items[action.payload.floor].historyStep + 1)
-      history.push(historyItem)
-      state.items[action.payload.floor].history = history
-      state.items[action.payload.floor].historyStep++
     },
     moveElement: (state, action: PayloadAction<any>) => {
       const element = state.items[action.payload.floor].elements[action.payload.id]
@@ -122,74 +120,27 @@ export const canvas = createSlice({
     },
     undo: (state, action: PayloadAction<number>) => {
       const floor = state.items[action.payload]
-      if (floor.historyStep === -1) return
-      const historyStep = floor.historyStep
-      const historyItem = floor.history[historyStep]
-      state.items[action.payload].historyStep--
-      const element = floor.elements[historyItem.id]
-
-      if (historyItem.type === "closed") {
-        element.closed = false
-        return
-      }
-      if (historyItem.type === "add") {
-        delete floor.elements[historyItem.id]
-        return
-      }
-      if (historyItem.type === "addPoint") {
-        element.points.splice(historyItem.index, 1)
-        return
-      }
-      if (historyItem.type === "deleteElements") {
-        floor.elements = historyItem.elements
-        return
-      }
+      if (floor.historyStep === 0) return
+      floor.historyStep--
+      const prevHistoryItem = floor.history[floor.historyStep]
+      floor.elements = prevHistoryItem.elements    
     },
     redo: (state, action: PayloadAction<number>) => {
       const floor = state.items[action.payload]
       if (floor.historyStep === floor.history.length - 1) return
       floor.historyStep++
       const nextHistoryItem = floor.history[floor.historyStep]
-      if (nextHistoryItem.type === "closed") {
-        const element = floor.elements[nextHistoryItem.id]
-        element.closed = true
-        return
-      }
-      if (nextHistoryItem.type === "add") {
-        floor.elements[nextHistoryItem.id] = nextHistoryItem.element
-        return
-      }
-      if (nextHistoryItem.type === "addPoint") {
-        const element = floor.elements[nextHistoryItem.id]
-        element.points.splice(nextHistoryItem.index, 0, nextHistoryItem.element.points[nextHistoryItem.index])
-        return
-      }
-      if (nextHistoryItem.type === "deleteElements") {
-        floor.elements = {}
-        return
-      }
+      floor.elements = nextHistoryItem.elements
     },
     addHistory: (state, action: PayloadAction<any>) => {
       const floor = state.items[action.payload.floor]
-      let historyItem = {}
-      if (action.payload.type === "add") {
-        historyItem = {
-          id: action.payload.id,
-          type: "add",
-          element: floor.elements[action.payload.id]
-        }
-      } else if (action.payload.type === "addPoint") {
-        historyItem = {
-          id: action.payload.id,
-          type: "addPoint",
-          index: action.payload.index,
-          element: floor.elements[action.payload.id]
-        }
-      } else if (action.payload.type === "deleteElements") {
-        historyItem = {
-          type: "deleteElements",
-          elements: floor.elements
-        }
+      let historyItem = {
+        elements: action.payload.elements
+      }
+
+      if (floor.history.length === 20) {
+        floor.history.shift()
+        floor.historyStep--
       }
       
       let history = floor.history.slice(0, floor.historyStep + 1)
@@ -256,6 +207,33 @@ export const canvas = createSlice({
         }
       }
     }
+  },
+  extraReducers: builder => {
+    builder.addCase(addHistoryAsync.fulfilled, (state, action: PayloadAction<any>) => {
+      const floor = state.items[action.payload.floor]
+      
+      let historyItem = {
+        elements: action.payload.elements
+      }
+
+      if (floor.history.length === 20) {
+        floor.history.shift()
+        floor.historyStep--
+      }
+      
+      let history = floor.history.slice(0, floor.historyStep + 1)
+      history.push(historyItem)
+      state.items[action.payload.floor].history = history
+      state.items[action.payload.floor].historyStep++
+    })
+  }
+})
+
+export const addHistoryAsync = createAsyncThunk('addHistoryItem', (parameters, { getState }) => {
+  const state = <any> getState()
+  return {
+    floor: Object(parameters).floor,
+    elements: state.canvas.items[Object(parameters).floor].elements
   }
 })
 
@@ -279,7 +257,8 @@ export const {
   removeGeneratedRooms,
   deleteElement,
   changeRectDim,
-  changeToBezier
+  changeToBezier,
+  moveBezier
 } = canvas.actions;
 
 export default canvas.reducer;

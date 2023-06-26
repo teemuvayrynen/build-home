@@ -19,7 +19,8 @@ import {addLevel,
         deleteElement,
         changeRectDim,
         editElement,
-        changeToBezier} from './features/canvasSlice';
+        changeToBezier,
+        moveBezier} from './features/canvasSlice';
 
 type CanvasState = {
   items: any[];
@@ -29,8 +30,10 @@ const initialState = {
   items: [{
     id: 0,
     elements: {},
-    history: [],
-    historyStep: -1
+    history: [{
+      elements: {}
+    }],
+    historyStep: 0
   }]
 } as CanvasState;
 
@@ -56,7 +59,8 @@ listenerMiddleware.startListening({
     removeGeneratedRooms,
     deleteElement,
     changeRectDim,
-    changeToBezier),
+    changeToBezier,
+    moveBezier),
   effect: (action, listeneAPI) => {
     localStorage.setItem('canvasState', JSON.stringify(listeneAPI.getState() as RootState))
   }

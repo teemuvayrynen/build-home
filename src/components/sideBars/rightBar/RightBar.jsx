@@ -3,7 +3,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import { CanvasContext } from '@/context/canvasContext';
 import { useAppSelector, useAppDispatch } from '@/redux/hooks';
 import globals from "../../../app/globals"
-import { editElement, changeRectDim, deleteElement } from '@/redux/features/canvasSlice';
+import { editElement, changeRectDim, deleteElement, addHistoryAsync } from '@/redux/features/canvasSlice';
 import SelectMenuWall from "./SelectMenuWall"
 import * as math from "@/functions/math"
 import BarItemsForLine from "./BarItemsForLine.jsx"
@@ -98,6 +98,7 @@ export default function RightBar() {
       {selectedElement && selected && (
         <DeleteButton onClick={() => {
           canvasDispatch(deleteElement({floor: selectedFloor, id: selectedElement.id}))
+          canvasDispatch(addHistoryAsync({floor: selectedFloor}))
           setSelectedElement(null)
         }}>
           Delete
