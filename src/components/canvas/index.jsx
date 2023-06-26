@@ -16,7 +16,7 @@ import * as math from "../../functions/math"
 import ContextMenu from "../ContextMenu.jsx"
 import useWindowSize from "../../hooks/useWindowSize.jsx"
 import { useAppSelector, useAppDispatch } from '@/redux/hooks';
-import { addElement, movePoint, addPoint, closedElement, undo, redo, addHistory, undoMisClick } from "../../redux/features/canvasSlice"
+import { addElement, movePoint, addPoint, closedElement, undo, redo, undoMisClick, addHistoryAsync } from "../../redux/features/canvasSlice"
 
 const scaleBy = 1.05;
 
@@ -141,7 +141,11 @@ export default function Canvas() {
           break;
         case "line":
           setDrawing(true)
-          mouseDownLine(e, canvasState, canvasDispatch, selectedFloor, setSelectedElement, addElement, addPoint)
+          mouseDownLine(e, canvasState, canvasDispatch, selectedFloor, setSelectedElement, addElement, addPoint, false)
+          break;
+        case "bezier":
+          setDrawing(true)
+          mouseDownLine(e, canvasState, canvasDispatch, selectedFloor, setSelectedElement, addElement, addPoint, true)
           break;
         case "rectangle":
           setDrawing(true)
@@ -167,6 +171,11 @@ export default function Canvas() {
             mouseMoveLine(e, canvasDispatch, selectedFloor, selectedElement, movePoint)
           }
           break;
+        case "bezier":
+          if (drawing) {
+            mouseMoveLine(e, canvasDispatch, selectedFloor, selectedElement, movePoint)
+          }
+          break;
         case "rectangle":
           if (drawing) {
             mouseMoveRect(e, canvasDispatch, selectedFloor, selectedElement, movePoint)
@@ -182,37 +191,22 @@ export default function Canvas() {
       if (activeTool === "rectangle") {
         const notMishap = checkIsMishap()
         if (!notMishap) {
-          canvasDispatch(addHistory({
-            id: selectedElement.id,
-            floor: selectedFloor,
-            type: "add"
-          }))
+          canvasDispatch(addHistoryAsync({floor: selectedFloor}))
         }
       }
       if (activeTool == "default") {
         selection.current.visible = false
         updateSelectionRect() 
       }
-      if (activeTool == "line") {
+      if (activeTool === "line" || activeTool === "bezier") {
         const isNear = checkIsNearEndOfLine(canvasState, canvasDispatch, selectedFloor, selectedElement, closedElement)
         if (!isNear) {
           const notMisHap = checkIsMishap()
           if (!notMisHap) {
-            if (canvasState[selectedFloor].elements[selectedElement.id].points.length === 2) {
-              canvasDispatch(addHistory({
-                id: selectedElement.id,
-                floor: selectedFloor,
-                type: "add"
-              }))
-            } else {
-              canvasDispatch(addHistory({
-                id: selectedElement.id,
-                type: "addPoint",
-                floor: selectedFloor,
-                index: selectedElement.index,
-              }))
-            }
+            canvasDispatch(addHistoryAsync({floor: selectedFloor}))
           }
+        } else {
+          canvasDispatch(addHistoryAsync({floor: selectedFloor}))
         }
       }
     }
@@ -255,7 +249,9 @@ export default function Canvas() {
             rotation: 0,
             item: selectedElement.item,
             group: null,
-            locked: false
+            locked: false,
+            scaleX: 1,
+            scaleY: 1
           }
           const dispatchObj = {
             id: elementObj.id,
@@ -263,11 +259,7 @@ export default function Canvas() {
             floor: selectedFloor
           }
           canvasDispatch(addElement(dispatchObj))
-          canvasDispatch(addHistory({
-            id: elementObj.id,
-            floor: selectedFloor,
-            type: "add"
-          }))
+          canvasDispatch(addHistoryAsync({floor: selectedFloor}))
           dragging[1](false)
           setSelectedElement(null)
         }

@@ -1,5 +1,5 @@
 import { configureStore, createListenerMiddleware, isAnyOf, isAllOf } from '@reduxjs/toolkit';
-import canvasReducer, { rotateElement } from './features/canvasSlice';
+import canvasReducer from './features/canvasSlice';
 import {addLevel,
         deleteLevel,
         addElement,
@@ -11,13 +11,15 @@ import {addLevel,
         divideLine,
         undo,
         redo,
-        addHistory,
         undoMisClick,
         copyElements,
         changeStrokeWidth,
         removeGeneratedRooms,
         deleteElement,
-        changeRectDim} from './features/canvasSlice';
+        changeRectDim,
+        editElement,
+        changeToBezier,
+        moveBezier} from './features/canvasSlice';
 
 type CanvasState = {
   items: any[];
@@ -27,8 +29,10 @@ const initialState = {
   items: [{
     id: 0,
     elements: {},
-    history: [],
-    historyStep: -1
+    history: [{
+      elements: {}
+    }],
+    historyStep: 0
   }]
 } as CanvasState;
 
@@ -46,14 +50,15 @@ listenerMiddleware.startListening({
     divideLine,
     undo,
     redo,
-    addHistory,
     undoMisClick,
     copyElements,
-    rotateElement,
+    editElement,
     changeStrokeWidth,
     removeGeneratedRooms,
     deleteElement,
-    changeRectDim),
+    changeRectDim,
+    changeToBezier,
+    moveBezier),
   effect: (action, listeneAPI) => {
     localStorage.setItem('canvasState', JSON.stringify(listeneAPI.getState() as RootState))
   }

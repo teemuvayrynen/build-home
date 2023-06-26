@@ -65,13 +65,25 @@ const LineSelected = () => {
               }
               if (i === 0) {
                 context.moveTo(element.x + point.x, element.y + point.y)
-                context.lineTo(element.x + point2.x, element.y + point2.y)
+                if (point2.bezier) {
+                  context.quadraticCurveTo(element.x +point2.bezierX, element.y + point2.bezierY, element.x + point2.x, element.y + point2.y)
+                } else {
+                  context.lineTo(element.x + point2.x, element.y + point2.y)
+                }
               } else {
                 if (selectedElement.indexes[i - 1] + 1 === index) {
-                  context.lineTo(element.x + point2.x, element.y + point2.y)
+                  if (point2.bezier) {
+                    context.quadraticCurveTo(element.x +point2.bezierX, element.y + point2.bezierY, element.x + point2.x, element.y + point2.y)
+                  } else {
+                    context.lineTo(element.x + point2.x, element.y + point2.y)
+                  }
                 } else {
                   context.moveTo(element.x + point.x, element.y + point.y)
-                  context.lineTo(element.x + point2.x, element.y + point2.y)
+                  if (point2.bezier) {
+                    context.quadraticCurveTo(element.x +point2.bezierX, element.y + point2.bezierY, element.x + point2.x, element.y + point2.y)
+                  } else {
+                    context.lineTo(element.x + point2.x, element.y + point2.y)
+                  }
                 }
               }
             }

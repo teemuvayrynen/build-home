@@ -1,54 +1,79 @@
-import React, { useContext, useState, useEffect, useRef } from "react"
+import React, { useContext, useEffect, useRef } from "react"
 import styled from "styled-components"
 import { CanvasContext } from "../context/canvasContext"
 import { useAppSelector, useAppDispatch } from "@/redux/hooks"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faScissors, faLock, faLayerGroup } from '@fortawesome/free-solid-svg-icons'
+import { faScissors, faLock, faLayerGroup, faBezierCurve } from '@fortawesome/free-solid-svg-icons'
 import { faTrashCan } from "@fortawesome/free-regular-svg-icons";
-import { deleteElement } from "@/redux/features/canvasSlice"
+import { deleteElement, changeToBezier } from "@/redux/features/canvasSlice"
 
 export default function ContextMenu() {
-  const { contextMenuObj, setContextMenuObj, setSelectedElement, selectedFloor } = useContext(CanvasContext)
+  const { contextMenuObj, setContextMenuObj, setSelectedElement, selectedFloor, selectedElement } = useContext(CanvasContext)
   const canvasState = useAppSelector(state => state.canvas.items)
   const canvasDispatch = useAppDispatch()
   const elementRef = useRef()
 
   useEffect(() => {
-    if (contextMenuObj) {
-      const element = canvasState[contextMenuObj.floor].elements[contextMenuObj.indexOfElements]
+    if (contextMenuObj && selectedElement) {
+      const element = canvasState[selectedElement.floor].elements[selectedElement.id]
       elementRef.current = element
     }
-  }, [contextMenuObj, canvasState])
+  }, [selectedElement, canvasState, contextMenuObj])
 
   const handleDelete = () => {
-    canvasDispatch(deleteElement({floor: selectedFloor, id: contextMenuObj.id }))
+    canvasDispatch(deleteElement({floor: selectedFloor, id: selectedElement.id }))
     setContextMenuObj(null)
     setSelectedElement(null)
   }
 
   const handleSplit = () => {
     setContextMenuObj(null)
+    setSelectedElement(null)
+  }
+
+  const handleBezier = () => {
+    canvasDispatch(changeToBezier({floor: selectedFloor, id: selectedElement.id, indexes: selectedElement.indexes}))
+    setContextMenuObj(null)
+    setSelectedElement(null)
   }
   
   return (
     <>
-      {contextMenuObj && (
+      {contextMenuObj && selectedElement && elementRef.current && (
         <Container x={contextMenuObj.x} y={contextMenuObj.y}>
-          <FlexRow onClick={handleSplit} style={{ borderRadius: "8px 8px 0px 0px" }}>
-            <Item>Split</Item>
-            <FontAwesomeIcon icon={faScissors} />
-          </FlexRow>
-          <hr style={{ margin: 0 }}/>
-          <FlexRow onClick={handleDelete} style={{ borderRadius: "0px 0px 0px 0px" }}>
-            <Item>Lock</Item>
-            <FontAwesomeIcon icon={faLock} />
-          </FlexRow>
-          <hr style={{ margin: 0 }}/>
+          {selectedElement.type === "line" && selectedElement.indexes.length < elementRef.current.points.length && (
+            <>
+              <FlexRow onClick={handleSplit} style={{ borderRadius: "8px 8px 0px 0px" }}>
+                <Item>Split</Item>
+                <FontAwesomeIcon icon={faScissors} />
+              </FlexRow>
+              <hr style={{ margin: 0 }}/>
+            </>
+          )}
+          {selectedElement.type === "line" && selectedElement.indexes.length === elementRef.current.points.length && (
+            <>
+              <FlexRow onClick={handleDelete} style={{ borderRadius: "8px 8px 0px 0px" }}>
+                <Item>Lock</Item>
+                <FontAwesomeIcon icon={faLock} />
+              </FlexRow>
+              <hr style={{ margin: 0 }}/>
+            </>
+          )}
+          {selectedElement.type === "line" && (
+            <>
+              <FlexRow onClick={handleBezier} style={{ borderRadius: "0px 0px 0px 0px" }}>
+                <Item>Bezier</Item>
+                <FontAwesomeIcon icon={faBezierCurve} />
+              </FlexRow>
+              <hr style={{ margin: 0 }}/>
+
+            </>
+          )}
+          {/* <hr style={{ margin: 0 }}/>
           <FlexRow onClick={handleDelete} style={{ borderRadius: "0px 0px 0px 0px" }}>
             <Item>Group</Item>
             <FontAwesomeIcon icon={faLayerGroup} />
-          </FlexRow>
-          <hr style={{ margin: 0 }}/>
+          </FlexRow> */}
           <FlexRow onClick={handleDelete} style={{ borderRadius: "0px 0px 8px 8px" }}>
             <Item>Delete</Item>
             <FontAwesomeIcon icon={faTrashCan} />
