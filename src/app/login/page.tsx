@@ -2,16 +2,21 @@
 import React from 'react';
 import styled from "styled-components"
 import { Formik } from "formik"
+import { signIn } from "next-auth/react"
 
 export default function Login() {
- 
   
   return (
     <Container>
       <Formik
         initialValues={{ email: '', password: '' }}
-        onSubmit={(values) => {
-         console.log(values)
+        onSubmit={async (values) => {
+          const result = await signIn("credentials", {
+            email: values.email,
+            password: values.password,
+            redirect: true,
+            callbackUrl: "/projects"
+          })
         }}
       >
         {({

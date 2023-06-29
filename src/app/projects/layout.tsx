@@ -1,5 +1,6 @@
 "use client"
 import TopBar from "@/components/topBar";
+import Provider from "@/app/Providers"
 
 export default function ProjectsLayout({
   children,
@@ -8,8 +9,10 @@ export default function ProjectsLayout({
 }) {
   return (
     <div>
-      <TopBar />
-      {children}
+      <Provider>
+        <TopBar />
+        {children}
+      </Provider>
     </div>
   )
 }

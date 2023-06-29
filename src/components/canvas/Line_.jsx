@@ -268,6 +268,7 @@ export const checkIsNearEndOfLine = (canvasState, canvasDispatch, selectedFloor,
       x: element.x + element.points[element.points.length - 1].x,
       y: element.y + element.points[element.points.length - 1].y
     }
+    if (element.points[element.points.length - 1].bezier) return false
     if (math.lengthBetweenPoints(pos0, pos1) <= 10) {
       const dispatchObj = {
         id: selectedElement.id,

@@ -3,22 +3,27 @@ import React from 'react';
 import styled from "styled-components"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
+import { getServerSession } from 'next-auth';
+import { redirect } from 'next/navigation';
 
 
+export default async function Projects() {
+  const session = await getServerSession()
 
-export default function Projects() {
- 
-  
-  return (
-    <Container>
-      <Header>Projects</Header>
-      <ProjectContainer>
-        <AddButton>
-          <FontAwesomeIcon icon={faPlus} color={"rgb(200, 200, 200)"} size={"3x"} />
-        </AddButton>
-      </ProjectContainer>
-    </Container>
-  )
+  if (session === null) {
+    return redirect("/login")
+  } else {
+    return (
+      <Container>
+        <Header>Projects</Header>
+        <ProjectContainer>
+          <AddButton>
+            <FontAwesomeIcon icon={faPlus} color={"rgb(200, 200, 200)"} size={"3x"} />
+          </AddButton>
+        </ProjectContainer>
+      </Container>
+    )
+  }
 }
 
 const Container = styled.div`
