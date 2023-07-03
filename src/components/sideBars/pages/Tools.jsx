@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowPointer, faArrowsUpDownLeftRight, faPen, faTrash, faScissors, faBezierCurve } from '@fortawesome/free-solid-svg-icons'
-import { faSquare, faTrashCan } from "@fortawesome/free-regular-svg-icons";
+import { faSquare, faTrashCan, faCircle } from "@fortawesome/free-regular-svg-icons";
 import React, { useContext, useState } from "react";
 import { CanvasContext } from "../../../context/canvasContext.jsx"
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
@@ -62,6 +62,12 @@ export default function Tools() {
               </Tool>
               <Text>Divide</Text>
             </ToolColumn>
+            <ToolColumn>
+              <Tool onClick={() => { setActiveTool("split") }} active={activeTool === "split" ? 1 : 0}>
+                <FontAwesomeIcon icon={faScissors} fixedWidth/>
+              </Tool>
+              <Text>Split</Text>
+            </ToolColumn>
           </ToolRow>
         </ItemContainer>
         <ItemContainer>
@@ -84,6 +90,12 @@ export default function Tools() {
                 <FontAwesomeIcon icon={faSquare} fixedWidth/>
               </Tool>
               <Text>Rect</Text>
+            </ToolColumn>
+            <ToolColumn>
+              <Tool onClick={() => { setActiveTool("arc") }} active={activeTool === "arc" ? 1 : 0}>
+                <FontAwesomeIcon icon={faCircle} fixedWidth/>
+              </Tool>
+              <Text>Arc</Text>
             </ToolColumn>
           </ToolRow>
         </ItemContainer>
@@ -130,7 +142,7 @@ const ToolRow = styled.div`
   flex-direction: row;
   padding: 15px 0px 0px 0px;
   justify-content: space-evenly;
-  width: 70%;
+  width: 80%;
 `
 
 const ToolColumn = styled.div`
@@ -142,7 +154,7 @@ const ToolColumn = styled.div`
 
 const Tool = styled.div`
   border-radius: 5px;
-  padding: 2px;
+  padding: 1px;
   color: ${props => props.active ? 'black' : '#999'};
   border: ${props => props.active ? '3px solid black' : '3px solid #999'};
   cursor: pointer;

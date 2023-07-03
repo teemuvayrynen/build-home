@@ -40,7 +40,6 @@ const LineSelected = () => {
         y: (p1.y + p2.y) / 2
       }
       arr.push(mid)
-      
     }
 
     setPoints(arr)

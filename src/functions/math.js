@@ -11,7 +11,6 @@ export const getNewPointByLength = (a, b, l) => {
   if (initialLength === 0) {
     initialLength = 0.2
   }
-  console.log(length)
   const dirX = (b.x - a.x) / initialLength
   const dirY = (b.y - a.y) / initialLength
 
@@ -19,8 +18,6 @@ export const getNewPointByLength = (a, b, l) => {
     x: a.x + dirX * length,
     y: a.y + dirY * length
   }
-
-  console.log(pos)
 
   return pos
 }

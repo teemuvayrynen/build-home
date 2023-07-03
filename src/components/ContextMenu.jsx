@@ -109,7 +109,7 @@ const FlexRow = styled.div`
 `
 
 const Item = styled.div`
-  font-size: 14px;
+  font-size: 12px;
   padding-right: 25px;
 `
 

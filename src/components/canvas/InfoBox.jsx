@@ -32,17 +32,17 @@ export default function InfoBox ({ stageRef, drawing, dragging }) {
         let pos0 = {}
         let pos1 = {}
         let a = 0
+        if (!visible) {
+          setVisible(true)
+        }
         if (selectedElement.index === 0) {
-          if (!visible) {
-            setVisible(true)
-          }
           pos0 = {
             x: element.x + element.points[0].x,
-            y: element.y + element.points[0].y
+            y: element.y + element.points[0].y,
           }
           pos1 = {
             x: element.x + element.points[1].x,
-            y: element.y + element.points[1].y
+            y: element.y + element.points[1].y,
           }
           if (element.points.length > 2) {
             const pos2 = {
@@ -54,16 +54,13 @@ export default function InfoBox ({ stageRef, drawing, dragging }) {
             a = math.findLineAngle(pos0, pos1)
           }
         } else if (selectedElement.index === element.points.length - 1) { 
-          if (!visible) {
-            setVisible(true)
-          }
           pos0 = {
             x: element.x + element.points[selectedElement.index - 1].x,
             y: element.y + element.points[selectedElement.index - 1].y
           }
           pos1 = {
             x: element.x + element.points[selectedElement.index].x,
-            y: element.y + element.points[selectedElement.index].y
+            y: element.y + element.points[selectedElement.index].y,
           }
           if (element.points.length > 2) {
             const pos2 = {
